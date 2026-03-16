@@ -322,6 +322,25 @@
         id="rankResult"
         class="min-h-[80px]"
       ></div>
+      <div class="share-box">
+<h3>Share your predicted rank</h3>
+
+<button onclick="shareWhatsApp()">Share on WhatsApp</button>
+<button onclick="shareTelegram()">Share on Telegram</button>
+
+</div>
+
+<script>
+function shareWhatsApp(){
+let text = "I predicted my SSC rank using SSCRankLab 🔥 Check yours: https://sscranklab.com/";
+window.open("https://wa.me/?text="+encodeURIComponent(text));
+}
+
+function shareTelegram(){
+let text = "I predicted my SSC rank using SSCRankLab 🔥 Check yours: https://sscranklab.com/";
+window.open("https://t.me/share/url?url=https://sscranklab.com/&text="+encodeURIComponent(text));
+}
+</script>
     </div>
   </section>
 
@@ -600,12 +619,14 @@
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="script.js"></script>
-  <section>
+<section>
 <h2>SSC Tools</h2>
 
 <a href="/ssc-cgl-rank-predictor.html">SSC CGL Rank Predictor</a><br>
 <a href="/ssc-chsl-rank-predictor.html">SSC CHSL Rank Predictor</a><br>
-<a href="/ssc-marks-vs-rank.html">SSC Marks vs Rank Analysis</a>
+<a href="/ssc-marks-vs-rank.html">SSC Marks vs Rank</a><br>
+<a href="/ssc-cgl-expected-cutoff-2026.html">SSC CGL Expected Cutoff 2026</a><br>
+<a href="/ssc-cgl-previous-year-cutoff.html">SSC CGL Previous Year Cutoff</a>
 
 </section>
 </body>
