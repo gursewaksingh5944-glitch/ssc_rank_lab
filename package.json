@@ -1,0 +1,19 @@
+{
+  "name": "ssc_rank_lab",
+  "version": "1.0.0",
+  "description": "SSC Rank Prediction Engine",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "razorpay": "^2.9.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}

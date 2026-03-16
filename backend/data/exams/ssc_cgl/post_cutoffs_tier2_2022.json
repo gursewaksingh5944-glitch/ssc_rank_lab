@@ -1,0 +1,26 @@
+{
+  "exam": "SSC CGL",
+  "stage": "Tier2",
+  "cycle_year": 2022,
+  "released_on": "2023-05-13",
+  "note": "Overall final cutoffs for Paper 1 of Tier 2. These are real category-wise final cutoffs, not post-wise cutoffs.",
+  "source": {
+    "type": "web",
+    "title": "SSC CGL Final Cut Off 2022 (Paper 1 of Tier 2)",
+    "publisher": "CareerPower / PW",
+    "verified": true
+  },
+  "columns": ["UR", "EWS", "OBC", "SC", "ST", "OH", "HH", "VH", "Others", "ESM"],
+  "overall_cutoffs": {
+    "UR": 270.36,
+    "EWS": 228.63,
+    "OBC": 242.79,
+    "SC": 213.27,
+    "ST": 192.23,
+    "OH": 187.58,
+    "HH": 79.35,
+    "VH": 158.48,
+    "Others": 79.35,
+    "ESM": 79.35
+  }
+}

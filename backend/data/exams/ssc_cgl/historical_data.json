@@ -1,0 +1,62 @@
+[
+  {
+    "year": 2019,
+    "vacancies": {
+      "UR": {"GST Inspector": 1200, "Income Tax Inspector": 1800, "Auditor": 800, "Examiner": 400, "Assistant Enforcement Officer": 200, "Assistant Section Officer": 100, "Inspector (CBI)": 50},
+      "OBC": {"GST Inspector": 900, "Income Tax Inspector": 1200, "Auditor": 600, "Examiner": 300, "Assistant Enforcement Officer": 150, "Assistant Section Officer": 80, "Inspector (CBI)": 40},
+      "SC": {"GST Inspector": 500, "Income Tax Inspector": 800, "Auditor": 400, "Examiner": 200, "Assistant Enforcement Officer": 100, "Assistant Section Officer": 50, "Inspector (CBI)": 25},
+      "ST": {"GST Inspector": 300, "Income Tax Inspector": 500, "Auditor": 200, "Examiner": 100, "Assistant Enforcement Officer": 50, "Assistant Section Officer": 25, "Inspector (CBI)": 10},
+      "EWS": {"GST Inspector": 150, "Income Tax Inspector": 250, "Auditor": 100, "Examiner": 50, "Assistant Enforcement Officer": 25, "Assistant Section Officer": 10, "Inspector (CBI)": 5}
+    },
+    "cutoff": {"UR": 278, "OBC": 268, "SC": 258, "ST": 248, "EWS": 273},
+    "tier1_cutoff": {"UR": 120, "OBC": 115, "SC": 105, "ST": 95, "EWS": 118}
+  },
+  {
+    "year": 2020,
+    "vacancies": {
+      "UR": {"GST Inspector": 1250, "Income Tax Inspector": 1850, "Auditor": 850, "Examiner": 450, "Assistant Enforcement Officer": 220, "Assistant Section Officer": 110, "Inspector (CBI)": 55},
+      "OBC": {"GST Inspector": 920, "Income Tax Inspector": 1220, "Auditor": 610, "Examiner": 320, "Assistant Enforcement Officer": 160, "Assistant Section Officer": 85, "Inspector (CBI)": 45},
+      "SC": {"GST Inspector": 510, "Income Tax Inspector": 810, "Auditor": 410, "Examiner": 210, "Assistant Enforcement Officer": 110, "Assistant Section Officer": 55, "Inspector (CBI)": 28},
+      "ST": {"GST Inspector": 320, "Income Tax Inspector": 520, "Auditor": 220, "Examiner": 110, "Assistant Enforcement Officer": 55, "Assistant Section Officer": 28, "Inspector (CBI)": 12},
+      "EWS": {"GST Inspector": 160, "Income Tax Inspector": 260, "Auditor": 110, "Examiner": 55, "Assistant Enforcement Officer": 28, "Assistant Section Officer": 12, "Inspector (CBI)": 6}
+    },
+    "cutoff": {"UR": 280, "OBC": 270, "SC": 260, "ST": 250, "EWS": 275},
+    "tier1_cutoff": {"UR": 122, "OBC": 117, "SC": 107, "ST": 97, "EWS": 120}
+  },
+  {
+    "year": 2021,
+    "vacancies": {
+      "UR": {"GST Inspector": 1300, "Income Tax Inspector": 1900, "Auditor": 900, "Examiner": 500, "Assistant Enforcement Officer": 230, "Assistant Section Officer": 120, "Inspector (CBI)": 60},
+      "OBC": {"GST Inspector": 950, "Income Tax Inspector": 1250, "Auditor": 620, "Examiner": 330, "Assistant Enforcement Officer": 170, "Assistant Section Officer": 90, "Inspector (CBI)": 50},
+      "SC": {"GST Inspector": 520, "Income Tax Inspector": 820, "Auditor": 420, "Examiner": 220, "Assistant Enforcement Officer": 115, "Assistant Section Officer": 58, "Inspector (CBI)": 30},
+      "ST": {"GST Inspector": 330, "Income Tax Inspector": 530, "Auditor": 230, "Examiner": 115, "Assistant Enforcement Officer": 58, "Assistant Section Officer": 30, "Inspector (CBI)": 15},
+      "EWS": {"GST Inspector": 170, "Income Tax Inspector": 270, "Auditor": 115, "Examiner": 58, "Assistant Enforcement Officer": 30, "Assistant Section Officer": 15, "Inspector (CBI)": 8}
+    },
+    "cutoff": {"UR": 282, "OBC": 272, "SC": 262, "ST": 252, "EWS": 277},
+    "tier1_cutoff": {"UR": 125, "OBC": 120, "SC": 110, "ST": 100, "EWS": 123}
+  },
+  {
+    "year": 2022,
+    "vacancies": {
+      "UR": {"GST Inspector": 1350, "Income Tax Inspector": 1950, "Auditor": 950, "Examiner": 520, "Assistant Enforcement Officer": 240, "Assistant Section Officer": 130, "Inspector (CBI)": 65},
+      "OBC": {"GST Inspector": 970, "Income Tax Inspector": 1270, "Auditor": 630, "Examiner": 340, "Assistant Enforcement Officer": 175, "Assistant Section Officer": 95, "Inspector (CBI)": 52},
+      "SC": {"GST Inspector": 530, "Income Tax Inspector": 830, "Auditor": 430, "Examiner": 225, "Assistant Enforcement Officer": 120, "Assistant Section Officer": 60, "Inspector (CBI)": 32},
+      "ST": {"GST Inspector": 340, "Income Tax Inspector": 540, "Auditor": 240, "Examiner": 120, "Assistant Enforcement Officer": 60, "Assistant Section Officer": 32, "Inspector (CBI)": 16},
+      "EWS": {"GST Inspector": 175, "Income Tax Inspector": 275, "Auditor": 120, "Examiner": 60, "Assistant Enforcement Officer": 32, "Assistant Section Officer": 16, "Inspector (CBI)": 8}
+    },
+    "cutoff": {"UR": 283, "OBC": 273, "SC": 263, "ST": 253, "EWS": 278},
+    "tier1_cutoff": {"UR": 127, "OBC": 122, "SC": 112, "ST": 102, "EWS": 125}
+  },
+  {
+    "year": 2023,
+    "vacancies": {
+      "UR": {"GST Inspector": 1400, "Income Tax Inspector": 2000, "Auditor": 1000, "Examiner": 540, "Assistant Enforcement Officer": 250, "Assistant Section Officer": 140, "Inspector (CBI)": 70},
+      "OBC": {"GST Inspector": 1000, "Income Tax Inspector": 1300, "Auditor": 650, "Examiner": 350, "Assistant Enforcement Officer": 180, "Assistant Section Officer": 100, "Inspector (CBI)": 55},
+      "SC": {"GST Inspector": 540, "Income Tax Inspector": 840, "Auditor": 440, "Examiner": 230, "Assistant Enforcement Officer": 125, "Assistant Section Officer": 62, "Inspector (CBI)": 33},
+      "ST": {"GST Inspector": 350, "Income Tax Inspector": 550, "Auditor": 250, "Examiner": 125, "Assistant Enforcement Officer": 62, "Assistant Section Officer": 33, "Inspector (CBI)": 17},
+      "EWS": {"GST Inspector": 180, "Income Tax Inspector": 280, "Auditor": 125, "Examiner": 62, "Assistant Enforcement Officer": 33, "Assistant Section Officer": 17, "Inspector (CBI)": 9}
+    },
+    "cutoff": {"UR": 285, "OBC": 275, "SC": 265, "ST": 255, "EWS": 280},
+    "tier1_cutoff": {"UR": 130, "OBC": 125, "SC": 115, "ST": 105, "EWS": 128}
+  }
+]

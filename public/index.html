@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>SSCRankLab.com</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 overflow-x-hidden text-gray-900">
+
+  <!-- Payment Status Toast -->
+  <div
+    id="paymentStatus"
+    class="hidden fixed top-24 right-4 z-[60] max-w-sm bg-white border border-gray-200 shadow-2xl rounded-2xl px-4 py-3"
+  ></div>
+
+  <!-- Header -->
+  <header class="bg-white/80 backdrop-blur shadow border-b sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div>
+        <h1 class="logo-font text-4xl md:text-5xl font-black gradient-text">
+          SSCRankLab
+        </h1>
+        <p class="text-gray-600 text-lg mt-1">
+          Track. Analyze. Predict. Your SSC Rank.
+        </p>
+      </div>
+
+      <div class="hidden md:flex items-center gap-3">
+        <a
+          href="#predictor"
+          class="px-5 py-3 rounded-2xl bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition"
+        >
+          Try Predictor
+        </a>
+        <a
+          href="#pricing"
+          class="px-5 py-3 rounded-2xl bg-white border text-gray-800 font-semibold hover:bg-gray-50 transition"
+        >
+          View Plans
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Nav -->
+  <nav class="bg-white/70 backdrop-blur border-b">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex gap-4 py-4 overflow-x-auto">
+        <a href="#hero" class="flex items-center justify-center whitespace-nowrap text-base font-semibold px-4 py-2 rounded-xl bg-blue-600 text-white">
+          Home
+        </a>
+
+        <a href="#predictor" class="flex items-center justify-center whitespace-nowrap text-base font-semibold px-4 py-2 rounded-xl hover:bg-blue-50">
+          Rank Predictor
+        </a>
+
+        <a href="#dashboard" class="flex items-center justify-center whitespace-nowrap text-base font-semibold px-4 py-2 rounded-xl hover:bg-blue-50">
+          Insights
+        </a>
+
+        <a href="#pricing" class="flex items-center justify-center whitespace-nowrap text-base font-semibold px-4 py-2 rounded-xl hover:bg-blue-50">
+          Pricing
+        </a>
+
+        <a href="#faq" class="flex items-center justify-center whitespace-nowrap text-base font-semibold px-4 py-2 rounded-xl hover:bg-blue-50">
+          FAQ
+        </a>
+
+        <a href="#beta" class="flex items-center justify-center whitespace-nowrap text-base font-semibold px-4 py-2 rounded-xl bg-emerald-100 text-emerald-700">
+          Join Beta
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero" class="max-w-7xl mx-auto px-6 pt-14 pb-10">
+    <div class="grid lg:grid-cols-2 gap-10 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-sm font-semibold mb-5">
+          <span>📊</span>
+          <span>Real SSC data • category-aware • vacancy-linked insights</span>
+        </div>
+
+        <h2 class="text-4xl md:text-5xl font-black leading-tight text-gray-900">
+          Predict your SSC rank and decision zone
+          <span class="gradient-text">before the final result</span>
+        </h2>
+
+        <p class="text-lg text-gray-600 mt-5 max-w-2xl leading-relaxed">
+          Get data-backed rank estimates, category position, percentile, competition zone,
+          and premium post intelligence using historical SSC trends and real analysis only.
+        </p>
+
+        <div class="flex flex-wrap gap-4 mt-8">
+          <a
+            href="#predictor"
+            class="px-6 py-3 rounded-2xl bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition"
+          >
+            Try Free Prediction
+          </a>
+
+          <a
+            href="#pricing"
+            class="px-6 py-3 rounded-2xl bg-white border border-gray-200 text-gray-800 font-semibold hover:bg-gray-50 transition"
+          >
+            Explore Premium
+          </a>
+        </div>
+
+        <div class="grid sm:grid-cols-3 gap-4 mt-8">
+          <div class="bg-white/80 border rounded-2xl p-4 shadow-sm">
+            <div class="text-sm font-semibold text-gray-900">Real data only</div>
+            <div class="text-sm text-gray-600 mt-1">No fake or simulated ranking logic.</div>
+          </div>
+          <div class="bg-white/80 border rounded-2xl p-4 shadow-sm">
+            <div class="text-sm font-semibold text-gray-900">Built for SSC aspirants</div>
+            <div class="text-sm text-gray-600 mt-1">Practical rank and strategy insights.</div>
+          </div>
+          <div class="bg-white/80 border rounded-2xl p-4 shadow-sm">
+            <div class="text-sm font-semibold text-gray-900">Premium when needed</div>
+            <div class="text-sm text-gray-600 mt-1">Free quick checks, paid deeper clarity.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-200/30 via-indigo-200/20 to-purple-200/30 blur-3xl rounded-full"></div>
+
+        <div class="relative bg-white/85 backdrop-blur border rounded-3xl shadow-2xl p-7">
+          <div class="flex items-center justify-between gap-4 flex-wrap mb-5">
+            <div>
+              <p class="text-sm font-semibold text-indigo-700">Preview</p>
+              <h3 class="text-2xl font-bold text-gray-900">What users unlock</h3>
+            </div>
+            <div class="px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 text-sm font-semibold">
+              Data-driven results
+            </div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div class="rounded-2xl border bg-slate-50 p-5">
+              <p class="text-sm text-gray-500">Estimated Rank</p>
+              <p class="text-3xl font-black text-gray-900 mt-2">4,280</p>
+              <p class="text-sm text-gray-500 mt-1">Free preview result</p>
+            </div>
+
+            <div class="rounded-2xl border bg-slate-50 p-5 relative overflow-hidden">
+              <div class="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex items-center justify-center">
+                <button
+                  type="button"
+                  class="js-unlock-plan px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow hover:opacity-90 transition"
+                  data-plan="49"
+                >
+                  Unlock Premium
+                </button>
+              </div>
+              <p class="text-sm text-gray-500">Category Rank</p>
+              <p class="text-3xl font-black text-gray-400 mt-2">1,230</p>
+              <p class="text-sm text-gray-400 mt-1">Premium insight</p>
+            </div>
+
+            <div class="rounded-2xl border bg-slate-50 p-5 relative overflow-hidden">
+              <div class="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex items-center justify-center">
+                <button
+                  type="button"
+                  class="js-unlock-plan px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow hover:opacity-90 transition"
+                  data-plan="49"
+                >
+                  Unlock ₹49
+                </button>
+              </div>
+              <p class="text-sm text-gray-500">Percentile</p>
+              <p class="text-3xl font-black text-gray-400 mt-2">92.4%</p>
+              <p class="text-sm text-gray-400 mt-1">Premium insight</p>
+            </div>
+
+            <div class="rounded-2xl border bg-slate-50 p-5 relative overflow-hidden">
+              <div class="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex items-center justify-center">
+                <button
+                  type="button"
+                  class="js-unlock-plan px-4 py-2 rounded-xl bg-indigo-700 text-white text-sm font-semibold shadow hover:opacity-90 transition"
+                  data-plan="99"
+                >
+                  Unlock ₹99
+                </button>
+              </div>
+              <p class="text-sm text-gray-500">Post Chances</p>
+              <p class="text-2xl font-black text-gray-400 mt-2">Inspector • High</p>
+              <p class="text-sm text-gray-400 mt-1">Advanced decision layer</p>
+            </div>
+          </div>
+
+          <div class="mt-5 rounded-2xl bg-amber-50 border border-amber-200 p-4">
+            <div class="text-sm font-semibold text-amber-800 mb-1">Important Note</div>
+            <div class="text-sm text-amber-700 leading-relaxed">
+              These predictions are for guidance purposes only. Final SSC results depend on
+              official normalization, vacancies, and post allocation rules.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Predictor -->
+  <section id="predictor" class="max-w-5xl mx-auto px-6 py-14">
+    <div class="bg-white/80 backdrop-blur border rounded-3xl shadow-2xl p-8 md:p-10">
+      <div class="flex items-start justify-between gap-6 flex-wrap mb-8">
+        <div>
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-sm font-semibold mb-4">
+            <span>⚡</span>
+            <span>AI-assisted, data-driven SSC prediction engine</span>
+          </div>
+
+          <h2 class="text-3xl md:text-4xl font-black text-gray-900">
+            Rank Predictor
+          </h2>
+
+          <p class="text-gray-600 mt-3 max-w-2xl">
+            Enter your marks, choose your category, and get a result based on historical SSC trends.
+            Free users get the base estimate. Premium users unlock deeper decision insights.
+          </p>
+        </div>
+
+        <div class="px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 text-sm font-semibold">
+          Real analysis only
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4 mb-6">
+        <input
+          type="number"
+          id="marksInput"
+          placeholder="Enter marks"
+          class="border border-gray-200 bg-white p-4 rounded-2xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <select
+          id="categoryInput"
+          class="border border-gray-200 bg-white p-4 rounded-2xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="UR">General</option>
+          <option value="OBC">OBC</option>
+          <option value="SC">SC</option>
+          <option value="ST">ST</option>
+          <option value="EWS">EWS</option>
+        </select>
+
+        <select
+          id="premiumInput"
+          class="border border-gray-200 bg-white p-4 rounded-2xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="0">Free</option>
+        </select>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-4 mb-5">
+        <button
+          id="btnRankPredictor"
+          class="bg-blue-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:bg-blue-700 shadow-lg hover:shadow-xl transition"
+        >
+          Predict Rank
+        </button>
+
+        <div class="text-sm text-gray-500">
+          Free is default. Premium appears only after payment.
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4 mb-8">
+        <div class="rounded-2xl border bg-slate-50 p-4">
+          <div class="text-sm font-semibold text-gray-900 mb-1">Free</div>
+          <div class="text-sm text-gray-600">Basic rank estimate and base pool view.</div>
+        </div>
+        <div class="rounded-2xl border bg-emerald-50 p-4">
+          <div class="text-sm font-semibold text-emerald-800 mb-1">₹49 Premium</div>
+          <div class="text-sm text-emerald-700">Exact estimated rank, category rank, percentile.</div>
+        </div>
+        <div class="rounded-2xl border bg-purple-50 p-4">
+          <div class="text-sm font-semibold text-purple-800 mb-1">₹99 Advanced</div>
+          <div class="text-sm text-purple-700">Overall seat position, score zone, what-if jumps, and post chances.</div>
+        </div>
+      </div>
+
+      <div
+        id="rankResult"
+        class="min-h-[80px]"
+      ></div>
+    </div>
+  </section>
+
+  <!-- Why this product -->
+  <section id="dashboard" class="max-w-7xl mx-auto px-6 py-10">
+    <div class="grid lg:grid-cols-2 gap-10 items-start">
+      <div class="space-y-6">
+        <div class="bg-yellow-50 border p-6 rounded-3xl shadow-sm">
+          <h3 class="text-2xl font-bold mb-2">Still unsure what your marks actually mean?</h3>
+          <p class="text-gray-700 leading-relaxed">
+            Raw marks alone do not tell you your likely position, category movement, or selection zone.
+          </p>
+        </div>
+
+        <div class="bg-orange-50 border p-6 rounded-3xl shadow-sm">
+          <h3 class="text-2xl font-bold mb-2">Need clarity before final SSC result?</h3>
+          <p class="text-gray-700 leading-relaxed">
+            Use historical trends, category distribution, and data-backed analysis to estimate where you stand.
+          </p>
+        </div>
+
+        <div class="bg-emerald-50 border p-8 rounded-3xl shadow-sm">
+          <h2 class="logo-font text-3xl font-bold mb-4">Why aspirants use SSCRankLab</h2>
+          <div class="space-y-3 text-gray-800 text-lg">
+            <p>⚡ Rank estimates from historical SSC patterns</p>
+            <p>📈 Category-wise performance visibility</p>
+            <p>🎯 Percentile, competition zone, and post decision insights</p>
+            <p>💰 Free quick check + premium post decision support</p>
+          </div>
+        </div>
+
+        <div class="bg-white border p-8 rounded-3xl shadow relative overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 opacity-70"></div>
+
+          <div class="relative z-10">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-sm font-semibold mb-4">
+              <span>📊</span>
+              <span>Data-Driven Prediction Engine</span>
+            </div>
+
+            <h3 class="logo-font text-2xl font-bold text-gray-900 mb-3">
+              Powered by Real Data + Advanced Analytics
+            </h3>
+
+            <p class="text-gray-700 leading-relaxed mb-5">
+              SSCRankLab predictions are generated using historical SSC exam data,
+              category-wise distribution trends, vacancy analysis, and advanced
+              statistical modeling with AI-assisted analytics.
+            </p>
+
+            <div class="grid sm:grid-cols-2 gap-3 mb-5">
+              <div class="bg-white/80 border rounded-2xl p-4">
+                <div class="text-sm font-semibold text-gray-800 mb-1">✅ Uses Real Inputs</div>
+                <div class="text-sm text-gray-600">
+                  Historical cutoffs, vacancy data, score distribution, and category trends.
+                </div>
+              </div>
+
+              <div class="bg-white/80 border rounded-2xl p-4">
+                <div class="text-sm font-semibold text-gray-800 mb-1">🤖 Smart Modeling</div>
+                <div class="text-sm text-gray-600">
+                  AI-assisted analytical modeling to estimate rank, percentile, and chances.
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+              <div class="text-sm font-semibold text-amber-800 mb-1">Important Note</div>
+              <div class="text-sm text-amber-700 leading-relaxed">
+                These predictions are for guidance purposes only. Final SSC results depend on
+                official normalization, vacancies, and post allocation rules.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-8">
+        <div class="bg-white border p-6 rounded-3xl shadow">
+          <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
+            <h3 class="text-xl font-bold">Rank Trends</h3>
+            <div class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-medium">
+              Visual confidence layer
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <canvas id="rankChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white border p-6 rounded-3xl shadow">
+          <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
+            <h3 class="text-xl font-bold">Section Performance</h3>
+            <div class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-sm font-medium">
+              Study insight preview
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <canvas id="sectionChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white border rounded-3xl shadow p-6">
+          <h3 class="text-xl font-bold mb-4">Built on trust, not hype</h3>
+          <div class="grid gap-4">
+            <div class="rounded-2xl border bg-slate-50 p-4">
+              <div class="font-semibold text-gray-900">Historical SSC trend analysis</div>
+              <div class="text-sm text-gray-600 mt-1">Structured rank and score interpretation from real exam patterns.</div>
+            </div>
+            <div class="rounded-2xl border bg-slate-50 p-4">
+              <div class="font-semibold text-gray-900">Category-aware estimation</div>
+              <div class="text-sm text-gray-600 mt-1">Output changes with category and competitive pool logic.</div>
+            </div>
+            <div class="rounded-2xl border bg-slate-50 p-4">
+              <div class="font-semibold text-gray-900">Premium for deeper decisions</div>
+              <div class="text-sm text-gray-600 mt-1">Unlock advanced ranking signals and post-level planning only when needed.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="bg-white/75 backdrop-blur-sm border border-gray-100 p-8 rounded-3xl shadow-2xl">
+      <div class="flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <h2 class="text-3xl font-black text-gray-900">Plans & Offers</h2>
+          <p class="text-gray-600 mt-2 max-w-2xl">
+            Start free. Upgrade only if you need deeper clarity for rank, category position,
+            percentile, and final post decision support.
+          </p>
+        </div>
+
+        <a
+          href="#predictor"
+          class="px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold shadow hover:shadow-xl transition"
+        >
+          Try Now →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <div class="p-6 rounded-3xl border bg-white shadow-lg">
+          <div class="text-sm font-bold text-gray-500 uppercase">Free</div>
+          <div class="text-4xl font-black text-gray-900 mt-2">₹0</div>
+          <p class="text-sm text-gray-500 mt-2">Quick estimate for every aspirant.</p>
+
+          <ul class="mt-5 space-y-2 text-gray-700">
+            <li>✅ Estimated Rank (basic)</li>
+            <li>✅ Basic pool view</li>
+            <li>🔒 Category Rank</li>
+            <li>🔒 Percentile</li>
+            <li>🔒 Advanced insights</li>
+            <li>🔒 Post chances</li>
+          </ul>
+
+          <div class="mt-6 text-sm text-gray-500">Best for first check.</div>
+        </div>
+
+        <div class="p-6 rounded-3xl border-2 border-emerald-300 bg-emerald-50 shadow-xl relative">
+          <div class="absolute -top-3 left-6 px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-bold">
+            Most Popular
+          </div>
+
+          <div class="text-sm font-extrabold text-emerald-700 uppercase">Premium</div>
+
+          <div class="flex items-end gap-2 mt-2">
+            <div class="text-4xl font-black text-gray-900">₹49</div>
+            <div class="text-sm font-semibold text-emerald-700 mb-1">Most bought</div>
+          </div>
+
+          <p class="text-sm text-gray-600 mt-2">
+            For aspirants who want accurate rank and position clarity.
+          </p>
+
+          <ul class="mt-5 space-y-2 text-gray-700">
+            <li>✅ Exact Estimated Rank</li>
+            <li>✅ Category Rank (Your category position)</li>
+            <li>✅ Percentile</li>
+            <li>✅ Computer-qualified pool option</li>
+            <li>🔒 Post chances (₹99)</li>
+          </ul>
+
+          <div class="mt-6 text-sm text-emerald-800 font-semibold">
+            Best value for most aspirants.
+          </div>
+
+          <button
+            type="button"
+            class="js-unlock-plan mt-6 w-full px-5 py-3 rounded-2xl bg-emerald-600 text-white font-semibold shadow hover:bg-emerald-700 transition"
+            data-plan="49"
+          >
+            Unlock ₹49
+          </button>
+        </div>
+
+        <div class="p-6 rounded-3xl border-2 border-purple-300 bg-purple-50 shadow-xl">
+          <div class="text-sm font-extrabold text-purple-700 uppercase">Advanced / Post Intelligence</div>
+          <div class="text-4xl font-black text-gray-900 mt-2">₹99</div>
+
+          <p class="text-sm text-gray-600 mt-2">
+            For serious decisions around selection confidence and higher posts.
+          </p>
+
+          <ul class="mt-5 space-y-2 text-gray-700">
+            <li>✅ Everything in ₹49</li>
+            <li>✅ Overall seat position</li>
+            <li>✅ “What-if” rank jump (+2, +5 marks)</li>
+            <li>✅ Competition density insights</li>
+            <li>✅ Post chances (only using real post-wise vacancies)</li>
+          </ul>
+
+          <div class="mt-6 text-sm text-purple-800 font-semibold">
+            Best for final post + strategy decisions.
+          </div>
+
+          <button
+            type="button"
+            class="js-unlock-plan mt-6 w-full px-5 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow hover:bg-purple-700 transition"
+            data-plan="99"
+          >
+            Unlock ₹99
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="max-w-5xl mx-auto px-6 pb-20">
+    <div class="bg-white/80 backdrop-blur border rounded-3xl shadow-xl p-8">
+      <h2 class="text-3xl font-black text-gray-900 mb-8">Frequently Asked Questions</h2>
+
+      <div class="space-y-4">
+        <div class="rounded-2xl border bg-slate-50 p-5">
+          <h3 class="font-bold text-lg text-gray-900">Is this based on real SSC data?</h3>
+          <p class="text-gray-600 mt-2">
+            Yes. The platform is designed around historical trends, category logic, and real analytical inputs.
+          </p>
+        </div>
+
+        <div class="rounded-2xl border bg-slate-50 p-5">
+          <h3 class="font-bold text-lg text-gray-900">Are predictions guaranteed?</h3>
+          <p class="text-gray-600 mt-2">
+            No. Predictions are guidance-based. Final SSC results depend on official normalization,
+            vacancies, and post allocation rules.
+          </p>
+        </div>
+
+        <div class="rounded-2xl border bg-slate-50 p-5">
+          <h3 class="font-bold text-lg text-gray-900">What does ₹49 unlock?</h3>
+          <p class="text-gray-600 mt-2">
+            It unlocks deeper rank precision, category rank, percentile, and related premium insight layers.
+          </p>
+        </div>
+
+        <div class="rounded-2xl border bg-slate-50 p-5">
+          <h3 class="font-bold text-lg text-gray-900">What does ₹99 unlock?</h3>
+          <p class="text-gray-600 mt-2">
+            It adds advanced decision support such as overall seat position, what-if jumps,
+            competition density, and post-level chance intelligence.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-12 text-center">
+    <p>© 2026 SSCRankLab</p>
+  </footer>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

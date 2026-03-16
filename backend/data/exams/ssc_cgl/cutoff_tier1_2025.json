@@ -1,0 +1,33 @@
+{
+  "exam": "SSC CGL",
+  "cycle_year": 2025,
+  "stage": "Tier 1",
+  "source": {
+    "type": "web",
+    "url": "https://www.careerpower.in/ssc-cgl-cut-off.html",
+    "extracted_on": "2026-03-05"
+  },
+  "cutoffs": {
+    "JSO": {
+      "SC": 137.29518,
+      "ST": 136.40211,
+      "OBC": 153.46108,
+      "EWS": 151.58638,
+      "UR": 153.46108,
+      "OH": 125.1613,
+      "HH": 104.04315,
+      "VH": 134.1585,
+      "Other_PwD": 91.01367
+    },
+    "Statistical_Investigator_Gr_II": {
+      "SC": 137.16184,
+      "ST": 130.16987,
+      "OBC": 150.51402,
+      "EWS": 152.14666,
+      "UR": 152.47231,
+      "HH": 112.62423,
+      "OH": 127.48052
+    }
+  },
+  "schema_version": "1.0"
+}

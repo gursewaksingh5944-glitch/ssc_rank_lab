@@ -1,0 +1,1171 @@
+{
+  "exam": "SSC CGL",
+  "cycle_year": 2025,
+  "as_on": "2025-07-31",
+  "total_tentative_vacancies": 14582,
+  "category_totals": {
+    "UR": 6183,
+    "OBC": 3721,
+    "SC": 2167,
+    "ST": 1088,
+    "EWS": 1423
+  },
+  "source": {
+    "type": "pdf",
+    "title": "Tentative Vacancies for Combined Graduate Level Examination, 2025 (as on 31.07.2025)",
+    "url": "https://cdn-images.prepp.in/public/image/SSC_CGL_Recruitment_2025_Detailed_Vacancies_6504da3ab7d7918b3c14265367d591d7.pdf"
+  },
+  "posts": [
+    {
+      "s_no": 1,
+      "department_ministry": "Central Board of Indirect Taxes and Customs (CBIC), Ministry of Finance",
+      "post_name": "Inspector (Examiner)",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 68,
+        "SC": 18,
+        "ST": 24,
+        "OBC": 13,
+        "EWS": 14,
+        "total": 137,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 2,
+          "VH": 2,
+          "Other": 2
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 10,
+      "department_ministry": "Election Commission of India",
+      "post_name": "Assistant/Assistant Section Officer(ASO) with grade pay (4600)",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 0,
+        "SC": 0,
+        "ST": 0,
+        "OBC": 5,
+        "EWS": 1,
+        "total": 6,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 11,
+      "department_ministry": "Ministry of Electronics and Information Technology",
+      "post_name": "Assistant/Assistant Section Officer(ASO) with grade pay (4600)",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 2,
+        "SC": 0,
+        "ST": 1,
+        "OBC": 0,
+        "EWS": 0,
+        "total": 3,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 12,
+      "department_ministry": "Intelligence Bureau (IB), Ministry of Home Affairs",
+      "post_name": "Assistant/Assistant Section Officer(ASO) with grade pay (4600)",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 100,
+        "SC": 24,
+        "ST": 19,
+        "OBC": 39,
+        "EWS": 15,
+        "total": 197,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 2,
+          "HH": 2,
+          "VH": 2,
+          "Other": 2
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 13,
+      "department_ministry": "Central Bureau of Investigation (CBI), Ministry of Personnel, Public Grievances & Pensions",
+      "post_name": "Sub Inspector (CBI)",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 52,
+        "SC": 12,
+        "ST": 5,
+        "OBC": 18,
+        "EWS": 6,
+        "total": 93,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 14,
+      "department_ministry": "Ministry of Railways",
+      "post_name": "Assistant/Assistant Section Officer(ASO) with grade pay (4600)",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 23,
+        "SC": 4,
+        "ST": 4,
+        "OBC": 14,
+        "EWS": 3,
+        "total": 48,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 1,
+          "VH": 2,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 15,
+      "department_ministry": "Central Board of Direct Taxes, Ministry of Finance",
+      "post_name": "Inspector Of Income Tax",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 176,
+        "SC": 52,
+        "ST": 39,
+        "OBC": 95,
+        "EWS": 27,
+        "total": 389,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 4,
+          "HH": 4,
+          "VH": 2,
+          "Other": 1
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 16,
+      "department_ministry": "Department of Personnel and Training (ASO in CSS), Ministry of Personnel, Public Grievances & Pensions",
+      "post_name": "Assistant Section Officer (ASO)",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 273,
+        "SC": 104,
+        "ST": 52,
+        "OBC": 185,
+        "EWS": 68,
+        "total": 682,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 6,
+          "HH": 7,
+          "VH": 7,
+          "Other": 7
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 17,
+      "department_ministry": "Central Board of Indirect Taxes and Customs (CBIC), Ministry of Finance",
+      "post_name": "Executive Assistant",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 89,
+        "SC": 24,
+        "ST": 12,
+        "OBC": 40,
+        "EWS": 18,
+        "total": 183,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 1,
+          "HH": 6,
+          "VH": 4,
+          "Other": 1
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 18,
+      "department_ministry": "Enforcement Directorate Ministry of Finance, Ministry of Finance",
+      "post_name": "Assistant with grade pay (4200)",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 0,
+        "SC": 0,
+        "ST": 0,
+        "OBC": 3,
+        "EWS": 0,
+        "total": 3,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 1,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 19,
+      "department_ministry": "Registrar General of India and Census Commissioner of India (RGI), Ministry of Home Affairs",
+      "post_name": "Statistical Investigator Grade-II",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 50,
+        "SC": 18,
+        "ST": 12,
+        "OBC": 28,
+        "EWS": 10,
+        "total": 118,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 1,
+          "HH": 1,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 2,
+      "department_ministry": "Central Board of Indirect Taxes and Customs (CBIC), Ministry of Finance",
+      "post_name": "Inspector (Preventive Officer)",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 138,
+        "SC": 75,
+        "ST": 20,
+        "OBC": 91,
+        "EWS": 29,
+        "total": 353,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 4,
+          "HH": 2,
+          "VH": 4,
+          "Other": 4
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 20,
+      "department_ministry": "Telecom Regulatory Authority of India (TRAI), Ministry of Communications",
+      "post_name": "Assistant with grade pay (4200)",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 2,
+        "SC": 1,
+        "ST": 0,
+        "OBC": 0,
+        "EWS": 0,
+        "total": 3,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 21,
+      "department_ministry": "Department of Official Language, Ministry of Home Affairs",
+      "post_name": "Assistant with grade pay (4200)",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 4,
+        "SC": 0,
+        "ST": 0,
+        "OBC": 1,
+        "EWS": 0,
+        "total": 5,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 22,
+      "department_ministry": "Ministry of Corporate Affairs",
+      "post_name": "Assistant with grade pay (4200)",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 0,
+        "SC": 1,
+        "ST": 0,
+        "OBC": 0,
+        "EWS": 0,
+        "total": 1,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 23,
+      "department_ministry": "Ministry of Mines",
+      "post_name": "Assistant with grade pay (4200)",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 11,
+        "SC": 2,
+        "ST": 2,
+        "OBC": 3,
+        "EWS": 4,
+        "total": 22,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 24,
+      "department_ministry": "Ministry of Textiles",
+      "post_name": "Assistant with grade pay (4200)",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 1,
+        "SC": 0,
+        "ST": 0,
+        "OBC": 0,
+        "EWS": 0,
+        "total": 1,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 25,
+      "department_ministry": "Department of Indian Coast Guard, Ministry of Defence",
+      "post_name": "Assistant with grade pay (4200)",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 8,
+        "SC": 3,
+        "ST": 1,
+        "OBC": 5,
+        "EWS": 1,
+        "total": 18,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 1,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 26,
+      "department_ministry": "Subordinate Statistical Services Division, Ministry of Statistics & Programme Implementation",
+      "post_name": "Junior Statistical Officer",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 124,
+        "SC": 47,
+        "ST": 15,
+        "OBC": 36,
+        "EWS": 27,
+        "total": 249,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 3,
+          "HH": 3,
+          "VH": 1,
+          "Other": 3
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 27,
+      "department_ministry": "Directorate of Forensic Science Services (DFSS), Ministry of Home Affairs",
+      "post_name": "Assistant with grade pay (4200)",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 1,
+        "SC": 0,
+        "ST": 0,
+        "OBC": 1,
+        "EWS": 1,
+        "total": 3,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 1
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 28,
+      "department_ministry": "Narcotics Control Bureau, Ministry of Home Affairs",
+      "post_name": "Assistant/Assistant Section Officer(ASO) with grade pay (4600)",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 7,
+        "SC": 1,
+        "ST": 1,
+        "OBC": 2,
+        "EWS": 0,
+        "total": 11,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 1,
+          "HH": 1,
+          "VH": 0,
+          "Other": 1
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 29,
+      "department_ministry": "Narcotics Control Bureau, Ministry of Home Affairs",
+      "post_name": "Sub-Inspector /JIO (NCB)",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 10,
+        "SC": 3,
+        "ST": 4,
+        "OBC": 8,
+        "EWS": 5,
+        "total": 30,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 3,
+      "department_ministry": "Employees Provident Fund Organisation (EPFO), Ministry of Labour & Employment",
+      "post_name": "Assistant/Assistant Section Officer(ASO) with grade pay (4600)",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 36,
+        "SC": 17,
+        "ST": 5,
+        "OBC": 30,
+        "EWS": 6,
+        "total": 94,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 2,
+          "HH": 2,
+          "VH": 1,
+          "Other": 1
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 30,
+      "department_ministry": "NIA, Department of Internal Security, Ministry of Home Affairs",
+      "post_name": "Sub Inspector (NIA)",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 6,
+        "SC": 2,
+        "ST": 1,
+        "OBC": 3,
+        "EWS": 2,
+        "total": 14,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 31,
+      "department_ministry": "Ministry of Statistics & Programme Implementation",
+      "post_name": "Assistant with grade pay (4200)",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 0,
+        "SC": 0,
+        "ST": 0,
+        "OBC": 2,
+        "EWS": 0,
+        "total": 2,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 32,
+      "department_ministry": "Central Board of Direct Taxes (CBDT), Ministry of Finance",
+      "post_name": "Office Superintendent",
+      "pay_level": "Level-6",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 2766,
+        "SC": 1012,
+        "ST": 496,
+        "OBC": 1822,
+        "EWS": 657,
+        "total": 6753,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 72,
+          "HH": 71,
+          "VH": 69,
+          "Other": 67
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 33,
+      "department_ministry": "Comptroller & Auditor General of India (C&AG)",
+      "post_name": "Accountant/Junior Accountant",
+      "pay_level": "Level-5",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 86,
+        "SC": 31,
+        "ST": 17,
+        "OBC": 28,
+        "EWS": 18,
+        "total": 180,
+        "ESM": 18,
+        "PwBD": {
+          "OH": 4,
+          "HH": 3,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 34,
+      "department_ministry": "Controller General of Defence Accounts (CGDA), Ministry of Defence",
+      "post_name": "Auditor",
+      "pay_level": "Level-5",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 477,
+        "SC": 176,
+        "ST": 88,
+        "OBC": 316,
+        "EWS": 117,
+        "total": 1174,
+        "ESM": 117,
+        "PwBD": {
+          "OH": 11,
+          "HH": 11,
+          "VH": 11,
+          "Other": 11
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 35,
+      "department_ministry": "Department of Posts, Ministry of Communications",
+      "post_name": "Accountant/Junior Accountant",
+      "pay_level": "Level-5",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 42,
+        "SC": 13,
+        "ST": 6,
+        "OBC": 12,
+        "EWS": 3,
+        "total": 76,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 1,
+          "VH": 1,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 36,
+      "department_ministry": "CGCA (Controller General of Communication Accounts), Ministry of Communications",
+      "post_name": "Accountant/Junior Accountant",
+      "pay_level": "Level-5",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 15,
+        "SC": 6,
+        "ST": 3,
+        "OBC": 9,
+        "EWS": 3,
+        "total": 36,
+        "ESM": 3,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 37,
+      "department_ministry": "Office of Development Commissioner, Ministry of Micro, Small and Medium Enterprises",
+      "post_name": "Upper Division Clerk(UDC)/Senior Secretariat Assistant(SSA)",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 25,
+        "SC": 4,
+        "ST": 5,
+        "OBC": 16,
+        "EWS": 5,
+        "total": 55,
+        "ESM": 6,
+        "PwBD": {
+          "OH": 0,
+          "HH": 1,
+          "VH": 1,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 38,
+      "department_ministry": "Central Board of Indirect Taxes and Customs (CBIC), Ministry of Finance",
+      "post_name": "Tax Assistant",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 256,
+        "SC": 136,
+        "ST": 82,
+        "OBC": 203,
+        "EWS": 94,
+        "total": 771,
+        "ESM": 63,
+        "PwBD": {
+          "OH": 12,
+          "HH": 11,
+          "VH": 12,
+          "Other": 14
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 39,
+      "department_ministry": "Department of Science and Technology, Ministry of Science & Technology",
+      "post_name": "Upper Division Clerk(UDC)/Senior Secretariat Assistant(SSA)",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 24,
+        "SC": 9,
+        "ST": 4,
+        "OBC": 16,
+        "EWS": 6,
+        "total": 59,
+        "ESM": 6,
+        "PwBD": {
+          "OH": 1,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 4,
+      "department_ministry": "Central Board of Indirect Taxes and Customs (CBIC), Ministry of Finance",
+      "post_name": "Inspector (Central Excise)",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 611,
+        "SC": 175,
+        "ST": 82,
+        "OBC": 269,
+        "EWS": 169,
+        "total": 1306,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 16,
+          "HH": 11,
+          "VH": 24,
+          "Other": 21
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 40,
+      "department_ministry": "Central Bureau of Narcotics, Ministry of Finance",
+      "post_name": "Upper Division Clerk(UDC)/Senior Secretariat Assistant(SSA)",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 12,
+        "SC": 2,
+        "ST": 0,
+        "OBC": 5,
+        "EWS": 2,
+        "total": 21,
+        "ESM": 1,
+        "PwBD": {
+          "OH": 1,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 41,
+      "department_ministry": "Central Bureau of Narcotics, Ministry of Finance",
+      "post_name": "Sub- Inspector(Narcotics) - 2400",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 11,
+        "SC": 2,
+        "ST": 0,
+        "OBC": 6,
+        "EWS": 0,
+        "total": 19,
+        "ESM": 1,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 42,
+      "department_ministry": "Ministry of Mines",
+      "post_name": "Upper Division Clerk(UDC)/Senior Secretariat Assistant(SSA)",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 13,
+        "SC": 2,
+        "ST": 3,
+        "OBC": 4,
+        "EWS": 4,
+        "total": 26,
+        "ESM": 1,
+        "PwBD": {
+          "OH": 0,
+          "HH": 1,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 43,
+      "department_ministry": "Director General Defence Estates(DGDE), Ministry of Defence",
+      "post_name": "Upper Division Clerk(UDC)/Senior Secretariat Assistant(SSA)",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 7,
+        "SC": 2,
+        "ST": 1,
+        "OBC": 3,
+        "EWS": 1,
+        "total": 14,
+        "ESM": 1,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 44,
+      "department_ministry": "Ministry of Electronics and Information Technology",
+      "post_name": "Upper Division Clerk(UDC)/Senior Secretariat Assistant(SSA)",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 5,
+        "SC": 1,
+        "ST": 1,
+        "OBC": 2,
+        "EWS": 1,
+        "total": 10,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 45,
+      "department_ministry": "Ministry of Textiles",
+      "post_name": "Upper Division Clerk(UDC)/Senior Secretariat Assistant(SSA)",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 4,
+        "SC": 0,
+        "ST": 1,
+        "OBC": 1,
+        "EWS": 2,
+        "total": 8,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 46,
+      "department_ministry": "Department of Water Resources, River Development and Ganga Rejuvenation",
+      "post_name": "Upper Division Clerk(UDC)/Senior Secretariat Assistant(SSA)",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 5,
+        "SC": 0,
+        "ST": 0,
+        "OBC": 0,
+        "EWS": 0,
+        "total": 5,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 47,
+      "department_ministry": "Border Roads Organization (BRO), Ministry of Defence",
+      "post_name": "Upper Division Clerk(UDC)/Senior Secretariat Assistant(SSA)",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 20,
+        "SC": 1,
+        "ST": 0,
+        "OBC": 0,
+        "EWS": 4,
+        "total": 25,
+        "ESM": 4,
+        "PwBD": {
+          "OH": 0,
+          "HH": 1,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 48,
+      "department_ministry": "Department of Agriculture Coopration and Farmers Welfare, Ministry of Agriculture & Farmers Welfare",
+      "post_name": "Upper Division Clerk(UDC)/Senior Secretariat Assistant(SSA)",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 2,
+        "SC": 0,
+        "ST": 0,
+        "OBC": 0,
+        "EWS": 1,
+        "total": 3,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 49,
+      "department_ministry": "Directorate General of Health Services, Ministry of Health & Family Welfare",
+      "post_name": "Upper Division Clerk(UDC)/Senior Secretariat Assistant(SSA)",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 1,
+        "SC": 0,
+        "ST": 0,
+        "OBC": 0,
+        "EWS": 0,
+        "total": 1,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 5,
+      "department_ministry": "Enforcement Directorate, Ministry of Finance",
+      "post_name": "Assistant Enforcement Officer",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 1,
+        "SC": 2,
+        "ST": 2,
+        "OBC": 13,
+        "EWS": 0,
+        "total": 18,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 50,
+      "department_ministry": "Central Board of Direct Taxes (CBDT), Ministry of Finance",
+      "post_name": "Tax Assistant",
+      "pay_level": "Level-4",
+      "post_classification": "Group C (Non Technical)",
+      "vacancies": {
+        "UR": 572,
+        "SC": 171,
+        "ST": 80,
+        "OBC": 340,
+        "EWS": 86,
+        "total": 1249,
+        "ESM": 129,
+        "PwBD": {
+          "OH": 14,
+          "HH": 10,
+          "VH": 7,
+          "Other": 9
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 6,
+      "department_ministry": "National Informatics Centre, Ministry of Electronics and Information Technology",
+      "post_name": "Assistant/Assistant Section Officer(ASO) with grade pay (4600)",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 2,
+        "SC": 0,
+        "ST": 0,
+        "OBC": 0,
+        "EWS": 1,
+        "total": 3,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 7,
+      "department_ministry": "Central Administrative Tribunal (CAT)",
+      "post_name": "Assistant/Assistant Section Officer(ASO) with grade pay (4600)",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 0,
+        "SC": 0,
+        "ST": 0,
+        "OBC": 0,
+        "EWS": 1,
+        "total": 1,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": true
+    },
+    {
+      "s_no": 8,
+      "department_ministry": "Central Bureau of Narcotics, Ministry of Finance",
+      "post_name": "Inspector",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 1,
+        "SC": 1,
+        "ST": 0,
+        "OBC": 1,
+        "EWS": 1,
+        "total": 4,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 0,
+          "HH": 0,
+          "VH": 0,
+          "Other": 0
+        }
+      },
+      "suitable_for_color_blind": false
+    },
+    {
+      "s_no": 9,
+      "department_ministry": "Ministry of External Affairs (MEA)",
+      "post_name": "Assistant/Assistant Section Officer(ASO) with grade pay (4600)",
+      "pay_level": "Level-7",
+      "post_classification": "Group B (Non Gazetted)",
+      "vacancies": {
+        "UR": 44,
+        "SC": 13,
+        "ST": 0,
+        "OBC": 33,
+        "EWS": 10,
+        "total": 100,
+        "ESM": 0,
+        "PwBD": {
+          "OH": 1,
+          "HH": 1,
+          "VH": 1,
+          "Other": 1
+        }
+      },
+      "suitable_for_color_blind": true
+    }
+  ],
+  "schema_version": "1.0"
+}

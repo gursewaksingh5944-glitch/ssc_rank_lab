@@ -1,0 +1,26 @@
+{
+  "exam": "SSC CGL",
+  "stage": "Tier2",
+  "cycle_year": 2023,
+  "released_on": "2023-12-04",
+  "note": "Overall final Tier-2 cutoffs for all posts except SI Gr. II. These are real category-wise final cutoffs, not post-wise cutoffs.",
+  "source": {
+    "type": "web",
+    "title": "SSC CGL Tier 2 Cut Off 2023",
+    "publisher": "CareerPower / Careers360",
+    "verified": true
+  },
+  "columns": ["UR", "EWS", "OBC", "SC", "ST", "OH", "HH", "VH", "Others", "ESM"],
+  "overall_cutoffs": {
+    "UR": 287,
+    "EWS": 265,
+    "OBC": 271,
+    "SC": 252,
+    "ST": 241,
+    "OH": 234,
+    "HH": 172,
+    "VH": 228,
+    "Others": 143,
+    "ESM": 223
+  }
+}

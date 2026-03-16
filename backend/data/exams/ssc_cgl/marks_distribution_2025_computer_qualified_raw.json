@@ -1,0 +1,41 @@
+{
+  "source": "RankMitra - CGLE 2025 Tier II Paper I Marks Analysis (Marks Above Computer Qualified - Raw)",
+  "totalStudents": 42925,
+  "note": "Cumulative counts for Marks >= X among Computer Qualified. Row for marks>=10 shows 42925 in screenshot.",
+  "distribution": [
+    { "marks": 380, "total": 0, "UR": 0, "OBC": 0, "EWS": 0, "SC": 0, "ST": 0 },
+    { "marks": 370, "total": 4, "UR": 1, "OBC": 0, "EWS": 3, "SC": 0, "ST": 0 },
+    { "marks": 365, "total": 14, "UR": 5, "OBC": 4, "EWS": 4, "SC": 0, "ST": 1 },
+    { "marks": 360, "total": 39, "UR": 18, "OBC": 11, "EWS": 7, "SC": 2, "ST": 1 },
+    { "marks": 355, "total": 98, "UR": 47, "OBC": 34, "EWS": 13, "SC": 3, "ST": 1 },
+    { "marks": 350, "total": 224, "UR": 106, "OBC": 81, "EWS": 31, "SC": 4, "ST": 2 },
+    { "marks": 345, "total": 472, "UR": 212, "OBC": 168, "EWS": 79, "SC": 8, "ST": 5 },
+    { "marks": 340, "total": 947, "UR": 399, "OBC": 345, "EWS": 175, "SC": 21, "ST": 7 },
+    { "marks": 335, "total": 1649, "UR": 691, "OBC": 614, "EWS": 286, "SC": 46, "ST": 12 },
+    { "marks": 330, "total": 2640, "UR": 1079, "OBC": 1006, "EWS": 447, "SC": 83, "ST": 25 },
+    { "marks": 325, "total": 4010, "UR": 1588, "OBC": 1540, "EWS": 685, "SC": 156, "ST": 41 },
+
+    { "marks": 320, "total": 5738, "UR": 2201, "OBC": 2213, "EWS": 993, "SC": 259, "ST": 72 },
+    { "marks": 315, "total": 7814, "UR": 2807, "OBC": 3119, "EWS": 1375, "SC": 405, "ST": 108 },
+    { "marks": 310, "total": 10181, "UR": 3436, "OBC": 4140, "EWS": 1825, "SC": 615, "ST": 165 },
+    { "marks": 305, "total": 12798, "UR": 4116, "OBC": 5273, "EWS": 2315, "SC": 868, "ST": 226 },
+    { "marks": 300, "total": 15639, "UR": 4740, "OBC": 6520, "EWS": 2848, "SC": 1222, "ST": 309 },
+    { "marks": 295, "total": 18460, "UR": 5308, "OBC": 7719, "EWS": 3362, "SC": 1644, "ST": 427 },
+    { "marks": 290, "total": 21300, "UR": 5810, "OBC": 8874, "EWS": 3902, "SC": 2166, "ST": 548 },
+    { "marks": 285, "total": 24066, "UR": 6205, "OBC": 9984, "EWS": 4398, "SC": 2737, "ST": 742 },
+    { "marks": 280, "total": 26589, "UR": 6542, "OBC": 10940, "EWS": 4853, "SC": 3339, "ST": 915 },
+    { "marks": 275, "total": 28934, "UR": 6814, "OBC": 11861, "EWS": 5225, "SC": 3930, "ST": 1104 },
+    { "marks": 270, "total": 31082, "UR": 7038, "OBC": 12621, "EWS": 5589, "SC": 4507, "ST": 1327 },
+    { "marks": 265, "total": 32978, "UR": 7210, "OBC": 13228, "EWS": 5881, "SC": 5119, "ST": 1540 },
+    { "marks": 260, "total": 34649, "UR": 7336, "OBC": 13720, "EWS": 6146, "SC": 5674, "ST": 1773 },
+    { "marks": 255, "total": 36089, "UR": 7427, "OBC": 14082, "EWS": 6352, "SC": 6211, "ST": 2017 },
+    { "marks": 250, "total": 37333, "UR": 7511, "OBC": 14387, "EWS": 6506, "SC": 6707, "ST": 2222 },
+    { "marks": 240, "total": 39260, "UR": 7604, "OBC": 14813, "EWS": 6721, "SC": 7519, "ST": 2603 },
+    { "marks": 230, "total": 40638, "UR": 7668, "OBC": 15053, "EWS": 6855, "SC": 8113, "ST": 2949 },
+    { "marks": 220, "total": 41444, "UR": 7703, "OBC": 15177, "EWS": 6910, "SC": 8451, "ST": 3203 },
+    { "marks": 210, "total": 42029, "UR": 7738, "OBC": 15251, "EWS": 6946, "SC": 8718, "ST": 3376 },
+    { "marks": 200, "total": 42356, "UR": 7760, "OBC": 15305, "EWS": 6958, "SC": 8856, "ST": 3477 },
+
+    { "marks": 10,  "total": 42925, "UR": 7849, "OBC": 15418, "EWS": 6986, "SC": 9020, "ST": 3652 }
+  ]
+}

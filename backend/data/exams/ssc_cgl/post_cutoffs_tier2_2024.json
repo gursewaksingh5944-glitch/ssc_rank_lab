@@ -1,0 +1,239 @@
+{
+  "exam": "SSC CGL",
+  "stage": "Tier2",
+  "cycle_year": 2024,
+  "released_on": "2025-03-13",
+  "note": "Post-wise & category-wise Tier-2 cutoffs as listed on CareerPower (all posts except SI Gr. II). Missing values are null.",
+  "source": {
+    "type": "web",
+    "title": "SSC CGL Tier 2 Cut Off 2024 (Post-wise & category-wise)",
+    "url": "https://www.careerpower.in/ssc-cgl-cut-off.html"
+  },
+  "columns": ["UR", "EWS", "OBC", "SC", "ST", "HH", "VH", "OH", "Others", "ESM"],
+  "posts": [
+    {
+      "post_code": "B03",
+      "post_name": "Assistant/ASO - CSS",
+      "cutoffs": {
+        "UR": 533.2468,
+        "EWS": 349.4802,
+        "OBC": 348.5815,
+        "SC": 337.233,
+        "ST": 330.8955,
+        "HH": 295.4264,
+        "VH": 273.8796,
+        "OH": 331.8675,
+        "Others": 287.1774,
+        "ESM": null
+      }
+    },
+    {
+      "post_code": "B05",
+      "post_name": "Assistant/ASO - IB",
+      "cutoffs": {
+        "UR": 353.9384,
+        "EWS": 349.4851,
+        "OBC": 350.5067,
+        "SC": 337.0752,
+        "ST": 307.0732,
+        "HH": null,
+        "VH": null,
+        "OH": null,
+        "Others": null,
+        "ESM": null
+      }
+    },
+    {
+      "post_code": "B06",
+      "post_name": "Assistant/ASO - Railways",
+      "cutoffs": {
+        "UR": 362.074,
+        "EWS": 359.5187,
+        "OBC": 359.4567,
+        "SC": 346.1172,
+        "ST": 312.9926,
+        "HH": 317.7746,
+        "VH": null,
+        "OH": 311.4663,
+        "Others": null,
+        "ESM": null
+      }
+    },
+    {
+      "post_code": "B07",
+      "post_name": "Assistant/ASO - Election Commission",
+      "cutoffs": {
+        "UR": 354.0591,
+        "EWS": 354.0517,
+        "OBC": 354.0591,
+        "SC": 345.1089,
+        "ST": null,
+        "HH": null,
+        "VH": 336.3938,
+        "OH": null,
+        "Others": null,
+        "ESM": null
+      }
+    },
+    {
+      "post_code": "B09",
+      "post_name": "Assistant/ASO - AFHQ",
+      "cutoffs": {
+        "UR": 360.9569,
+        "EWS": 359.6959,
+        "OBC": 358.9758,
+        "SC": 351.566,
+        "ST": 349.4452,
+        "HH": null,
+        "VH": null,
+        "OH": null,
+        "Others": null,
+        "ESM": null
+      }
+    },
+    {
+      "post_code": "B11",
+      "post_name": "Assistant/ASO - External Affairs",
+      "cutoffs": {
+        "UR": 360.6925,
+        "EWS": 358.9065,
+        "OBC": 358.2172,
+        "SC": 351.6593,
+        "ST": 349.3827,
+        "HH": null,
+        "VH": null,
+        "OH": null,
+        "Others": null,
+        "ESM": null
+      }
+    },
+    {
+      "post_code": "B13",
+      "post_name": "Assistant/ASO - MCA",
+      "cutoffs": {
+        "UR": 350.812,
+        "EWS": 348.2588,
+        "OBC": 353.6566,
+        "SC": 343.8724,
+        "ST": 324.9754,
+        "HH": 296.4954,
+        "VH": 319.5501,
+        "OH": 328.8937,
+        "Others": 302.8324,
+        "ESM": null
+      }
+    },
+    {
+      "post_code": "B18",
+      "post_name": "Inspector (Preventive Officer) - CBIC",
+      "cutoffs": {
+        "UR": 348.9974,
+        "EWS": 344.4342,
+        "OBC": 344.0487,
+        "SC": 343.4766,
+        "ST": 336.0113,
+        "HH": 328.8753,
+        "VH": null,
+        "OH": null,
+        "Others": null,
+        "ESM": null
+      }
+    },
+    {
+      "post_code": "B20",
+      "post_name": "Inspector (Examiner) - CBIC",
+      "cutoffs": {
+        "UR": 349.8495,
+        "EWS": 344.4342,
+        "OBC": 344.0487,
+        "SC": 343.4766,
+        "ST": 336.0113,
+        "HH": 328.8753,
+        "VH": null,
+        "OH": null,
+        "Others": null,
+        "ESM": null
+      }
+    },
+    {
+      "post_code": "C02",
+      "post_name": "Junior Statistical Officer",
+      "cutoffs": {
+        "UR": 438.6747,
+        "EWS": 412.4411,
+        "OBC": 411.6871,
+        "SC": 378.8725,
+        "ST": 372.3687,
+        "HH": 211.3736,
+        "VH": 224.0324,
+        "OH": 217.9174,
+        "Others": 322.1428,
+        "ESM": null
+      }
+    },
+    {
+      "post_code": "C03",
+      "post_name": "Statistical Investigator Grade-II",
+      "cutoffs": {
+        "UR": 438.6747,
+        "EWS": 412.4411,
+        "OBC": 411.6871,
+        "SC": 378.8725,
+        "ST": 372.3687,
+        "HH": 211.3736,
+        "VH": 224.0324,
+        "OH": 217.9174,
+        "Others": 322.1428,
+        "ESM": null
+      }
+    },
+    {
+      "post_code": "D05",
+      "post_name": "Accountant/Junior Accountant - CAG",
+      "cutoffs": {
+        "UR": 344.2433,
+        "EWS": 340.8978,
+        "OBC": 340.6102,
+        "SC": 324.3792,
+        "ST": 319.8663,
+        "HH": 287.0812,
+        "VH": 311.2863,
+        "OH": null,
+        "Others": 287.9182,
+        "ESM": null
+      }
+    },
+    {
+      "post_code": "D09",
+      "post_name": "UDC/SSA - MSME",
+      "cutoffs": {
+        "UR": 340.0983,
+        "EWS": 340.3919,
+        "OBC": 340.8978,
+        "SC": 324.3792,
+        "ST": 319.8663,
+        "HH": 287.0812,
+        "VH": 311.2863,
+        "OH": null,
+        "Others": 287.9182,
+        "ESM": null
+      }
+    },
+    {
+      "post_code": "D17",
+      "post_name": "Sub-Inspector (NCB)",
+      "cutoffs": {
+        "UR": 338.2326,
+        "EWS": 337.3047,
+        "OBC": 337.5042,
+        "SC": 326.8715,
+        "ST": 261.7351,
+        "HH": 261.1682,
+        "VH": null,
+        "OH": null,
+        "Others": null,
+        "ESM": 309.697
+      }
+    }
+  ]
+}
