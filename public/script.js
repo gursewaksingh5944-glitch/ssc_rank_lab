@@ -563,14 +563,16 @@ function renderLockedMetricCard({
 }) {
   return `
     <div class="relative p-5 rounded-3xl border bg-slate-50 shadow-sm overflow-hidden min-h-[150px]">
-      <div class="absolute inset-0 bg-white/78 backdrop-blur-[3px] flex items-center justify-center z-10">
+      <div class="absolute inset-0 bg-white/78 backdrop-blur-[3px] flex items-center justify-center z-10 pointer-events-none">
         <div class="text-center px-4">
-          <div
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow opacity-90 cursor-default"
+          <button
+            type="button"
+            class="js-unlock-plan pointer-events-auto inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow hover:opacity-90 transition"
+            data-plan="${plan}"
           >
             <span>🔒</span>
             <span>${escapeHtml(lockText)}</span>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -667,12 +669,14 @@ function renderPartialAdvancedPreview(data) {
 function renderLockedPreviewCard(title, value, note, plan = 99) {
   return `
     <div class="relative rounded-2xl border bg-white p-5 overflow-hidden">
-      <div class="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex items-center justify-center">
-        <div
-          class="px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow opacity-90 cursor-default"
+      <div class="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex items-center justify-center pointer-events-none">
+        <button
+          type="button"
+          class="js-unlock-plan pointer-events-auto px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow hover:opacity-90 transition"
+          data-plan="${plan}"
         >
           Unlock ₹${escapeHtml(String(plan))}
-        </div>
+        </button>
       </div>
       <div class="text-sm text-gray-500">${escapeHtml(String(title))}</div>
       <div class="text-2xl font-black text-gray-400 mt-2">${escapeHtml(String(value || "—"))}</div>
