@@ -1,4 +1,6 @@
 const express = require("express");
+const crypto = require("crypto");
+const Razorpay = require("razorpay");
 
 const router = express.Router();
 
@@ -7,8 +9,27 @@ const PLAN_PRICES = {
   99: 9900
 };
 
+const PLAN_NAMES = {
+  49: "Premium ₹49",
+  99: "Premium ₹99"
+};
+
 function normalizeUserKey(value) {
   return String(value || "").trim().toLowerCase();
+}
+
+function getRazorpayClient() {
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+  if (!keyId || !keySecret) {
+    throw new Error("Missing Razorpay credentials");
+  }
+
+  return new Razorpay({
+    key_id: keyId,
+    key_secret: keySecret
+  });
 }
 
 router.post("/create-order", async (req, res) => {
@@ -30,26 +51,99 @@ router.post("/create-order", async (req, res) => {
       });
     }
 
-    return res.status(503).json({
-      success: false,
-      error: "Payment not live yet. Use demo unlock for now."
+    const razorpay = getRazorpayClient();
+
+    const order = await razorpay.orders.create({
+      amount: PLAN_PRICES[planNum],
+      currency: "INR",
+      receipt: `sscranklab_${planNum}_${Date.now()}`,
+      notes: {
+        userKey,
+        plan: String(planNum),
+        product: PLAN_NAMES[planNum]
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      keyId: process.env.RAZORPAY_KEY_ID,
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      description: `${PLAN_NAMES[planNum]} Unlock`,
+      brandName: "SSCRankLab",
+      themeColor: "#7c3aed",
+      notes: order.notes || {}
     });
   } catch (error) {
     console.error("create-order error:", error);
 
     return res.status(500).json({
       success: false,
-      error: "Payment temporarily unavailable"
+      error: error.message || "Payment temporarily unavailable"
     });
   }
 });
 
 router.post("/verify", async (req, res) => {
   try {
-    return res.status(503).json({
-      success: false,
-      verified: false,
-      error: "Payment verification not live yet."
+    const planNum = Number(req.body.plan);
+    const userKey = normalizeUserKey(req.body.userKey);
+    const razorpayOrderId = String(req.body.razorpay_order_id || "").trim();
+    const razorpayPaymentId = String(req.body.razorpay_payment_id || "").trim();
+    const razorpaySignature = String(req.body.razorpay_signature || "").trim();
+
+    if (!PLAN_PRICES[planNum]) {
+      return res.status(400).json({
+        success: false,
+        verified: false,
+        error: "Invalid plan"
+      });
+    }
+
+    if (!userKey) {
+      return res.status(400).json({
+        success: false,
+        verified: false,
+        error: "userKey required"
+      });
+    }
+
+    if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+      return res.status(400).json({
+        success: false,
+        verified: false,
+        error: "Missing payment verification fields"
+      });
+    }
+
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+    if (!secret) {
+      throw new Error("Missing Razorpay secret");
+    }
+
+    const expectedSignature = crypto
+      .createHmac("sha256", secret)
+      .update(`${razorpayOrderId}|${razorpayPaymentId}`)
+      .digest("hex");
+
+    if (expectedSignature !== razorpaySignature) {
+      return res.status(400).json({
+        success: false,
+        verified: false,
+        error: "Invalid payment signature"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      verified: true,
+      unlockedPlan: planNum,
+      plan: planNum,
+      userKey,
+      paymentId: razorpayPaymentId,
+      orderId: razorpayOrderId,
+      message: `${PLAN_NAMES[planNum]} unlocked successfully`
     });
   } catch (err) {
     console.error("verify error:", err);
@@ -57,7 +151,7 @@ router.post("/verify", async (req, res) => {
     return res.status(500).json({
       success: false,
       verified: false,
-      error: "Verification temporarily unavailable"
+      error: err.message || "Verification temporarily unavailable"
     });
   }
 });

@@ -23,7 +23,7 @@ function bindUnlockButtons() {
     button.addEventListener("click", async function () {
       const plan = Number(button.dataset.plan || 0);
       if (!plan) return;
-      await startMockUnlock(plan, button);
+      await startRazorpayUnlock(plan, button);
     });
   });
 }
@@ -70,6 +70,19 @@ function getUnlockedPlan() {
   }
 }
 
+function savePaymentMeta({ paymentId = "", orderId = "" } = {}) {
+  try {
+    if (paymentId) {
+      localStorage.setItem("sscranklab_payment_id", paymentId);
+    }
+    if (orderId) {
+      localStorage.setItem("sscranklab_order_id", orderId);
+    }
+  } catch (err) {
+    console.error("savePaymentMeta error:", err);
+  }
+}
+
 function updatePremiumOptions(unlockedPlan = 0) {
   const premiumInput = document.getElementById("premiumInput");
   if (!premiumInput) return;
@@ -104,58 +117,183 @@ function restoreUnlockedPlan() {
   updatePremiumOptions(savedPlan);
 
   if (savedPlan === 49 || savedPlan === 99) {
-    showPaymentStatus(`Saved demo unlock found for ₹${savedPlan}.`, "info");
+    showPaymentStatus(`Premium ₹${savedPlan} already unlocked.`, "success");
+    hideUnlockedPlanButtons(savedPlan);
   }
 }
 
-async function startMockUnlock(plan, triggerButton = null) {
-  const originalText = triggerButton ? triggerButton.innerHTML : "";
+function getPlanName(plan) {
+  if (Number(plan) === 99) return "Premium ₹99";
+  if (Number(plan) === 49) return "Premium ₹49";
+  return `Plan ₹${plan}`;
+}
+
+function hideUnlockedPlanButtons(unlockedPlan) {
+  const unlockButtons = document.querySelectorAll(".js-unlock-plan");
+  unlockButtons.forEach((button) => {
+    const buttonPlan = Number(button.dataset.plan || 0);
+    if (buttonPlan > 0 && buttonPlan <= Number(unlockedPlan || 0)) {
+      button.classList.add("hidden");
+      button.disabled = true;
+    }
+  });
+}
+
+function showButtonLoading(triggerButton, loadingText = "Processing...") {
+  if (!triggerButton) return "";
+
+  const originalText = triggerButton.innerHTML;
+  triggerButton.disabled = true;
+  triggerButton.innerHTML = loadingText;
+  triggerButton.classList.add("opacity-80", "cursor-not-allowed");
+  return originalText;
+}
+
+function resetButtonLoading(triggerButton, originalText = "") {
+  if (!triggerButton) return;
+
+  triggerButton.disabled = false;
+  triggerButton.innerHTML = originalText;
+  triggerButton.classList.remove("opacity-80", "cursor-not-allowed");
+}
+
+async function startRazorpayUnlock(plan, triggerButton = null) {
+  const originalText = showButtonLoading(triggerButton, "Starting payment...");
 
   try {
-    if (triggerButton) {
-      triggerButton.disabled = true;
-      triggerButton.innerHTML = "Unlocking...";
-      triggerButton.classList.add("opacity-80", "cursor-not-allowed");
-    }
+    const userKey = getUserKey();
+    const currentUnlocked = getUnlockedPlan();
 
-    const confirmUnlock = window.confirm(
-      `Payment is not live yet.\n\nUse temporary demo unlock for Premium ₹${plan}?`
-    );
-
-    if (!confirmUnlock) {
-      showPaymentStatus("Premium payment is coming soon.", "info");
+    if (currentUnlocked >= plan) {
+      showPaymentStatus(`${getPlanName(plan)} already unlocked.`, "success");
+      hideUnlockedPlanButtons(currentUnlocked);
       return;
     }
 
-    const currentUnlocked = getUnlockedPlan();
-    const newUnlockedPlan = Math.max(currentUnlocked, plan);
-
-    saveUnlockedPlan(newUnlockedPlan);
-    updatePremiumOptions(newUnlockedPlan);
-
-    const premiumInput = document.getElementById("premiumInput");
-    if (premiumInput) {
-      premiumInput.value = String(plan);
+    if (typeof window.Razorpay === "undefined") {
+      throw new Error("Razorpay SDK not loaded. Check index.html script tag.");
     }
 
-    showPaymentStatus(
-      `Demo unlock active for ₹${plan}. Now click Predict Rank.`,
-      "success"
-    );
+    const createOrderResponse = await fetch("/api/payment/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        plan,
+        userKey
+      })
+    });
 
-    const predictorSection = document.getElementById("predictor");
-    if (predictorSection) {
-      predictorSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    let orderData = {};
+    try {
+      orderData = await createOrderResponse.json();
+    } catch (err) {
+      throw new Error("Invalid order response from server");
     }
+
+    if (!createOrderResponse.ok || !orderData.success) {
+      throw new Error(orderData.error || "Unable to create payment order");
+    }
+
+    const options = {
+      key: orderData.keyId,
+      amount: orderData.amount,
+      currency: orderData.currency || "INR",
+      name: orderData.brandName || "SSCRankLab",
+      description: orderData.description || `${getPlanName(plan)} Unlock`,
+      order_id: orderData.orderId,
+      prefill: orderData.prefill || {},
+      notes: orderData.notes || {},
+      theme: {
+        color: orderData.themeColor || "#7c3aed"
+      },
+      handler: async function (response) {
+        try {
+          showPaymentStatus("Verifying payment...", "info");
+
+          const verifyResponse = await fetch("/api/payment/verify", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              plan,
+              userKey,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            })
+          });
+
+          let verifyData = {};
+          try {
+            verifyData = await verifyResponse.json();
+          } catch (err) {
+            throw new Error("Invalid verification response from server");
+          }
+
+          if (!verifyResponse.ok || !verifyData.success) {
+            throw new Error(verifyData.error || "Payment verification failed");
+          }
+
+          const newUnlockedPlan = Math.max(
+            Number(verifyData.unlockedPlan || 0),
+            Number(plan || 0),
+            Number(currentUnlocked || 0)
+          );
+
+          saveUnlockedPlan(newUnlockedPlan);
+          savePaymentMeta({
+            paymentId: response.razorpay_payment_id,
+            orderId: response.razorpay_order_id
+          });
+
+          updatePremiumOptions(newUnlockedPlan);
+          hideUnlockedPlanButtons(newUnlockedPlan);
+
+          const premiumInput = document.getElementById("premiumInput");
+          if (premiumInput) {
+            premiumInput.value = String(plan);
+          }
+
+          showPaymentStatus(
+            `${getPlanName(plan)} unlocked successfully. Now click Predict Rank.`,
+            "success"
+          );
+
+          const predictorSection = document.getElementById("predictor");
+          if (predictorSection) {
+            predictorSection.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        } catch (error) {
+          console.error("Payment verification error:", error);
+          showPaymentStatus(error.message || "Payment verification failed", "error");
+        }
+      },
+      modal: {
+        ondismiss: function () {
+          showPaymentStatus("Payment cancelled.", "info");
+        }
+      }
+    };
+
+    const rzp = new window.Razorpay(options);
+
+    rzp.on("payment.failed", function (response) {
+      const description =
+        response?.error?.description ||
+        response?.error?.reason ||
+        "Payment failed. Please try again.";
+      showPaymentStatus(description, "error");
+    });
+
+    resetButtonLoading(triggerButton, originalText);
+    rzp.open();
   } catch (error) {
-    console.error("startMockUnlock error:", error);
-    showPaymentStatus(error.message || "Unable to unlock plan", "error");
-  } finally {
-    if (triggerButton) {
-      triggerButton.disabled = false;
-      triggerButton.innerHTML = originalText;
-      triggerButton.classList.remove("opacity-80", "cursor-not-allowed");
-    }
+    console.error("startRazorpayUnlock error:", error);
+    showPaymentStatus(error.message || "Unable to start payment", "error");
+    resetButtonLoading(triggerButton, originalText);
   }
 }
 
@@ -270,6 +408,7 @@ async function predictRank() {
 
     saveUnlockedPlan(Number(data.unlockedPlan || data.plan || 0));
     updatePremiumOptions(Number(data.unlockedPlan || data.plan || 0));
+    hideUnlockedPlanButtons(Number(data.unlockedPlan || data.plan || 0));
 
     renderResult(data);
   } catch (e) {
@@ -390,6 +529,7 @@ function renderResult(data) {
   `;
 
   bindUnlockButtons();
+  hideUnlockedPlanButtons(getUnlockedPlan());
 }
 
 function renderMetricCard({
@@ -425,14 +565,12 @@ function renderLockedMetricCard({
     <div class="relative p-5 rounded-3xl border bg-slate-50 shadow-sm overflow-hidden min-h-[150px]">
       <div class="absolute inset-0 bg-white/78 backdrop-blur-[3px] flex items-center justify-center z-10">
         <div class="text-center px-4">
-          <button
-            type="button"
-            class="js-unlock-plan inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow hover:opacity-90 transition"
-            data-plan="${escapeHtml(String(plan))}"
+          <div
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow opacity-90 cursor-default"
           >
             <span>🔒</span>
             <span>${escapeHtml(lockText)}</span>
-          </button>
+          </div>
         </div>
       </div>
 
@@ -530,13 +668,11 @@ function renderLockedPreviewCard(title, value, note, plan = 99) {
   return `
     <div class="relative rounded-2xl border bg-white p-5 overflow-hidden">
       <div class="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex items-center justify-center">
-        <button
-          type="button"
-          class="js-unlock-plan px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow hover:opacity-90 transition"
-          data-plan="${escapeHtml(String(plan))}"
+        <div
+          class="px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow opacity-90 cursor-default"
         >
           Unlock ₹${escapeHtml(String(plan))}
-        </button>
+        </div>
       </div>
       <div class="text-sm text-gray-500">${escapeHtml(String(title))}</div>
       <div class="text-2xl font-black text-gray-400 mt-2">${escapeHtml(String(value || "—"))}</div>

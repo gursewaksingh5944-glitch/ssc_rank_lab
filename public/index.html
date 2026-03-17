@@ -2,18 +2,16 @@
 <html lang="en">
 <head>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-5FQT7G8TZF"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-5FQT7G8TZF"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-5FQT7G8TZF');
+  </script>
 
-  gtag('config', 'G-5FQT7G8TZF');
-</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
- 
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -23,21 +21,196 @@
     rel="stylesheet"
   />
   <link rel="stylesheet" href="style.css" />
+
   <title>SSC Rank Lab – Predict Your SSC Exam Rank Instantly</title>
 
-<meta name="description" content="SSC Rank Lab predicts your SSC exam rank instantly based on your marks. Fast, accurate, and built for SSC aspirants." />
+  <meta name="description" content="SSC Rank Lab predicts your SSC exam rank instantly based on your marks. Fast, accurate, and built for SSC aspirants." />
+  <meta name="keywords" content="SSC rank predictor, SSC exam rank, SSC marks vs rank, SSC CGL rank predictor, SSC CHSL rank predictor" />
+  <meta name="author" content="SSC Rank Lab">
 
-<meta name="keywords" content="SSC rank predictor, SSC exam rank, SSC marks vs rank, SSC CGL rank predictor, SSC CHSL rank predictor" />
+  <meta property="og:title" content="SSC Rank Lab – SSC Rank Predictor" />
+  <meta property="og:description" content="Predict your SSC rank instantly using your marks." />
+  <meta property="og:url" content="https://sscranklab.com" />
+  <meta property="og:type" content="website" />
 
-<meta name="author" content="SSC Rank Lab">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://sscranklab.com">
 
-<meta property="og:title" content="SSC Rank Lab – SSC Rank Predictor" />
-<meta property="og:description" content="Predict your SSC rank instantly using your marks." />
-<meta property="og:url" content="https://sscranklab.com" />
-<meta property="og:type" content="website" />
+  <style>
+    *{
+      box-sizing:border-box;
+    }
+    body{
+      margin:0;
+      overflow-x:hidden;
+    }
+    img{
+      max-width:100%;
+      height:auto;
+      display:block;
+    }
+    .wrap{
+      width:100%;
+      max-width:1140px;
+      margin:0 auto;
+      padding:28px 16px 60px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:18px;
+    }
+    .two-col{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:18px;
+    }
+    .seo-links{
+      max-width:1200px;
+      margin:0 auto;
+      padding:40px 24px 90px;
+      background:transparent;
+    }
+    .seo-links h2{
+      font-size:28px;
+      font-weight:800;
+      color:#111827;
+      margin-bottom:18px;
+      text-align:center;
+    }
+    .seo-links ul{
+      list-style:none;
+      padding:0;
+      margin:0;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:14px;
+    }
+    .seo-links a{
+      display:block;
+      text-decoration:none;
+      background:#ffffff;
+      border:1px solid #e5e7eb;
+      padding:14px 16px;
+      border-radius:18px;
+      color:#1f2937;
+      font-weight:600;
+      box-shadow:0 6px 18px rgba(0,0,0,0.04);
+      transition:all .2s ease;
+    }
+    .seo-links a:hover{
+      transform:translateY(-2px);
+      border-color:#93c5fd;
+      color:#2563eb;
+    }
+    .share-box{
+      margin-top:24px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:20px;
+      padding:20px;
+      text-align:center;
+    }
+    .share-box h3{
+      font-size:20px;
+      font-weight:700;
+      margin-bottom:14px;
+      color:#111827;
+    }
+    .share-box button{
+      margin:6px;
+      padding:12px 18px;
+      border:none;
+      border-radius:14px;
+      background:#2563eb;
+      color:#fff;
+      font-weight:600;
+      cursor:pointer;
+      transition:all .2s ease;
+    }
+    .share-box button:hover{
+      background:#1d4ed8;
+      transform:translateY(-1px);
+    }
+    .premium-active{
+      background:#ecfdf5 !important;
+      border-color:#10b981 !important;
+      color:#065f46 !important;
+    }
+    .premium-note{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      color:#1e3a8a;
+      font-size:14px;
+      font-weight:600;
+    }
 
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://sscranklab.com">
+    @media (max-width:1024px){
+      .two-col{
+        grid-template-columns:1fr;
+      }
+    }
+    @media (max-width:768px){
+      .hero, .content, footer{
+        padding-left:18px;
+        padding-right:18px;
+      }
+      .section, .cta-box, .tool-box, .mid-box, .mini, .info-box{
+        padding:18px;
+      }
+      .btn,
+      .hero-btn,
+      .sticky-btn{
+        width:100%;
+        text-align:center;
+      }
+      .btns,
+      .hero-box,
+      .links{
+        flex-direction:column;
+      }
+      .hero-input{
+        width:100%;
+      }
+      table{
+        display:block;
+        overflow-x:auto;
+        white-space:nowrap;
+      }
+      h1{font-size:30px;}
+      h2{font-size:24px;}
+      h3{font-size:18px;}
+      p, li, td, th{font-size:15px;}
+      body{
+        padding-bottom:76px;
+      }
+      .seo-links{
+        padding:30px 16px 90px;
+      }
+    }
+
+    @media (max-width:480px){
+      .wrap{
+        padding:18px 12px 52px;
+      }
+      .hero, .content, footer{
+        padding-left:14px;
+        padding-right:14px;
+      }
+      h1{font-size:26px;}
+      h2{font-size:21px;}
+      p, li{font-size:14px;}
+      .section, .cta-box, .tool-box, .mid-box, .mini, .info-box{
+        padding:16px;
+      }
+      .seo-links h2{
+        font-size:22px;
+      }
+    }
+  </style>
 </head>
 
 <body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 overflow-x-hidden text-gray-900">
@@ -180,8 +353,8 @@
               <p class="text-sm text-gray-500 mt-1">Free preview result</p>
             </div>
 
-            <div class="rounded-2xl border bg-slate-50 p-5 relative overflow-hidden">
-              <div class="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex items-center justify-center">
+            <div class="rounded-2xl border bg-slate-50 p-5 relative overflow-hidden premium-card premium-49">
+              <div class="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex items-center justify-center premium-overlay">
                 <button
                   type="button"
                   class="js-unlock-plan px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow hover:opacity-90 transition"
@@ -195,8 +368,8 @@
               <p class="text-sm text-gray-400 mt-1">Premium insight</p>
             </div>
 
-            <div class="rounded-2xl border bg-slate-50 p-5 relative overflow-hidden">
-              <div class="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex items-center justify-center">
+            <div class="rounded-2xl border bg-slate-50 p-5 relative overflow-hidden premium-card premium-49">
+              <div class="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex items-center justify-center premium-overlay">
                 <button
                   type="button"
                   class="js-unlock-plan px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow hover:opacity-90 transition"
@@ -210,8 +383,8 @@
               <p class="text-sm text-gray-400 mt-1">Premium insight</p>
             </div>
 
-            <div class="rounded-2xl border bg-slate-50 p-5 relative overflow-hidden">
-              <div class="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex items-center justify-center">
+            <div class="rounded-2xl border bg-slate-50 p-5 relative overflow-hidden premium-card premium-99">
+              <div class="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex items-center justify-center premium-overlay">
                 <button
                   type="button"
                   class="js-unlock-plan px-4 py-2 rounded-xl bg-indigo-700 text-white text-sm font-semibold shadow hover:opacity-90 transition"
@@ -298,7 +471,7 @@
           Predict Rank
         </button>
 
-        <div class="text-sm text-gray-500">
+        <div class="text-sm text-gray-500" id="planStatusText">
           Free is default. Premium appears only after payment.
         </div>
       </div>
@@ -318,29 +491,13 @@
         </div>
       </div>
 
-      <div
-        id="rankResult"
-        class="min-h-[80px]"
-      ></div>
+      <div id="rankResult" class="min-h-[80px]"></div>
+
       <div class="share-box">
-<h3>Share your predicted rank</h3>
-
-<button onclick="shareWhatsApp()">Share on WhatsApp</button>
-<button onclick="shareTelegram()">Share on Telegram</button>
-
-</div>
-
-<script>
-function shareWhatsApp(){
-let text = "I predicted my SSC rank using SSCRankLab 🔥 Check yours: https://sscranklab.com/";
-window.open("https://wa.me/?text="+encodeURIComponent(text));
-}
-
-function shareTelegram(){
-let text = "I predicted my SSC rank using SSCRankLab 🔥 Check yours: https://sscranklab.com/";
-window.open("https://t.me/share/url?url=https://sscranklab.com/&text="+encodeURIComponent(text));
-}
-</script>
+        <h3>Share your predicted rank</h3>
+        <button onclick="shareWhatsApp()">Share on WhatsApp</button>
+        <button onclick="shareTelegram()">Share on Telegram</button>
+      </div>
     </div>
   </section>
 
@@ -612,6 +769,19 @@ window.open("https://t.me/share/url?url=https://sscranklab.com/&text="+encodeURI
     </div>
   </section>
 
+  <section class="seo-links">
+    <h2>SSC Exam Tools & Insights</h2>
+    <ul>
+      <li><a href="./ssc-cgl-rank-predictor.html">SSC CGL Rank Predictor</a></li>
+      <li><a href="./ssc-chsl-rank-predictor.html">SSC CHSL Rank Predictor</a></li>
+      <li><a href="./ssc-marks-vs-rank.html">SSC Marks vs Rank Analysis</a></li>
+      <li><a href="./ssc-cgl-expected-cutoff-2026.html">SSC CGL Expected Cutoff 2026</a></li>
+      <li><a href="./ssc-chsl-expected-cutoff-2026.html">SSC CHSL Expected Cutoff 2026</a></li>
+      <li><a href="./ssc-cgl-previous-year-cutoff.html">SSC CGL Previous Year Cutoff</a></li>
+      <li><a href="./ssc-cgl-normalization-explained.html">SSC CGL Normalization Explained</a></li>
+    </ul>
+  </section>
+
   <!-- Footer -->
   <footer class="bg-gray-900 text-white py-12 text-center">
     <p>© 2026 SSCRankLab</p>
@@ -619,15 +789,181 @@ window.open("https://t.me/share/url?url=https://sscranklab.com/&text="+encodeURI
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="script.js"></script>
-<section>
-<h2>SSC Tools</h2>
 
-<a href="/ssc-cgl-rank-predictor.html">SSC CGL Rank Predictor</a><br>
-<a href="/ssc-chsl-rank-predictor.html">SSC CHSL Rank Predictor</a><br>
-<a href="/ssc-marks-vs-rank.html">SSC Marks vs Rank</a><br>
-<a href="/ssc-cgl-expected-cutoff-2026.html">SSC CGL Expected Cutoff 2026</a><br>
-<a href="/ssc-cgl-previous-year-cutoff.html">SSC CGL Previous Year Cutoff</a>
+  <script>
+    function shareWhatsApp(){
+      let text = "I predicted my SSC rank using SSCRankLab 🔥 Check yours: https://sscranklab.com/";
+      window.open("https://wa.me/?text=" + encodeURIComponent(text));
+    }
 
-</section>
+    function shareTelegram(){
+      let text = "I predicted my SSC rank using SSCRankLab 🔥 Check yours: https://sscranklab.com/";
+      window.open("https://t.me/share/url?url=https://sscranklab.com/&text=" + encodeURIComponent(text));
+    }
+
+    function showPaymentToast(message, isSuccess = true) {
+      const toast = document.getElementById("paymentStatus");
+      toast.classList.remove("hidden");
+      toast.className = "fixed top-24 right-4 z-[60] max-w-sm border shadow-2xl rounded-2xl px-4 py-3";
+
+      if (isSuccess) {
+        toast.classList.add("bg-green-50", "border-green-200", "text-green-800");
+      } else {
+        toast.classList.add("bg-red-50", "border-red-200", "text-red-800");
+      }
+
+      toast.innerHTML = message;
+
+      setTimeout(() => {
+        toast.classList.add("hidden");
+      }, 3500);
+    }
+
+    function getPaidPlan() {
+      return localStorage.getItem("paidPlan") || "0";
+    }
+
+    function setPaidPlan(plan, paymentId) {
+      localStorage.setItem("paidPlan", String(plan));
+      if (paymentId) {
+        localStorage.setItem("paymentId", paymentId);
+      }
+    }
+
+    function updatePremiumOptions() {
+      const premiumInput = document.getElementById("premiumInput");
+      if (!premiumInput) return;
+
+      const currentPlan = getPaidPlan();
+
+      premiumInput.innerHTML = '<option value="0">Free</option>';
+
+      if (currentPlan === "49") {
+        premiumInput.innerHTML += '<option value="49">Premium ₹49</option>';
+        premiumInput.value = "49";
+      }
+
+      if (currentPlan === "99") {
+        premiumInput.innerHTML += '<option value="49">Premium ₹49</option>';
+        premiumInput.innerHTML += '<option value="99">Advanced ₹99</option>';
+        premiumInput.value = "99";
+      }
+    }
+
+    function updatePaidUI() {
+      const currentPlan = getPaidPlan();
+      const planStatusText = document.getElementById("planStatusText");
+
+      document.querySelectorAll(".premium-49 .premium-overlay").forEach(el => {
+        el.style.display = (currentPlan === "49" || currentPlan === "99") ? "none" : "flex";
+      });
+
+      document.querySelectorAll(".premium-99 .premium-overlay").forEach(el => {
+        el.style.display = (currentPlan === "99") ? "none" : "flex";
+      });
+
+      document.querySelectorAll('.js-unlock-plan[data-plan="49"]').forEach(el => {
+        if (currentPlan === "49" || currentPlan === "99") {
+          el.style.display = "none";
+        } else {
+          el.style.display = "inline-flex";
+        }
+      });
+
+      document.querySelectorAll('.js-unlock-plan[data-plan="99"]').forEach(el => {
+        if (currentPlan === "99") {
+          el.style.display = "none";
+        } else {
+          el.style.display = "inline-flex";
+        }
+      });
+
+      if (planStatusText) {
+        if (currentPlan === "49") {
+          planStatusText.textContent = "Premium ₹49 unlocked. You can now use premium insights.";
+        } else if (currentPlan === "99") {
+          planStatusText.textContent = "Advanced ₹99 unlocked. Full premium insights are available.";
+        } else {
+          planStatusText.textContent = "Free is default. Premium appears only after payment.";
+        }
+      }
+
+      updatePremiumOptions();
+    }
+
+    function openRazorpay(plan) {
+      const amount = plan === "99" ? 9900 : 4900;
+
+      const options = {
+        key: "rzp_live_SSCKd8VyFHGzLn",
+        amount: amount,
+        currency: "INR",
+        name: "SSCRankLab",
+        description: plan === "99" ? "Advanced SSC Insights" : "Premium SSC Insights",
+        handler: function (response) {
+          setPaidPlan(plan, response.razorpay_payment_id);
+          updatePaidUI();
+          showPaymentToast("✅ Payment successful. Plan unlocked.");
+        },
+        prefill: {
+          name: "",
+          email: "",
+          contact: ""
+        },
+        theme: {
+          color: "#4f46e5"
+        },
+        modal: {
+          ondismiss: function () {
+            showPaymentToast("Payment window closed.", false);
+          }
+        }
+      };
+
+      const rzp = new Razorpay(options);
+
+      rzp.on("payment.failed", function () {
+        showPaymentToast("Payment failed. Please try again.", false);
+      });
+
+      rzp.open();
+    }
+
+    document.querySelectorAll(".js-unlock-plan").forEach(btn => {
+      btn.addEventListener("click", function () {
+        const plan = this.getAttribute("data-plan");
+        openRazorpay(plan);
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      updatePaidUI();
+    });
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {
+        "@type":"Question",
+        "name":"Is SSC rank predictor accurate?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Rank predictors estimate ranks using previous year cutoffs and score trends. Actual results may vary."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"What is a safe score in SSC CGL?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"A score above 155 in Tier 1 is generally considered safe for the General category based on recent trends."
+        }
+      }
+    ]
+  }
+  </script>
 </body>
 </html>

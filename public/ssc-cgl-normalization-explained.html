@@ -1,152 +1,722 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>SSC CGL Normalization Explained | Formula, Meaning, Impact</title>
-<meta name="description" content="Understand SSC CGL normalization in simple language. Learn why normalization is used, how it affects marks, and how it impacts your final SSC CGL result.">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://sscranklab.com/ssc-cgl-normalization-explained.html">
+  <div class="sticky-bar">
+  <a href="./" class="sticky-btn">Check Your Rank Now →</a>
+</div>
 
 <style>
-body{
-  font-family: Arial, sans-serif;
-  max-width: 920px;
-  margin: auto;
-  padding: 24px;
-  line-height: 1.7;
-  color: #1f2937;
-  background: #ffffff;
-}
-h1{font-size: 36px; margin-bottom: 10px;}
-h2{margin-top: 32px; font-size: 26px;}
-p{margin: 14px 0;}
-ul{padding-left: 22px;}
-.hero{
-  background: linear-gradient(135deg,#eef2ff,#fdf2f8);
-  padding: 24px;
-  border-radius: 18px;
-  margin-bottom: 24px;
-}
-.box{
-  background:#f8fafc;
-  border:1px solid #e5e7eb;
-  border-radius:16px;
-  padding:20px;
-  margin:24px 0;
-}
-.cta{
-  display:inline-block;
-  background:#4f46e5;
-  color:#fff;
-  text-decoration:none;
-  padding:12px 18px;
-  border-radius:10px;
-  font-weight:700;
-  margin-top:12px;
-}
-table{
+.sticky-bar{
+  position:fixed;
+  bottom:0;
+  left:0;
   width:100%;
-  border-collapse:collapse;
-  margin-top:14px;
+  background:#111827;
+  padding:12px;
+  display:flex;
+  justify-content:center;
+  z-index:999;
 }
-th,td{
-  border:1px solid #d1d5db;
-  padding:10px;
-  text-align:left;
+.sticky-btn{
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  color:#fff;
+  padding:14px 22px;
+  border-radius:12px;
+  font-weight:700;
+  text-decoration:none;
 }
-th{background:#f3f4f6;}
 </style>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SSC Normalization Process 2025 | How SSC Calculates Normalized Scores</title>
+  <meta name="description" content="Learn the official SSC normalization process from June 2025. Understand percentile calculation, interpolation, and how SSC converts raw marks into normalized scores across multiple shifts." />
+  <meta name="keywords" content="ssc normalization process, ssc normalized score, ssc percentile formula, ssc raw marks to normalized marks, ssc normalization 2025, ssc shift normalization, ssc score normalization" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://sscranklab.com/ssc-normalization-process.html" />
+
+  <meta property="og:title" content="SSC Normalization Process 2025 | SSC Rank Lab" />
+  <meta property="og:description" content="Understand how SSC converts raw scores into normalized scores using percentile, interpolation, and session-wise averaging." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sscranklab.com/ssc-normalization-process.html" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #eef4ff 0%, #f8f5ff 48%, #eefbf7 100%);
+      color: #162033;
+      line-height: 1.75;
+    }
+    .wrap {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 28px 16px 60px;
+    }
+    .card {
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(110,128,180,0.18);
+      border-radius: 28px;
+      box-shadow: 0 20px 60px rgba(28,47,94,0.08);
+      overflow: hidden;
+    }
+    .hero {
+      padding: 42px 26px 30px;
+      background:
+        radial-gradient(circle at top right, rgba(79,70,229,0.18), transparent 28%),
+        radial-gradient(circle at top left, rgba(34,197,94,0.12), transparent 28%);
+    }
+    .badge {
+      display: inline-block;
+      background: #eef2ff;
+      color: #4338ca;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-size: clamp(32px, 5vw, 54px);
+      line-height: 1.1;
+      margin: 0 0 14px;
+      color: #101828;
+    }
+    h2 {
+      font-size: 28px;
+      margin: 0 0 14px;
+      color: #111827;
+    }
+    h3 {
+      font-size: 20px;
+      margin: 0 0 12px;
+      color: #111827;
+    }
+    p {
+      margin: 0 0 18px;
+      color: #334155;
+    }
+    .sub {
+      font-size: 18px;
+      max-width: 920px;
+    }
+    .btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 24px;
+    }
+    .btn {
+      text-decoration: none;
+      padding: 14px 22px;
+      border-radius: 14px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      box-shadow: 0 14px 28px rgba(79,70,229,0.25);
+    }
+    .btn-secondary {
+      background: #ffffff;
+      color: #312e81;
+      border: 1px solid #dbe3ff;
+    }
+    .btn:hover { transform: translateY(-2px); }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-top: 26px;
+    }
+    .mini {
+      background: #fff;
+      border: 1px solid #e9eefc;
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .mini h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .content {
+      padding: 30px 26px 12px;
+    }
+    .section {
+      margin-bottom: 28px;
+      background: #ffffff;
+      border: 1px solid #edf2ff;
+      border-radius: 22px;
+      padding: 24px;
+    }
+    .formula {
+      background: #f8fbff;
+      border: 1px solid #dbeafe;
+      border-radius: 18px;
+      padding: 18px;
+      margin: 14px 0 18px;
+      overflow-x: auto;
+    }
+    .formula code {
+      font-size: 16px;
+      color: #0f172a;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    ul {
+      padding-left: 20px;
+      margin: 0 0 14px;
+      color: #334155;
+    }
+    li { margin-bottom: 8px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      background: #fbfdff;
+      overflow: hidden;
+      border-radius: 18px;
+    }
+    th, td {
+      text-align: left;
+      padding: 14px;
+      border-bottom: 1px solid #e7ecf7;
+      font-size: 15px;
+      vertical-align: top;
+    }
+    th {
+      background: #eef2ff;
+      color: #1e1b4b;
+      font-weight: 700;
+    }
+
+    .highlight {
+      background: linear-gradient(135deg, #f8fafc, #eef4ff);
+      border: 1px solid #dbeafe;
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+
+    .cta-box {
+      margin-top: 10px;
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: #fff;
+      border-radius: 24px;
+      padding: 28px;
+    }
+    .cta-box p { color: #dbe4ff; }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .links a {
+      text-decoration: none;
+      color: #4338ca;
+      background: #eef2ff;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .tool-box{
+  background:#eef2ff;
+  border:1px solid #dbe3ff;
+  border-radius:20px;
+  padding:22px;
+  text-align:center;
+  margin-top:20px;
+}
+.tool-box h3{
+  margin:0 0 8px;
+  font-size:22px;
+  color:#111827;
+}
+.tool-box p{
+  margin:0 0 16px;
+  color:#334155;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  overflow-x:hidden;
+}
+
+img{
+  max-width:100%;
+  height:auto;
+}
+
+.wrap{
+  width:100%;
+  max-width:1140px;
+  margin:0 auto;
+  padding:28px 16px 60px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:18px;
+}
+
+.two-col{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+}
+
+@media (max-width:1024px){
+  .two-col{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width:768px){
+
+  .hero, .content, footer{
+    padding-left:18px;
+    padding-right:18px;
+  }
+
+  .section, .cta-box, .tool-box, .mid-box{
+    padding:18px;
+  }
+
+  .btn,
+  .hero-btn,
+  .sticky-btn{
+    width:100%;
+    text-align:center;
+  }
+
+  .btns,
+  .hero-box{
+    flex-direction:column;
+  }
+
+  .hero-input{
+    width:100%;
+  }
+
+  table{
+    display:block;
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  h1{ font-size:30px; }
+  h2{ font-size:24px; }
+  h3{ font-size:18px; }
+
+}
+
+@media (max-width:480px){
+
+  h1{ font-size:26px; }
+  h2{ font-size:21px; }
+
+}
+
+footer {
+      padding: 8px 26px 34px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    @media (max-width: 700px) {
+      .hero, .content, .tool-box{
+  background:#eef2ff;
+  border:1px solid #dbe3ff;
+  border-radius:20px;
+  padding:22px;
+  text-align:center;
+  margin-top:20px;
+}
+.tool-box h3{
+  margin:0 0 8px;
+  font-size:22px;
+  color:#111827;
+}
+.tool-box p{
+  margin:0 0 16px;
+  color:#334155;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  overflow-x:hidden;
+}
+
+img{
+  max-width:100%;
+  height:auto;
+}
+
+.wrap{
+  width:100%;
+  max-width:1140px;
+  margin:0 auto;
+  padding:28px 16px 60px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:18px;
+}
+
+.two-col{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+}
+
+@media (max-width:1024px){
+  .two-col{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width:768px){
+
+  .hero, .content, footer{
+    padding-left:18px;
+    padding-right:18px;
+  }
+
+  .section, .cta-box, .tool-box, .mid-box{
+    padding:18px;
+  }
+
+  .btn,
+  .hero-btn,
+  .sticky-btn{
+    width:100%;
+    text-align:center;
+  }
+
+  .btns,
+  .hero-box{
+    flex-direction:column;
+  }
+
+  .hero-input{
+    width:100%;
+  }
+
+  table{
+    display:block;
+    overflow-x:auto;
+    white-space:nowrap;
+  }
+
+  h1{ font-size:30px; }
+  h2{ font-size:24px; }
+  h3{ font-size:18px; }
+
+}
+
+@media (max-width:480px){
+
+  h1{ font-size:26px; }
+  h2{ font-size:21px; }
+
+}
+
+footer { padding-left: 18px; padding-right: 18px; }
+      .section, .cta-box { padding: 20px; }
+      th, td { font-size: 14px; padding: 12px; }
+    }
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {
+        "@type":"Question",
+        "name":"What is SSC normalization?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"SSC normalization is the official process used to convert raw marks from different shifts into normalized scores so that candidates across multiple sessions are compared on a common scale."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"How does SSC calculate percentile in normalization?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"For a candidate with raw score T in a shift, SSC counts how many candidates in that same shift scored less than or equal to T. If that number is m and the number of candidates who appeared in the shift is N, then percentile P is calculated as P = m/N."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"How is the final normalized score calculated by SSC?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"After matching percentile positions across sessions and filling missing raw-score values using interpolation, SSC takes the average of the corresponding session-wise raw-score values for that percentile. That average becomes the normalized score."
+        }
+      },
+      {
+        "@type":"Question",
+        "name":"Is SSC normalization different from raw marks?",
+        "acceptedAnswer":{
+          "@type":"Answer",
+          "text":"Yes. Raw marks are the original marks scored in a shift, while normalized marks are adjusted scores generated through SSC's percentile and interpolation method."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
+  <div class="wrap">
+    <div class="card">
+      <section class="hero">
+        <div class="badge">SSC Rank Lab • Official Process Guide</div>
+        <h1>SSC Normalization Process 2025</h1>
+        <p style="font-size:18px; font-weight:600; color:#1e293b;">
+Enter your marks → Get expected rank instantly
+</p>
+        <p class="sub">
+          Understand how SSC converts raw marks into normalized scores across multiple shifts.
+          This page explains the official June 2025 normalization procedure in a clear, structured, and search-friendly way for SSC candidates who want to know how their score is actually processed.
+        </p>
 
-<div class="hero">
-  <h1>SSC CGL Normalization Explained</h1>
-  <p>
-    SSC CGL normalization is used when the exam is conducted in multiple shifts with different difficulty levels.
-    It helps make the scoring fair for all candidates by adjusting marks based on shift difficulty.
-  </p>
-  <a class="cta" href="/">Check Your Predicted Rank</a>
+        <div class="btns">
+          <a class="btn btn-primary" href="./">See Your Expected Rank</a>
+          <a class="btn btn-secondary" href="./ssc-cgl-rank-predictor.html">SSC CGL Rank Predictor</a>
+        </div>
+
+        <div class="grid">
+          <div class="mini">
+            <h3>Official 3-Step Method</h3>
+            <p>Percentile calculation, interpolation, and final normalized score calculation.</p>
+          </div>
+          <div class="mini">
+            <h3>Easy to Understand</h3>
+            <p>Built for candidates who want clarity without getting lost in technical wording.</p>
+          </div>
+          <div class="mini">
+            <h3>Strong SEO Topic</h3>
+            <p>Matches real search intent around SSC normalized marks, percentile, and shift fairness.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="content">
+        <section class="section">
+          <h2>What Is SSC Normalization?</h2>
+          <p>
+            SSC conducts many exams in multiple shifts. When an exam is held across different sessions, the difficulty level may not be exactly identical in every shift.
+            To address this, SSC uses a formal normalization procedure to convert each candidate’s raw score into a normalized score. The document states that for each test, subject, or area conducted in multiple shifts, the raw score of every candidate is converted into a normalized score through a three-step method. :contentReference[oaicite:1]{index=1}
+          </p>
+          <p>
+            This means the score used for comparison is not always just the raw marks you see first.
+            Instead, SSC first studies your position within your own shift, then aligns equivalent percentile positions across all sessions, and only then generates the final normalized score. :contentReference[oaicite:2]{index=2}
+          </p>
+        </section>
+
+        <section class="section">
+          <h2>Why SSC Uses Normalization</h2>
+          <ul>
+            <li>To compare candidates fairly across multiple shifts.</li>
+            <li>To reduce the effect of variation in difficulty level between sessions.</li>
+            <li>To create one common score scale for all candidates of the same paper.</li>
+            <li>To assign each candidate a final normalized score for that test, subject, or area. :contentReference[oaicite:3]{index=3}</li>
+          </ul>
+          <p>
+            The official procedure is designed shift-wise first and then session-wise together. That is why understanding raw marks alone is not enough whenever SSC applies normalization. :contentReference[oaicite:4]{index=4}
+          </p>
+        </section>
+
+        <section class="section">
+          <h2>SSC Normalization Process: The 3 Official Steps</h2>
+
+          <h3>Step 1: Convert Raw Scores Into Percentile Scores</h3>
+          <p>
+            SSC first calculates percentile separately for each shift. The document says this step must be completed independently for every shift. SSC records the number of candidates who actually appeared in that shift and denotes it by N. Then candidates in that shift are sorted in decreasing order of marks. For a candidate with raw score T, SSC counts the number of candidates in that same shift who scored less than or equal to T, and denotes that count by m. The percentile is then calculated as P = m/N. :contentReference[oaicite:5]{index=5}
+          </p>
+
+          <div class="formula">
+            <code>P = m / N</code>
+          </div>
+
+          <p>
+            The official note also says the percentile so calculated will satisfy 0 ≤ P ≤ 1, and SSC recommends rounding it up to the required number of decimal places, preferably up to 8 decimal places. :contentReference[oaicite:6]{index=6}
+          </p>
+
+          <h3>Step 2: Combine Sessions and Match Percentiles</h3>
+          <p>
+            In the second step, SSC combines the session-wise data into one common table. The percentile columns from different shifts are merged into a single percentile column, but the raw-score columns for each shift are kept separate. Then all records are sorted in decreasing order of percentile. :contentReference[oaicite:7]{index=7}
+          </p>
+          <p>
+            At this stage, some rows will have blank raw-score entries for shifts where there is no candidate with exactly the same percentile. SSC then fills those blanks through linear interpolation. This is one of the most important parts of the normalization process because it builds equivalent raw-score values across sessions for the same percentile position. :contentReference[oaicite:8]{index=8}
+          </p>
+
+          <h3>Step 3: Calculate the Final Normalized Score</h3>
+          <p>
+            After interpolation, each percentile value has a corresponding raw-score value in every session. SSC then combines those corresponding values to get one final normalized score. The document defines the normalized score Z as the average of the raw-score values corresponding to that percentile across all sessions. :contentReference[oaicite:9]{index=9}
+          </p>
+
+          <div class="formula">
+            <code>Z = (u1 + u2 + ... + ut) / t</code>
+          </div>
+
+          <p>
+            Here, t is the number of sessions and u1, u2, ... ut are the session-wise raw-score values corresponding to the same percentile position. The average of these values becomes the candidate’s normalized score. :contentReference[oaicite:10]{index=10}
+          </p>
+        </section>
+
+        <section class="section">
+          <h2>How Interpolation Works in SSC Normalization</h2>
+          <p>
+            SSC uses interpolation when a percentile value exists in the combined table but an exact raw-score entry for a particular shift is missing.
+            The document explains that SSC looks for the first non-blank raw-score entry below that missing value and the first non-blank raw-score entry above it. Using the percentiles attached to those two surrounding scores, SSC calculates the missing raw-score entry by linear interpolation. :contentReference[oaicite:11]{index=11}
+          </p>
+
+          <div class="formula">
+            <code>X = x1 + ((x2 - x1) / (p2 - p1)) × (P - p1)</code>
+          </div>
+
+          <p>
+            In simple terms, SSC estimates what the equivalent raw score in that shift should be for the given percentile.
+            Once all such blank entries are replaced, every percentile has a comparable score from each shift, which makes the final averaging step possible. :contentReference[oaicite:12]{index=12}
+          </p>
+
+          <div class="highlight">
+            <strong>Key idea:</strong> SSC does not directly compare raw marks of one shift with raw marks of another shift.
+            It first aligns candidates by percentile position and then maps equivalent raw-score values across sessions. :contentReference[oaicite:13]{index=13}
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>SSC Normalization Formula Summary</h2>
+          <table>
+            <tr>
+              <th>Stage</th>
+              <th>What SSC Does</th>
+              <th>Core Formula</th>
+            </tr>
+            <tr>
+              <td>Step 1</td>
+              <td>Calculates percentile within the same shift</td>
+              <td>P = m / N</td>
+            </tr>
+            <tr>
+              <td>Step 2</td>
+              <td>Combines sessions and fills missing shift-wise raw-score values</td>
+              <td>Interpolation formula</td>
+            </tr>
+            <tr>
+              <td>Step 3</td>
+              <td>Takes the average of corresponding session-wise scores for that percentile</td>
+              <td>Z = (u1 + u2 + ... + ut) / t</td>
+            </tr>
+          </table>
+        </section>
+
+        <section class="section">
+          <h2>Simple Explanation of SSC Normalized Score</h2>
+          <p>
+            A candidate’s raw marks belong only to the shift in which that candidate appeared.
+            But SSC wants one fair score scale across all shifts.
+            So instead of using raw marks directly, SSC first checks where a candidate stands in that shift through percentile, then finds equivalent score positions in other shifts, and finally averages them to produce one normalized score. :contentReference[oaicite:14]{index=14}
+          </p>
+          <p>
+            This is why two candidates from different shifts can have different raw marks but still end up close after normalization, or why a slightly lower raw score from a tougher shift may become more competitive after the process is applied.
+          </p>
+        </section>
+
+        <section class="section">
+          <h2>Important Points Candidates Should Know</h2>
+          <ul>
+            <li>Normalization is applied shift-wise and then session-wise across the same paper. :contentReference[oaicite:15]{index=15}</li>
+            <li>Percentile is calculated only against candidates of the same shift in Step 1. :contentReference[oaicite:16]{index=16}</li>
+            <li>SSC recommends percentile rounding up to 8 decimal places. :contentReference[oaicite:17]{index=17}</li>
+            <li>Raw-score columns of different shifts are kept separate during the combining stage. :contentReference[oaicite:18]{index=18}</li>
+            <li>Blank raw-score values are filled using linear interpolation. :contentReference[oaicite:19]{index=19}</li>
+            <li>The final normalized score is an average of corresponding session-wise score values for the same percentile. :contentReference[oaicite:20]{index=20}</li>
+          </ul>
+        </section>
+
+        <section class="section">
+          <h2>Why This Topic Matters for SSC Candidates</h2>
+          <p>
+            Searches around SSC normalization usually rise when answer keys, scorecards, and result discussions begin.
+            Candidates want to know whether their raw marks are final, how shift difficulty is handled, and how normalized marks may affect ranking.
+          </p>
+          <p>
+            That makes this page highly useful as both an informational SEO page and a support page for rank predictor, marks vs rank, and cutoff pages.
+            A candidate who understands normalization is much more likely to understand score movement across shifts.
+          </p>
+        </section>
+
+
+
+          <div class="links">
+            <a href="./ssc-cgl-rank-predictor.html">SSC CGL Rank Predictor</a>
+            <a href="./ssc-chsl-rank-predictor.html">SSC CHSL Rank Predictor</a>
+            <a href="./ssc-marks-vs-rank.html">SSC Marks vs Rank</a>
+            <a href="./ssc-cgl-expected-cutoff-2026.html">SSC CGL Expected Cutoff 2026</a>
+            <a href="./ssc-chsl-expected-cutoff-2026.html">SSC CHSL Expected Cutoff 2026</a>
+            <a href="./ssc-cgl-previous-year-cutoff.html">SSC CGL Previous Year Cutoff</a>
+          </div>
+        </section>
+
+        <p style="color:#dc2626; font-weight:600; text-align:center;">
+Check your rank before cutoff trends change.
+</p>
+
+<div class="tool-box">
+  <h3>Quick Rank Check</h3>
+  <p>Enter your marks and instantly see your expected rank range.</p>
+  <a href="./index.html" class="btn btn-primary">Start Prediction</a>
 </div>
 
-<h2>What is SSC CGL Normalization?</h2>
-<p>
-  SSC conducts exams in several shifts. One shift may be slightly easier or harder than another.
-  Because of this, raw marks alone may not reflect the same performance across all shifts.
-  Normalization adjusts marks so candidates are compared more fairly.
-</p>
+<section class="cta-box">
+          <h2>Explore Rank, Cutoff, and Marks Analysis</h2>
+          <p>
+            Understand normalization first, then compare your score through rank prediction, marks vs rank pages, and cutoff trend pages for a more complete exam analysis flow.
+          </p>
+          <div class="btns">
+            <a class="btn btn-primary" href="./">Visit SSC Rank Lab</a>
+            <a class="btn btn-secondary" href="./ssc-marks-vs-rank.html">See Marks vs Rank</a>
+          </div>
+        </section>
+      </div>
 
-<div class="box">
-  <h2>Why SSC Uses Normalization</h2>
-  <ul>
-    <li>Different shifts can have different difficulty levels</li>
-    <li>Fair comparison is needed across all candidates</li>
-    <li>Raw marks may not tell the full story</li>
-    <li>Normalized marks improve result fairness</li>
-  </ul>
-</div>
-
-<h2>How Normalization Affects Marks</h2>
-<p>
-  If your shift was harder than average, normalization may increase your marks slightly.
-  If your shift was easier, normalized marks may stay close to raw marks or reduce a little.
-  The exact adjustment depends on SSC’s statistical process.
-</p>
-
-<table>
-  <tr>
-    <th>Situation</th>
-    <th>Possible Effect</th>
-  </tr>
-  <tr>
-    <td>Harder shift</td>
-    <td>Normalized marks may increase</td>
-  </tr>
-  <tr>
-    <td>Average shift</td>
-    <td>Marks may remain nearly similar</td>
-  </tr>
-  <tr>
-    <td>Easier shift</td>
-    <td>Normalized marks may slightly reduce</td>
-  </tr>
-</table>
-
-<h2>Does Normalization Change Rank?</h2>
-<p>
-  Yes, it can. Even a small change in marks can move rank significantly in highly competitive SSC exams.
-  That is why candidates should not judge their final position only from raw marks.
-</p>
-
-<h2>Important Things Candidates Should Know</h2>
-<ul>
-  <li>Normalization is normal and expected in multi-shift exams</li>
-  <li>Final merit is based on normalized performance, not just raw marks</li>
-  <li>A few marks can affect rank by hundreds or thousands</li>
-  <li>Cutoff expectations should consider normalized marks</li>
-</ul>
-
-<div class="box">
-  <h2>Use SSC Rank Lab for Better Estimate</h2>
-  <p>
-    Instead of guessing from raw marks alone, use SSC Rank Lab to estimate your expected rank,
-    competition zone, and result outlook with a more practical approach.
-  </p>
-  <a class="cta" href="/">Try SSC Rank Predictor</a>
-</div>
-
-<h2>Related Pages</h2>
-<ul>
-  <li><a href="/ssc-cgl-rank-predictor.html">SSC CGL Rank Predictor</a></li>
-  <li><a href="/ssc-marks-vs-rank.html">SSC Marks vs Rank</a></li>
-  <li><a href="/ssc-cgl-expected-cutoff-2026.html">SSC CGL Expected Cutoff 2026</a></li>
-  <li><a href="/ssc-cgl-previous-year-cutoff.html">SSC CGL Previous Year Cutoff</a></li>
-</ul>
-
-<p>
-  Disclaimer: This page explains normalization conceptually for students. Official evaluation is done by SSC.
-</p>
-
+      <footer>
+        This page explains the SSC normalization procedure as described in the official normalization document from June 2025. :contentReference[oaicite:21]{index=21}
+      </footer>
+    </div>
+  </div>
 </body>
 </html>

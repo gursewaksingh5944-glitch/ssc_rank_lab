@@ -24,7 +24,7 @@ app.get("/health", (req, res) => {
   res.json({
     ok: true,
     message: "Backend running",
-    paymentLive: false
+    paymentLive: true
   });
 });
 
@@ -54,5 +54,6 @@ app.listen(PORT, () => {
   console.log(`✅ Website:        http://localhost:${PORT}/`);
   console.log(`✅ Health:         http://localhost:${PORT}/health`);
   console.log(`✅ Predict V2:     http://localhost:${PORT}/api/predict-v2`);
-  console.log(`✅ Payment Mode:   DEMO / DISABLED`);
+  console.log(`✅ Payment Route:  http://localhost:${PORT}/api/payment`);
+  console.log(`✅ Payment Mode:   RAZORPAY LIVE/TEST (depends on your keys)`);
 });
