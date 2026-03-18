@@ -10,6 +10,13 @@ function normalizeUserKey(value) {
   return String(value || "").trim().toLowerCase();
 }
 
+function getUnlockedPlanFromStore(req, userKey) {
+  if (!userKey) return 0;
+  const store = req.app?.locals?.userPlans;
+  if (!store || typeof store.get !== "function") return 0;
+  return Number(store.get(userKey) || 0);
+}
+
 router.post("/", (req, res) => {
   try {
     const { examKey, score, category, plan, userKey } = req.body;
@@ -49,8 +56,14 @@ router.post("/", (req, res) => {
     }
 
     const normalizedUserKey = normalizeUserKey(userKey);
-    const unlockedPlan = requestedPlan;
-    const finalPlan = requestedPlan;
+    const storedUnlockedPlan = getUnlockedPlanFromStore(req, normalizedUserKey);
+
+    const finalPlan =
+      requestedPlan > 0
+        ? Math.min(requestedPlan, storedUnlockedPlan)
+        : 0;
+
+    const unlockedPlan = storedUnlockedPlan;
 
     const selectedMode =
       finalPlan >= 49 ? "computer_qualified_raw" : "all_raw";
@@ -129,7 +142,6 @@ router.post("/", (req, res) => {
     }
 
     return res.json(responsePayload);
-
   } catch (e) {
     console.error("predict-v2 error:", e);
 
