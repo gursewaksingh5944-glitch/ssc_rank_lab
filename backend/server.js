@@ -36,8 +36,7 @@ app.use((req, res, next) => {
 
 // Hard-serve robots.txt
 app.get("/robots.txt", (req, res) => {
-  res.setHeader("Content-Type", "text/plain; charset=utf-8");
-  res.send(`User-agent: *
+  res.type("text/plain").send(`User-agent: *
 Allow: /
 
 Sitemap: https://sscranklab.com/sitemap.xml`);
@@ -45,67 +44,42 @@ Sitemap: https://sscranklab.com/sitemap.xml`);
 
 // Hard-serve sitemap.xml
 app.get("/sitemap.xml", (req, res) => {
-  res.setHeader("Content-Type", "application/xml; charset=utf-8");
-  res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset
-  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
->
+  res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://sscranklab.com/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://sscranklab.com/ssc-cgl-rank-predictor</loc>
+    <loc>https://sscranklab.com/ssc-cgl-rank-predictor.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://sscranklab.com/ssc-rank-predictor</loc>
+    <loc>https://sscranklab.com/ssc-chsl-rank-predictor.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://sscranklab.com/ssc-chsl-rank-predictor</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-score-vs-rank</loc>
+    <loc>https://sscranklab.com/ssc-marks-vs-rank.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sscranklab.com/ssc-marks-vs-rank</loc>
+    <loc>https://sscranklab.com/ssc-cgl-expected-cutoff-2026.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sscranklab.com/ssc-cgl-previous-year-cutoff</loc>
+    <loc>https://sscranklab.com/ssc-chsl-expected-cutoff-2026.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-cgl-previous-year-cutoff.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-cgl-expected-cutoff-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-chsl-expected-cutoff-2026</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-cgl-normalization-explained</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-cgl-syllabus</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
 </urlset>`);
 });
@@ -143,7 +117,7 @@ app.use((req, res) => {
     });
   }
 
-  return res.sendFile(path.join(publicPath, "index.html"));
+  return res.status(404).send("Page not found");
 });
 
 app.listen(PORT, () => {
