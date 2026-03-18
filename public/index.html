@@ -838,25 +838,7 @@
       }
     }
 
-    function updatePremiumOptions() {
-      const premiumInput = document.getElementById("premiumInput");
-      if (!premiumInput) return;
-
-      const currentPlan = getPaidPlan();
-
-      premiumInput.innerHTML = '<option value="0">Free</option>';
-
-      if (currentPlan === "49") {
-        premiumInput.innerHTML += '<option value="49">Premium ₹49</option>';
-        premiumInput.value = "49";
-      }
-
-      if (currentPlan === "99") {
-        premiumInput.innerHTML += '<option value="49">Premium ₹49</option>';
-        premiumInput.innerHTML += '<option value="99">Advanced ₹99</option>';
-        premiumInput.value = "99";
-      }
-    }
+   
 
     function updatePaidUI() {
       const currentPlan = getPaidPlan();
