@@ -9,6 +9,20 @@ const predictV2Route = require("./routes/predictV2");
 const paymentRoute = require("./routes/payment");
 
 const app = express();
+app.use((req, res, next) => {
+  const host = req.headers.host || "";
+  const proto = req.headers["x-forwarded-proto"];
+
+  if (host === "www.sscranklab.com") {
+    return res.redirect(301, `https://sscranklab.com${req.originalUrl}`);
+  }
+
+  if (proto && proto !== "https") {
+    return res.redirect(301, `https://sscranklab.com${req.originalUrl}`);
+  }
+
+  next();
+});
 const PORT = process.env.PORT || 3000;
 
 app.get("/robots.txt", (req, res) => {
