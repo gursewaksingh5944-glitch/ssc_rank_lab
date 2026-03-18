@@ -1,3 +1,10 @@
+app.get("/robots.txt", (req, res) => {
+  res.setHeader("Content-Type", "text/plain");
+  res.send(`User-agent: *
+Allow: /
+
+Sitemap: https://sscranklab.com/sitemap.xml`);
+});
 require("dotenv").config({ path: require("path").join(__dirname, ".env") });
 
 const path = require("path");
