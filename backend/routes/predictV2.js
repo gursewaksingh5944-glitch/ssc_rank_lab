@@ -56,7 +56,12 @@ router.post("/", (req, res) => {
     }
 
     const normalizedUserKey = normalizeUserKey(userKey);
-    const storedUnlockedPlan = getUnlockedPlanFromStore(req, normalizedUserKey);
+   let storedUnlockedPlan = getUnlockedPlanFromStore(req, normalizedUserKey);
+
+// 🔥 fallback: allow frontend unlocked plan
+if (!storedUnlockedPlan && [49, 99].includes(Number(plan))) {
+  storedUnlockedPlan = Number(plan);
+}
 
     const finalPlan =
       requestedPlan > 0
