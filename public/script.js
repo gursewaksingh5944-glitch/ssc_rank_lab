@@ -107,6 +107,8 @@ function updatePremiumOptions(unlockedPlan = 0) {
 
   if (previousValue > 0 && previousValue <= unlockedPlan) {
     premiumInput.value = String(previousValue);
+  } else if (unlockedPlan >= 49) {
+    premiumInput.value = String(unlockedPlan >= 99 ? 99 : 49);
   } else {
     premiumInput.value = "0";
   }
@@ -167,6 +169,7 @@ async function startRazorpayUnlock(plan, triggerButton = null) {
     if (currentUnlocked >= plan) {
       showPaymentStatus(`${getPlanName(plan)} already unlocked.`, "success");
       hideUnlockedPlanButtons(currentUnlocked);
+      updatePremiumOptions(currentUnlocked);
       return;
     }
 
@@ -233,14 +236,14 @@ async function startRazorpayUnlock(plan, triggerButton = null) {
             throw new Error("Invalid verification response from server");
           }
 
-          if (!verifyResponse.ok || !verifyData.success) {
+          if (!verifyResponse.ok || !verifyData.success || !verifyData.verified) {
             throw new Error(verifyData.error || "Payment verification failed");
           }
 
           const newUnlockedPlan = Math.max(
             Number(verifyData.unlockedPlan || 0),
             Number(plan || 0),
-            Number(currentUnlocked || 0)
+            Number(getUnlockedPlan() || 0)
           );
 
           saveUnlockedPlan(newUnlockedPlan);
@@ -258,13 +261,22 @@ async function startRazorpayUnlock(plan, triggerButton = null) {
           }
 
           showPaymentStatus(
-            `${getPlanName(plan)} unlocked successfully. Now click Predict Rank.`,
+            `${getPlanName(plan)} unlocked successfully.`,
             "success"
           );
 
-          const predictorSection = document.getElementById("predictor");
-          if (predictorSection) {
-            predictorSection.scrollIntoView({ behavior: "smooth", block: "start" });
+          const marksInput = document.getElementById("marksInput");
+          const categoryInput = document.getElementById("categoryInput");
+          const marks = Number(marksInput?.value);
+          const category = categoryInput?.value || "";
+
+          if (Number.isFinite(marks) && marks >= 0 && category) {
+            await predictRank();
+          } else {
+            const predictorSection = document.getElementById("predictor");
+            if (predictorSection) {
+              predictorSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
           }
         } catch (error) {
           console.error("Payment verification error:", error);
