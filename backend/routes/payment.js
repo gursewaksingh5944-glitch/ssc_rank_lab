@@ -1,6 +1,11 @@
 const express = require("express");
 const crypto = require("crypto");
 const Razorpay = require("razorpay");
+const {
+  getUnlockedPlan,
+  setUnlockedPlan,
+  hasPaymentId
+} = require("../utils/planStore");
 
 const router = express.Router();
 
@@ -30,20 +35,6 @@ function getRazorpayClient() {
     key_id: keyId,
     key_secret: keySecret
   });
-}
-
-function getUserPlansStore(req) {
-  if (!req.app.locals.userPlans) {
-    req.app.locals.userPlans = new Map();
-  }
-  return req.app.locals.userPlans;
-}
-
-function getPaymentHistoryStore(req) {
-  if (!req.app.locals.paymentHistory) {
-    req.app.locals.paymentHistory = [];
-  }
-  return req.app.locals.paymentHistory;
 }
 
 router.post("/create-order", async (req, res) => {
@@ -149,19 +140,24 @@ router.post("/verify", async (req, res) => {
       });
     }
 
-    const userPlans = getUserPlansStore(req);
-    const currentUnlockedPlan = Number(userPlans.get(userKey) || 0);
-    const newUnlockedPlan = Math.max(currentUnlockedPlan, planNum);
+    if (hasPaymentId(razorpayPaymentId)) {
+      const unlockedPlan = getUnlockedPlan(userKey);
 
-    userPlans.set(userKey, newUnlockedPlan);
+      return res.status(200).json({
+        success: true,
+        verified: true,
+        unlockedPlan,
+        plan: unlockedPlan,
+        userKey,
+        paymentId: razorpayPaymentId,
+        orderId: razorpayOrderId,
+        message: "Payment already verified"
+      });
+    }
 
-    const paymentHistory = getPaymentHistoryStore(req);
-    paymentHistory.push({
-      userKey,
-      plan: planNum,
+    const newUnlockedPlan = setUnlockedPlan(userKey, planNum, {
       paymentId: razorpayPaymentId,
-      orderId: razorpayOrderId,
-      at: new Date().toISOString()
+      orderId: razorpayOrderId
     });
 
     return res.status(200).json({
@@ -188,6 +184,7 @@ router.post("/verify", async (req, res) => {
 router.get("/status", (req, res) => {
   try {
     const userKey = normalizeUserKey(req.query.userKey);
+
     if (!userKey) {
       return res.status(400).json({
         success: false,
@@ -195,8 +192,7 @@ router.get("/status", (req, res) => {
       });
     }
 
-    const userPlans = getUserPlansStore(req);
-    const unlockedPlan = Number(userPlans.get(userKey) || 0);
+    const unlockedPlan = getUnlockedPlan(userKey);
 
     return res.status(200).json({
       success: true,
@@ -205,6 +201,7 @@ router.get("/status", (req, res) => {
     });
   } catch (err) {
     console.error("status error:", err);
+
     return res.status(500).json({
       success: false,
       error: "Unable to fetch payment status"

@@ -5,16 +5,10 @@ const { loadExamData } = require("../engine/examLoader");
 const { estimateFromCumulative } = require("../engine/rankEngine");
 const { buildInsights } = require("../engine/premiumInsights");
 const { getPostChances } = require("../engine/postAllocator");
+const { getUnlockedPlan } = require("../utils/planStore");
 
 function normalizeUserKey(value) {
   return String(value || "").trim().toLowerCase();
-}
-
-function getUnlockedPlanFromStore(req, userKey) {
-  if (!userKey) return 0;
-  const store = req.app?.locals?.userPlans;
-  if (!store || typeof store.get !== "function") return 0;
-  return Number(store.get(userKey) || 0);
 }
 
 router.post("/", (req, res) => {
@@ -56,12 +50,7 @@ router.post("/", (req, res) => {
     }
 
     const normalizedUserKey = normalizeUserKey(userKey);
-   let storedUnlockedPlan = getUnlockedPlanFromStore(req, normalizedUserKey);
-
-// 🔥 fallback: allow frontend unlocked plan
-if (!storedUnlockedPlan && [49, 99].includes(Number(plan))) {
-  storedUnlockedPlan = Number(plan);
-}
+    const storedUnlockedPlan = getUnlockedPlan(normalizedUserKey);
 
     const finalPlan =
       requestedPlan > 0
@@ -148,7 +137,7 @@ if (!storedUnlockedPlan && [49, 99].includes(Number(plan))) {
 
     return res.json(responsePayload);
   } catch (e) {
-    console.error("predict-v2 error:", e);
+    console.error("predictV2 error:", e);
 
     return res.status(500).json({
       success: false,
