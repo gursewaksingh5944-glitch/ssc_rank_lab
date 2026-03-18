@@ -42,48 +42,6 @@ Allow: /
 Sitemap: https://sscranklab.com/sitemap.xml`);
 });
 
-// Hard-serve sitemap.xml
-app.get("/sitemap.xml", (req, res) => {
-  res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://sscranklab.com/</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-cgl-rank-predictor.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-chsl-rank-predictor.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-marks-vs-rank.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-cgl-expected-cutoff-2026.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-chsl-expected-cutoff-2026.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-cgl-previous-year-cutoff.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-</urlset>`);
-});
-
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -103,10 +61,12 @@ app.use("/api/predict", predictRoute);
 app.use("/api/predict-v2", predictV2Route);
 app.use("/api/payment", paymentRoute);
 
+// Serve static files from public
 app.use(express.static(publicPath));
 
+// Homepage must open normally
 app.get("/", (req, res) => {
- return res.status(404).send("Page not found");
+  return res.sendFile(path.join(publicPath, "index.html"));
 });
 
 app.use((req, res) => {
