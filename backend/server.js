@@ -3,7 +3,13 @@ require("dotenv").config({ path: require("path").join(__dirname, ".env") });
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
+app.get("/robots.txt", (req, res) => {
+  res.type("text/plain");
+  res.send(`User-agent: *
+Allow: /
 
+Sitemap: https://sscranklab.com/sitemap.xml`);
+});
 const predictRoute = require("./routes/predict");
 const predictV2Route = require("./routes/predictV2");
 const paymentRoute = require("./routes/payment");
