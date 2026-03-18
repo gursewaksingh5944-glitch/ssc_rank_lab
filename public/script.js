@@ -55,7 +55,9 @@ function getUserKey() {
 
 function saveUnlockedPlan(plan) {
   try {
-    localStorage.setItem("sscranklab_unlocked_plan", String(plan));
+    const currentPlan = Number(localStorage.getItem("sscranklab_unlocked_plan") || 0);
+    const finalPlan = Math.max(currentPlan, Number(plan || 0));
+    localStorage.setItem("sscranklab_unlocked_plan", String(finalPlan));
   } catch (err) {
     console.error("saveUnlockedPlan error:", err);
   }
@@ -112,15 +114,27 @@ function updatePremiumOptions(unlockedPlan = 0) {
   } else {
     premiumInput.value = "0";
   }
+
+  updatePlanStatusText(unlockedPlan);
 }
 
 function restoreUnlockedPlan() {
-  const savedPlan = Number(localStorage.getItem("sscranklab_unlocked_plan") || 0);
+  const savedPlan = getUnlockedPlan();
+  updatePremiumOptions(savedPlan);
+  hideUnlockedPlanButtons(savedPlan);
+}
 
-  setTimeout(() => {
-    updatePremiumOptions(savedPlan);
-    hideUnlockedPlanButtons(savedPlan);
-  }, 100);
+function updatePlanStatusText(unlockedPlan = 0) {
+  const planStatusText = document.getElementById("planStatusText");
+  if (!planStatusText) return;
+
+  if (unlockedPlan >= 99) {
+    planStatusText.textContent = "₹49 and ₹99 premium unlocked.";
+  } else if (unlockedPlan >= 49) {
+    planStatusText.textContent = "₹49 premium unlocked.";
+  } else {
+    planStatusText.textContent = "Free is default. Premium appears only after payment.";
+  }
 }
 
 function getPlanName(plan) {
@@ -136,6 +150,9 @@ function hideUnlockedPlanButtons(unlockedPlan) {
     if (buttonPlan > 0 && buttonPlan <= Number(unlockedPlan || 0)) {
       button.classList.add("hidden");
       button.disabled = true;
+    } else {
+      button.classList.remove("hidden");
+      button.disabled = false;
     }
   });
 }
@@ -255,7 +272,7 @@ async function startRazorpayUnlock(plan, triggerButton = null) {
           hideUnlockedPlanButtons(newUnlockedPlan);
 
           const premiumInput = document.getElementById("premiumInput");
-          if (premiumInput) {
+          if (premiumInput && newUnlockedPlan >= plan) {
             premiumInput.value = String(plan);
           }
 
@@ -417,17 +434,25 @@ async function predictRank() {
       return;
     }
 
-const finalUnlocked = Number(data.unlockedPlan || data.plan || 0);
+    const localUnlockedPlan = getUnlockedPlan();
+    const finalUnlocked = Math.max(
+      localUnlockedPlan,
+      Number(data.unlockedPlan || 0),
+      Number(data.plan || 0)
+    );
 
-saveUnlockedPlan(finalUnlocked);
+    saveUnlockedPlan(finalUnlocked);
 
-// 🔥 force update AFTER everything
-setTimeout(() => {
-  updatePremiumOptions(finalUnlocked);
-}, 0);
-    hideUnlockedPlanButtons(Number(data.unlockedPlan || data.plan || 0));
+    setTimeout(() => {
+      updatePremiumOptions(finalUnlocked);
+    }, 0);
 
-    renderResult(data);
+    hideUnlockedPlanButtons(finalUnlocked);
+
+    renderResult({
+      ...data,
+      unlockedPlan: finalUnlocked
+    });
   } catch (e) {
     console.error("predictRank error:", e);
     resultDiv.innerHTML = `
