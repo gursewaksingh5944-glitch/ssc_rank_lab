@@ -106,7 +106,7 @@ app.use("/api/payment", paymentRoute);
 app.use(express.static(publicPath));
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(publicPath, "index.html"));
+ return res.status(404).send("Page not found");
 });
 
 app.use((req, res) => {
