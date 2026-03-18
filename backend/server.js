@@ -1,15 +1,16 @@
-app.get("/robots.txt", (req, res) => {
-  res.setHeader("Content-Type", "text/plain");
-  res.send(`User-agent: *
-Allow: /
-
-Sitemap: https://sscranklab.com/sitemap.xml`);
-});
 require("dotenv").config({ path: require("path").join(__dirname, ".env") });
 
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
+
+const predictRoute = require("./routes/predict");
+const predictV2Route = require("./routes/predictV2");
+const paymentRoute = require("./routes/payment");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
 app.get("/robots.txt", (req, res) => {
   res.type("text/plain");
   res.send(`User-agent: *
@@ -17,12 +18,6 @@ Allow: /
 
 Sitemap: https://sscranklab.com/sitemap.xml`);
 });
-const predictRoute = require("./routes/predict");
-const predictV2Route = require("./routes/predictV2");
-const paymentRoute = require("./routes/payment");
-
-const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
