@@ -769,26 +769,26 @@
     </div>
   </section>
 
-<section class="seo-links">
-  <h2>SSC Exam Tools & Insights</h2>
-  <ul>
-    <li><a href="/">SSC RankLab Home</a></li>
+  <section class="seo-links">
+    <h2>SSC Exam Tools & Insights</h2>
+    <ul>
+      <li><a href="/">SSC RankLab Home</a></li>
 
-    <li><a href="./ssc-cgl-rank-predictor.html">SSC CGL Rank Predictor</a></li>
-    <li><a href="./ssc-rank-predictor.html">SSC Rank Predictor (All Exams)</a></li>
-    <li><a href="./ssc-chsl-rank-predictor.html">SSC CHSL Rank Predictor</a></li>
+      <li><a href="./ssc-cgl-rank-predictor.html">SSC CGL Rank Predictor</a></li>
+      <li><a href="./ssc-rank-predictor.html">SSC Rank Predictor (All Exams)</a></li>
+      <li><a href="./ssc-chsl-rank-predictor.html">SSC CHSL Rank Predictor</a></li>
 
-    <li><a href="./ssc-score-vs-rank.html">SSC Score vs Rank Analysis</a></li>
-    <li><a href="./ssc-marks-vs-rank.html">SSC Marks vs Rank Guide</a></li>
+      <li><a href="./ssc-score-vs-rank.html">SSC Score vs Rank Analysis</a></li>
+      <li><a href="./ssc-marks-vs-rank.html">SSC Marks vs Rank Guide</a></li>
 
-    <li><a href="./ssc-cgl-previous-year-cutoff.html">SSC CGL Previous Year Cutoff</a></li>
-    <li><a href="./ssc-cgl-expected-cutoff-2026.html">SSC CGL Expected Cutoff 2026</a></li>
-    <li><a href="./ssc-chsl-expected-cutoff-2026.html">SSC CHSL Expected Cutoff 2026</a></li>
+      <li><a href="./ssc-cgl-previous-year-cutoff.html">SSC CGL Previous Year Cutoff</a></li>
+      <li><a href="./ssc-cgl-expected-cutoff-2026.html">SSC CGL Expected Cutoff 2026</a></li>
+      <li><a href="./ssc-chsl-expected-cutoff-2026.html">SSC CHSL Expected Cutoff 2026</a></li>
 
-    <li><a href="./ssc-cgl-normalization-explained.html">SSC Normalization Explained</a></li>
-    <li><a href="./ssc-cgl-syllabus.html">SSC CGL Syllabus</a></li>
-  </ul>
-</section>
+      <li><a href="./ssc-cgl-normalization-explained.html">SSC Normalization Explained</a></li>
+      <li><a href="./ssc-cgl-syllabus.html">SSC CGL Syllabus</a></li>
+    </ul>
+  </section>
 
   <!-- Footer -->
   <footer class="bg-gray-900 text-white py-12 text-center">
@@ -808,127 +808,6 @@
       let text = "I predicted my SSC rank using SSCRankLab 🔥 Check yours: https://sscranklab.com/";
       window.open("https://t.me/share/url?url=https://sscranklab.com/&text=" + encodeURIComponent(text));
     }
-
-    function showPaymentToast(message, isSuccess = true) {
-      const toast = document.getElementById("paymentStatus");
-      toast.classList.remove("hidden");
-      toast.className = "fixed top-24 right-4 z-[60] max-w-sm border shadow-2xl rounded-2xl px-4 py-3";
-
-      if (isSuccess) {
-        toast.classList.add("bg-green-50", "border-green-200", "text-green-800");
-      } else {
-        toast.classList.add("bg-red-50", "border-red-200", "text-red-800");
-      }
-
-      toast.innerHTML = message;
-
-      setTimeout(() => {
-        toast.classList.add("hidden");
-      }, 3500);
-    }
-
-    function getPaidPlan() {
-      return localStorage.getItem("paidPlan") || "0";
-    }
-
-    function setPaidPlan(plan, paymentId) {
-      localStorage.setItem("paidPlan", String(plan));
-      if (paymentId) {
-        localStorage.setItem("paymentId", paymentId);
-      }
-    }
-
-   
-
-    function updatePaidUI() {
-      const currentPlan = getPaidPlan();
-      const planStatusText = document.getElementById("planStatusText");
-
-      document.querySelectorAll(".premium-49 .premium-overlay").forEach(el => {
-        el.style.display = (currentPlan === "49" || currentPlan === "99") ? "none" : "flex";
-      });
-
-      document.querySelectorAll(".premium-99 .premium-overlay").forEach(el => {
-        el.style.display = (currentPlan === "99") ? "none" : "flex";
-      });
-
-      document.querySelectorAll('.js-unlock-plan[data-plan="49"]').forEach(el => {
-        if (currentPlan === "49" || currentPlan === "99") {
-          el.style.display = "none";
-        } else {
-          el.style.display = "inline-flex";
-        }
-      });
-
-      document.querySelectorAll('.js-unlock-plan[data-plan="99"]').forEach(el => {
-        if (currentPlan === "99") {
-          el.style.display = "none";
-        } else {
-          el.style.display = "inline-flex";
-        }
-      });
-
-      if (planStatusText) {
-        if (currentPlan === "49") {
-          planStatusText.textContent = "Premium ₹49 unlocked. You can now use premium insights.";
-        } else if (currentPlan === "99") {
-          planStatusText.textContent = "Advanced ₹99 unlocked. Full premium insights are available.";
-        } else {
-          planStatusText.textContent = "Free is default. Premium appears only after payment.";
-        }
-      }
-
-   
-    }
-
-    function openRazorpay(plan) {
-      const amount = plan === "99" ? 9900 : 4900;
-
-      const options = {
-        key: "rzp_live_SSCKd8VyFHGzLn",
-        amount: amount,
-        currency: "INR",
-        name: "SSCRankLab",
-        description: plan === "99" ? "Advanced SSC Insights" : "Premium SSC Insights",
-        handler: function (response) {
-          setPaidPlan(plan, response.razorpay_payment_id);
-          updatePaidUI();
-          showPaymentToast("✅ Payment successful. Plan unlocked.");
-        },
-        prefill: {
-          name: "",
-          email: "",
-          contact: ""
-        },
-        theme: {
-          color: "#4f46e5"
-        },
-        modal: {
-          ondismiss: function () {
-            showPaymentToast("Payment window closed.", false);
-          }
-        }
-      };
-
-      const rzp = new Razorpay(options);
-
-      rzp.on("payment.failed", function () {
-        showPaymentToast("Payment failed. Please try again.", false);
-      });
-
-      rzp.open();
-    }
-
-    document.querySelectorAll(".js-unlock-plan").forEach(btn => {
-      btn.addEventListener("click", function () {
-        const plan = this.getAttribute("data-plan");
-        openRazorpay(plan);
-      });
-    });
-
-    document.addEventListener("DOMContentLoaded", function () {
-      updatePaidUI();
-    });
   </script>
 
   <script type="application/ld+json">
