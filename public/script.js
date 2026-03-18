@@ -115,13 +115,12 @@ function updatePremiumOptions(unlockedPlan = 0) {
 }
 
 function restoreUnlockedPlan() {
-  const savedPlan = getUnlockedPlan();
-  updatePremiumOptions(savedPlan);
+  const savedPlan = Number(localStorage.getItem("sscranklab_unlocked_plan") || 0);
 
-  if (savedPlan === 49 || savedPlan === 99) {
-    showPaymentStatus(`Premium ₹${savedPlan} already unlocked.`, "success");
+  setTimeout(() => {
+    updatePremiumOptions(savedPlan);
     hideUnlockedPlanButtons(savedPlan);
-  }
+  }, 100);
 }
 
 function getPlanName(plan) {
@@ -418,8 +417,14 @@ async function predictRank() {
       return;
     }
 
-    saveUnlockedPlan(Number(data.unlockedPlan || data.plan || 0));
-    updatePremiumOptions(Number(data.unlockedPlan || data.plan || 0));
+const finalUnlocked = Number(data.unlockedPlan || data.plan || 0);
+
+saveUnlockedPlan(finalUnlocked);
+
+// 🔥 force update AFTER everything
+setTimeout(() => {
+  updatePremiumOptions(finalUnlocked);
+}, 0);
     hideUnlockedPlanButtons(Number(data.unlockedPlan || data.plan || 0));
 
     renderResult(data);
