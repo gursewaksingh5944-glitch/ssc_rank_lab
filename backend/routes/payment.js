@@ -19,8 +19,8 @@ function normalizeUserKey(value) {
 }
 
 function getRazorpayClient() {
-  const keyId = process.env.RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  const keyId = String(process.env.RAZORPAY_KEY_ID || "").trim();
+  const keySecret = String(process.env.RAZORPAY_KEY_SECRET || "").trim();
 
   if (!keyId || !keySecret) {
     throw new Error("Missing Razorpay credentials");
@@ -66,7 +66,7 @@ router.post("/create-order", async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      keyId: process.env.RAZORPAY_KEY_ID,
+      keyId: String(process.env.RAZORPAY_KEY_ID || "").trim(),
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
@@ -117,9 +117,9 @@ router.post("/verify", async (req, res) => {
       });
     }
 
-    const secret = process.env.RAZORPAY_KEY_SECRET;
+    const secret = String(process.env.RAZORPAY_KEY_SECRET || "").trim();
     if (!secret) {
-      throw new Error("Missing Razorpay secret");
+      throw new Error("Missing Razorpay credentials");
     }
 
     const expectedSignature = crypto

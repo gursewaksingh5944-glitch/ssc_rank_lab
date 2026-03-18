@@ -12,6 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const publicPath = path.join(__dirname, "..", "public");
 
+// Force non-www + https
 app.use((req, res, next) => {
   const host = (req.headers.host || "").toLowerCase();
   const proto = (req.headers["x-forwarded-proto"] || req.protocol || "").toLowerCase();
@@ -27,6 +28,13 @@ app.use((req, res, next) => {
   next();
 });
 
+// Force robots header for all pages
+app.use((req, res, next) => {
+  res.setHeader("X-Robots-Tag", "index, follow");
+  next();
+});
+
+// Hard-serve robots.txt
 app.get("/robots.txt", (req, res) => {
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.send(`User-agent: *
@@ -35,33 +43,15 @@ Allow: /
 Sitemap: https://sscranklab.com/sitemap.xml`);
 });
 
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.locals.userPlans = new Map();
-app.locals.paymentHistory = [];
-
-app.get("/health", (req, res) => {
-  res.json({
-    ok: true,
-    message: "Backend running",
-    paymentLive: true
-  });
-});
-
-app.use("/api/predict", predictRoute);
-app.use("/api/predict-v2", predictV2Route);
-app.use("/api/payment", paymentRoute);
-app.use("/api/predict", predictRoute);
-app.use("/api/predict-v2", predictV2Route);
-app.use("/api/payment", paymentRoute);
-
-// ✅ ADD THIS HERE (VERY IMPORTANT POSITION)
+// Hard-serve sitemap.xml
 app.get("/sitemap.xml", (req, res) => {
-  res.type("application/xml");
+  res.setHeader("Content-Type", "application/xml; charset=utf-8");
   res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
+>
   <url>
     <loc>https://sscranklab.com/</loc>
     <changefreq>daily</changefreq>
@@ -92,11 +82,53 @@ app.get("/sitemap.xml", (req, res) => {
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-cgl-previous-year-cutoff</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-cgl-expected-cutoff-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-chsl-expected-cutoff-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-cgl-normalization-explained</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-cgl-syllabus</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>`);
 });
 
-// 👇 keep this AFTER sitemap
-app.use(express.static(publicPath));
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.locals.userPlans = new Map();
+app.locals.paymentHistory = [];
+
+app.get("/health", (req, res) => {
+  res.json({
+    ok: true,
+    message: "Backend running",
+    paymentLive: true
+  });
+});
+
+app.use("/api/predict", predictRoute);
+app.use("/api/predict-v2", predictV2Route);
+app.use("/api/payment", paymentRoute);
+
 app.use(express.static(publicPath));
 
 app.get("/", (req, res) => {
