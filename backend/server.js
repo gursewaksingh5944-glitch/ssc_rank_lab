@@ -27,7 +27,9 @@ app.use((req, res, next) => {
 
   next();
 });
-
+app.get("/debug-headers", (req, res) => {
+  res.json(res.getHeaders());
+});
 
 
 // ✅ FIXED sitemap route
