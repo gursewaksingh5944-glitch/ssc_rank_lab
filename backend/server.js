@@ -9,7 +9,7 @@ const predictV2Route = require("./routes/predictV2");
 const paymentRoute = require("./routes/payment");
 
 const app = express();
-const PORT = process.env.PORT || 10000; // ✅ Render fix
+const PORT = process.env.PORT || 10000;
 const publicPath = path.join(__dirname, "..", "public");
 
 // Force non-www + https
@@ -27,20 +27,32 @@ app.use((req, res, next) => {
 
   next();
 });
-app.get("/debug-headers", (req, res) => {
-  res.json(res.getHeaders());
-});
 
-
-// ✅ FIXED sitemap route
-app.get("/sitemap.xml", (req, res) => {
-  res.setHeader("Content-Type", "application/xml");
-  res.sendFile(path.join(__dirname, "..", "public", "sitemap.xml"));
+// Force-remove any X-Robots-Tag header
+app.use((req, res, next) => {
+  res.removeHeader("X-Robots-Tag");
+  next();
 });
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.get("/robots.txt", (req, res) => {
+  res.type("text/plain").send(`User-agent: *
+Allow: /
+
+Sitemap: https://sscranklab.com/sitemap.xml`);
+});
+
+app.get("/sitemap.xml", (req, res) => {
+  res.setHeader("Content-Type", "application/xml");
+  res.sendFile(path.join(__dirname, "..", "public", "sitemap.xml"));
+});
+
+app.get("/debug-headers", (req, res) => {
+  res.json(res.getHeaders());
+});
 
 app.get("/health", (req, res) => {
   res.json({
@@ -54,15 +66,12 @@ app.use("/api/predict", predictRoute);
 app.use("/api/predict-v2", predictV2Route);
 app.use("/api/payment", paymentRoute);
 
-// Serve static files
 app.use(express.static(publicPath));
 
-// Homepage
 app.get("/", (req, res) => {
   return res.sendFile(path.join(publicPath, "index.html"));
 });
 
-// 404 handler
 app.use((req, res) => {
   if (req.path.startsWith("/api/")) {
     return res.status(404).json({
@@ -77,4 +86,5 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`✅ Health: /health`);
+  console.log(`✅ Debug: /debug-headers`);
 });
