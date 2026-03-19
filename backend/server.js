@@ -58,7 +58,9 @@ app.get("/health", (req, res) => {
 app.use("/api/predict", predictRoute);
 app.use("/api/predict-v2", predictV2Route);
 app.use("/api/payment", paymentRoute);
-
+app.get("/sitemap.xml", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "public", "sitemap.xml"));
+});
 // Serve static files from public
 app.use(express.static(publicPath));
 
