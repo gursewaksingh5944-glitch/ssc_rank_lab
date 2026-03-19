@@ -34,13 +34,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ FIXED robots.txt
-app.get("/robots.txt", (req, res) => {
-  res.type("text/plain").send(`User-agent: *
-Allow: /
-
-Sitemap: https://sscranklab.com/sitemap.xml`);
-});
 
 // ✅ FIXED sitemap route
 app.get("/sitemap.xml", (req, res) => {
