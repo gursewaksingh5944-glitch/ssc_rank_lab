@@ -9,7 +9,7 @@ const predictV2Route = require("./routes/predictV2");
 const paymentRoute = require("./routes/payment");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 const publicPath = path.join(__dirname, "..", "public");
 
 // Force non-www + https
@@ -46,8 +46,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.locals.userPlans = new Map();
-app.locals.paymentHistory = [];
 
 app.get("/health", (req, res) => {
   res.json({
@@ -81,7 +79,7 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ Server running: http://localhost:${PORT}`);
+ console.log(`✅ Server running on port ${PORT}`);
   console.log(`✅ Website:        http://localhost:${PORT}/`);
   console.log(`✅ Health:         http://localhost:${PORT}/health`);
   console.log(`✅ Predict V2:     http://localhost:${PORT}/api/predict-v2`);
