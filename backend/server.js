@@ -9,6 +9,7 @@ const predictV2Route = require("./routes/predictV2");
 const paymentRoute = require("./routes/payment");
 
 const app = express();
+app.set("trust proxy", true);
 const PORT = process.env.PORT || 10000;
 const publicPath = path.join(__dirname, "..", "public");
 
@@ -21,9 +22,6 @@ app.use((req, res, next) => {
     return res.redirect(301, `https://sscranklab.com${req.originalUrl}`);
   }
 
-  if (host === "sscranklab.com" && proto && proto !== "https") {
-    return res.redirect(301, `https://sscranklab.com${req.originalUrl}`);
-  }
 
   next();
 });
