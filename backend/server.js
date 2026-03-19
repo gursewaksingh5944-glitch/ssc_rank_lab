@@ -28,11 +28,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Force robots header
-app.use((req, res, next) => {
-  res.setHeader("X-Robots-Tag", "index, follow");
-  next();
-});
 
 
 // ✅ FIXED sitemap route
