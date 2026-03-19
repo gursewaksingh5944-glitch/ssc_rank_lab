@@ -50,7 +50,15 @@ router.post("/", (req, res) => {
     }
 
     const normalizedUserKey = normalizeUserKey(userKey);
-    const storedUnlockedPlan = getUnlockedPlan(normalizedUserKey);
+
+    let storedUnlockedPlan = getUnlockedPlan(normalizedUserKey);
+
+    // Temporary fallback:
+    // If backend file storage resets but frontend is already sending a valid unlocked plan,
+    // allow premium response instead of forcing free result.
+    if (!storedUnlockedPlan && [49, 99].includes(requestedPlan)) {
+      storedUnlockedPlan = requestedPlan;
+    }
 
     const finalPlan =
       requestedPlan > 0
