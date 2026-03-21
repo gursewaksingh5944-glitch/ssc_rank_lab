@@ -35,11 +35,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// robots.txt
 app.get("/robots.txt", (req, res) => {
   res.setHeader("Content-Type", "text/plain");
+
   return res.send(`User-agent: *
 Allow: /
+
+# updated: 2026-03-21
 
 Sitemap: https://sscranklab.com/sitemap.xml`);
 });
