@@ -14,11 +14,12 @@ app.set("trust proxy", true);
 const PORT = process.env.PORT || 10000;
 const publicPath = path.join(__dirname, "..", "public");
 
-// Redirect only www -> non-www
 app.use((req, res, next) => {
   const host = (req.headers.host || "").toLowerCase();
+  const proto = (req.headers["x-forwarded-proto"] || "").toLowerCase();
 
-  if (host === "www.sscranklab.com") {
+  // Force https + non-www
+  if (host !== "sscranklab.com" || proto !== "https") {
     return res.redirect(301, `https://sscranklab.com${req.originalUrl}`);
   }
 
