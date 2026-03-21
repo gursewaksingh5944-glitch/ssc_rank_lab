@@ -14,6 +14,10 @@ app.set("trust proxy", true);
 const PORT = process.env.PORT || 10000;
 const publicPath = path.join(__dirname, "..", "public");
 
+
+// ===============================
+// 🔥 FORCE CANONICAL DOMAIN (IMPORTANT)
+// ===============================
 app.use((req, res, next) => {
   const host = (req.headers.host || "").toLowerCase();
   const proto = (req.headers["x-forwarded-proto"] || "").toLowerCase();
@@ -26,33 +30,48 @@ app.use((req, res, next) => {
   next();
 });
 
-// Remove any X-Robots-Tag header
+
+// ===============================
+// 🔥 REMOVE ANY ROBOTS HEADER
+// ===============================
 app.use((req, res, next) => {
   res.removeHeader("X-Robots-Tag");
   next();
 });
 
+
+// ===============================
+// MIDDLEWARE
+// ===============================
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+// ===============================
+// 🔥 ROBOTS.TXT (ONLY ONE SOURCE)
+// ===============================
 app.get("/robots.txt", (req, res) => {
   res.setHeader("Content-Type", "text/plain");
 
   return res.send(`User-agent: *
 Allow: /
 
-# updated: 2026-03-21
-
 Sitemap: https://sscranklab.com/sitemap.xml`);
 });
 
-// debug route
+
+// ===============================
+// DEBUG (REMOVE LATER IF WANT)
+// ===============================
 app.get("/debug-headers", (req, res) => {
   res.json(res.getHeaders());
 });
 
-// health route
+
+// ===============================
+// HEALTH CHECK
+// ===============================
 app.get("/health", (req, res) => {
   res.json({
     ok: true,
@@ -61,19 +80,32 @@ app.get("/health", (req, res) => {
   });
 });
 
+
+// ===============================
+// API ROUTES
+// ===============================
 app.use("/api/predict", predictRoute);
 app.use("/api/predict-v2", predictV2Route);
 app.use("/api/payment", paymentRoute);
 
-// static files
+
+// ===============================
+// STATIC FILES
+// ===============================
 app.use(express.static(publicPath));
 
-// homepage
+
+// ===============================
+// HOMEPAGE
+// ===============================
 app.get("/", (req, res) => {
   return res.sendFile(path.join(publicPath, "index.html"));
 });
 
-// 404
+
+// ===============================
+// 404 HANDLER
+// ===============================
 app.use((req, res) => {
   if (req.path.startsWith("/api/")) {
     return res.status(404).json({
@@ -85,8 +117,13 @@ app.use((req, res) => {
   return res.status(404).send("Page not found");
 });
 
+
+// ===============================
+// START SERVER
+// ===============================
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`✅ Health: /health`);
+  console.log(`✅ Robots: /robots.txt`);
   console.log(`✅ Debug: /debug-headers`);
 });
