@@ -43,10 +43,7 @@ Allow: /
 Sitemap: https://sscranklab.com/sitemap.xml`);
 });
 
-app.get("/sitemap.xml", (req, res) => {
-  res.setHeader("Content-Type", "application/xml");
-  res.sendFile(path.join(__dirname, "..", "public", "sitemap.xml"));
-});
+
 
 app.get("/debug-headers", (req, res) => {
   res.json(res.getHeaders());
