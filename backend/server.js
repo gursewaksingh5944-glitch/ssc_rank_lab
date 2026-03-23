@@ -29,7 +29,7 @@ Sitemap: https://sscranklab.com/sitemap.xml`);
 
 
 // ===============================
-// 🔥 SITEMAP
+// 🔥 SITEMAP (MUST BE BEFORE REDIRECT!)
 // ===============================
 app.get("/sitemap.xml", (req, res) => {
   res.setHeader("Content-Type", "application/xml");
