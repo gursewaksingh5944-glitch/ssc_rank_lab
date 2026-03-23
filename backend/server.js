@@ -29,6 +29,25 @@ Sitemap: https://sscranklab.com/sitemap.xml`);
 
 
 // ===============================
+// 🔥 SITEMAP
+// ===============================
+app.get("/sitemap.xml", (req, res) => {
+  res.setHeader("Content-Type", "application/xml");
+  res.setHeader("charset", "utf-8");
+
+  return res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://sscranklab.com/</loc>
+    <lastmod>2026-03-23</lastmod>
+    <priority>1.0</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+</urlset>`);
+});
+
+
+// ===============================
 // 🔥 FORCE CANONICAL DOMAIN (IMPORTANT)
 // ===============================
 app.use((req, res, next) => {
@@ -125,5 +144,6 @@ app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`✅ Health: /health`);
   console.log(`✅ Robots: /robots.txt`);
+  console.log(`✅ Sitemap: /sitemap.xml`);
   console.log(`✅ Debug: /debug-headers`);
 });
