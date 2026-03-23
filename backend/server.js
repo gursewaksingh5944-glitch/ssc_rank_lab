@@ -43,6 +43,60 @@ app.get("/sitemap.xml", (req, res) => {
     <priority>1.0</priority>
     <changefreq>weekly</changefreq>
   </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-cgl-expected-cutoff-2026.html</loc>
+    <lastmod>2026-03-23</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-cgl-normalization-explained.html</loc>
+    <lastmod>2026-03-23</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-cgl-previous-year-cutoff.html</loc>
+    <lastmod>2026-03-23</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-cgl-rank-predictor.html</loc>
+    <lastmod>2026-03-23</lastmod>
+    <priority>0.95</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-syllabus.html</loc>
+    <lastmod>2026-03-23</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-chsl-rank-predictor.html</loc>
+    <lastmod>2026-03-23</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-marks-vs-rank.html</loc>
+    <lastmod>2026-03-23</lastmod>
+    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-rank-predictor.html</loc>
+    <lastmod>2026-03-23</lastmod>
+    <priority>0.95</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-score-vs-rank.html</loc>
+    <lastmod>2026-03-23</lastmod>
+    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+  </url>
 </urlset>`);
 });
 
