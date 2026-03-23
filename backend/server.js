@@ -16,6 +16,19 @@ const publicPath = path.join(__dirname, "..", "public");
 
 
 // ===============================
+// 🔥 ROBOTS.TXT (MUST BE FIRST!)
+// ===============================
+app.get("/robots.txt", (req, res) => {
+  res.setHeader("Content-Type", "text/plain");
+
+  return res.send(`User-agent: *
+Allow: /
+
+Sitemap: https://sscranklab.com/sitemap.xml`);
+});
+
+
+// ===============================
 // 🔥 FORCE CANONICAL DOMAIN (IMPORTANT)
 // ===============================
 app.use((req, res, next) => {
@@ -46,19 +59,6 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-
-// ===============================
-// 🔥 ROBOTS.TXT (ONLY ONE SOURCE)
-// ===============================
-app.get("/robots.txt", (req, res) => {
-  res.setHeader("Content-Type", "text/plain");
-
-  return res.send(`User-agent: *
-Allow: /
-
-Sitemap: https://sscranklab.com/sitemap.xml`);
-});
 
 
 // ===============================
