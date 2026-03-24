@@ -3,16 +3,91 @@ document.addEventListener("DOMContentLoaded", function () {
   restoreUnlockedPlan();
   initCharts();
 
+  const testDateInput = document.getElementById("testDate");
+  if (testDateInput && !testDateInput.value) {
+    testDateInput.value = new Date().toISOString().split("T")[0];
+  }
+
   const predictBtn = document.getElementById("btnRankPredictor");
   if (predictBtn) {
     predictBtn.addEventListener("click", predictRank);
   }
 
+  const saveMarksBtn = document.getElementById("saveMarksBtn");
+  if (saveMarksBtn) {
+    saveMarksBtn.addEventListener("click", saveMarks);
+  }
+
+  const benchmarkModeEl = document.getElementById("benchmarkMode");
+  if (benchmarkModeEl) {
+    benchmarkModeEl.addEventListener("change", handleBenchmarkModeChange);
+  }
+
+  const prevCutoffEl = document.getElementById("previousCutoffInput");
+  if (prevCutoffEl) {
+    prevCutoffEl.addEventListener("input", handleBenchmarkModeChange);
+  }
+
+  const saveBenchmarkBtn = document.getElementById("saveBenchmarkBtn");
+  if (saveBenchmarkBtn) {
+    saveBenchmarkBtn.addEventListener("click", saveBenchmarkProfile);
+  }
+
+  const loadQuestionsBtn = document.getElementById("btnLoadQuestions");
+  if (loadQuestionsBtn) {
+    loadQuestionsBtn.addEventListener("click", loadQuestionLabItems);
+  }
+
+  const generateMockBtn = document.getElementById("btnGenerateMock");
+  if (generateMockBtn) {
+    generateMockBtn.addEventListener("click", generateMockFromLab);
+  }
+
   bindUnlockButtons();
+  loadBenchmarkProfile();
+  loadMarksHistory();
+  loadQuestionLabItems();
+
+  const navOpenGoalBtn = document.getElementById("navOpenGoal");
+  if (navOpenGoalBtn) {
+    navOpenGoalBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      showGoalModal();
+    });
+  }
+
+  const closeGoalModalBtn = document.getElementById("closeGoalModal");
+  if (closeGoalModalBtn) {
+    closeGoalModalBtn.addEventListener("click", closeGoalModal);
+  }
+
+  const saveGoalBtnEl = document.getElementById("saveGoalBtn");
+  if (saveGoalBtnEl) {
+    saveGoalBtnEl.addEventListener("click", saveGoalProfile);
+  }
+
+  const skipGoalBtnEl = document.getElementById("skipGoalBtn");
+  if (skipGoalBtnEl) {
+    skipGoalBtnEl.addEventListener("click", closeGoalModal);
+  }
+
+  const goalModalEl = document.getElementById("goalModal");
+  if (goalModalEl) {
+    goalModalEl.addEventListener("click", function (e) {
+      if (e.target === goalModalEl) closeGoalModal();
+    });
+  }
+
+  setTimeout(checkGoalOnboarding, 900);
 });
 
 let rankChartInstance = null;
 let sectionChartInstance = null;
+let progressChartInstance = null;
+let subjectChartInstance = null;
+let benchmarkProfile = null;
+let questionLabCache = [];
+let goalProfile = null;
 
 function bindUnlockButtons() {
   const unlockButtons = document.querySelectorAll(".js-unlock-plan");
@@ -962,4 +1037,816 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+function showProgressStatus(message, type = "info") {
+  const el = document.getElementById("progressStatus");
+  if (!el) return;
+
+  const toneMap = {
+    info: "#1e40af",
+    success: "#047857",
+    error: "#b91c1c"
+  };
+
+  el.style.color = toneMap[type] || toneMap.info;
+  el.textContent = message || "";
+}
+
+function updateProgressSummary(entries) {
+  const latestEl = document.getElementById("latestTotalStat");
+  const avg7El = document.getElementById("avg7Stat");
+  if (!latestEl || !avg7El) return;
+
+  if (!Array.isArray(entries) || entries.length === 0) {
+    latestEl.textContent = "--";
+    avg7El.textContent = "--";
+    return;
+  }
+
+  const sorted = [...entries].sort((a, b) => new Date(b.test_date) - new Date(a.test_date));
+  const latest = Number(sorted[0]?.total_marks || 0);
+  const recent = sorted.slice(0, 7);
+  const avg7 = recent.reduce((acc, item) => acc + Number(item.total_marks || 0), 0) / recent.length;
+
+  latestEl.textContent = Number.isFinite(latest) ? latest.toFixed(1) : "--";
+  avg7El.textContent = Number.isFinite(avg7) ? avg7.toFixed(1) : "--";
+}
+
+function setBenchmarkStatus(message, type = "info") {
+  const el = document.getElementById("benchmarkStatusText");
+  if (!el) return;
+
+  const toneMap = {
+    info: "#0f766e",
+    success: "#047857",
+    error: "#b91c1c"
+  };
+
+  el.style.color = toneMap[type] || toneMap.info;
+  el.textContent = message || "";
+}
+
+function updateReviewCards({ status = "--", overallGap = "--", prioritySubject = "--" } = {}) {
+  const statusEl = document.getElementById("todayStatusValue");
+  const gapEl = document.getElementById("overallGapValue");
+  const priorityEl = document.getElementById("prioritySubjectValue");
+
+  if (statusEl) statusEl.textContent = status;
+  if (gapEl) gapEl.textContent = overallGap;
+  if (priorityEl) priorityEl.textContent = prioritySubject;
+}
+
+function numFromInput(id, fallback = 0) {
+  const n = Number(document.getElementById(id)?.value ?? fallback);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function handleBenchmarkModeChange() {
+  const mode = String(document.getElementById("benchmarkMode")?.value || "manual_overall");
+  const subjectBox = document.getElementById("subjectTargetsBox");
+  const prevCutoff = document.getElementById("previousCutoffInput");
+  const overallInput = document.getElementById("overallTargetInput");
+
+  if (subjectBox) {
+    subjectBox.style.display = mode === "manual_subject" ? "grid" : "none";
+  }
+
+  if (prevCutoff) {
+    prevCutoff.disabled = !(mode === "cutoff_plus_5" || mode === "cutoff_plus_7");
+  }
+
+  if (overallInput) {
+    overallInput.disabled = mode === "cutoff_plus_5" || mode === "cutoff_plus_7";
+  }
+
+  if ((mode === "cutoff_plus_5" || mode === "cutoff_plus_7") && prevCutoff && overallInput) {
+    const cutoff = Number(prevCutoff.value || 0);
+    const plus = mode === "cutoff_plus_7" ? 7 : 5;
+    if (Number.isFinite(cutoff) && cutoff > 0) {
+      overallInput.value = String(Math.min(250, cutoff + plus));
+    }
+  }
+}
+
+function buildBenchmarkPayload() {
+  const mode = String(document.getElementById("benchmarkMode")?.value || "manual_overall");
+  const previousCutoff = numFromInput("previousCutoffInput", 0);
+
+  let overallTarget = numFromInput("overallTargetInput", 0);
+  if (mode === "cutoff_plus_5") overallTarget = Math.min(250, previousCutoff + 5);
+  if (mode === "cutoff_plus_7") overallTarget = Math.min(250, previousCutoff + 7);
+
+  const subjectTargets = {
+    quant: Math.min(50, numFromInput("quantTargetInput", 0)),
+    english: Math.min(50, numFromInput("englishTargetInput", 0)),
+    reasoning: Math.min(50, numFromInput("reasoningTargetInput", 0)),
+    gk: Math.min(50, numFromInput("gkTargetInput", 0)),
+    computer: Math.min(50, numFromInput("computerTargetInput", 0))
+  };
+
+  if (mode !== "manual_subject") {
+    const per = overallTarget > 0 ? Number((overallTarget / 5).toFixed(1)) : 0;
+    subjectTargets.quant = per;
+    subjectTargets.english = per;
+    subjectTargets.reasoning = per;
+    subjectTargets.gk = per;
+    subjectTargets.computer = per;
+  }
+
+  if (!Number.isFinite(overallTarget) || overallTarget <= 0 || overallTarget > 250) {
+    return { error: "Overall target must be between 1 and 250" };
+  }
+
+  return {
+    benchmark: {
+      mode,
+      previousCutoff,
+      overallTarget: Number(overallTarget.toFixed(1)),
+      subjectTargets,
+      updatedAt: new Date().toISOString()
+    }
+  };
+}
+
+function applyBenchmarkToUI(benchmark) {
+  if (!benchmark) {
+    handleBenchmarkModeChange();
+    return;
+  }
+
+  const modeEl = document.getElementById("benchmarkMode");
+  const prevEl = document.getElementById("previousCutoffInput");
+  const overallEl = document.getElementById("overallTargetInput");
+
+  if (modeEl) modeEl.value = benchmark.mode || "manual_overall";
+  if (prevEl) prevEl.value = Number(benchmark.previousCutoff || 0) || "";
+  if (overallEl) overallEl.value = Number(benchmark.overallTarget || 0) || "";
+
+  const sub = benchmark.subjectTargets || {};
+  const setIf = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.value = Number(value || 0) || "";
+  };
+
+  setIf("quantTargetInput", sub.quant);
+  setIf("englishTargetInput", sub.english);
+  setIf("reasoningTargetInput", sub.reasoning);
+  setIf("gkTargetInput", sub.gk);
+  setIf("computerTargetInput", sub.computer);
+
+  handleBenchmarkModeChange();
+}
+
+async function loadBenchmarkProfile() {
+  const userKey = getUserKey();
+  setBenchmarkStatus("Loading benchmark...", "info");
+
+  try {
+    const response = await fetch(`/api/user/${encodeURIComponent(userKey)}`);
+
+    if (response.status === 404) {
+      benchmarkProfile = null;
+      applyBenchmarkToUI(null);
+      setBenchmarkStatus("Set your first benchmark target.", "info");
+      return;
+    }
+
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Could not load profile");
+    }
+
+    benchmarkProfile = data.profile?.benchmark || null;
+    goalProfile = data.profile?.goal || null;
+    applyBenchmarkToUI(benchmarkProfile);
+    setBenchmarkStatus("Benchmark loaded.", "success");
+  } catch (err) {
+    console.error("loadBenchmarkProfile error:", err);
+    applyBenchmarkToUI(null);
+    setBenchmarkStatus("Could not load benchmark profile.", "error");
+  }
+}
+
+async function saveBenchmarkProfile() {
+  const userKey = getUserKey();
+  const payload = buildBenchmarkPayload();
+
+  if (payload.error) {
+    setBenchmarkStatus(payload.error, "error");
+    return;
+  }
+
+  setBenchmarkStatus("Saving benchmark...", "info");
+
+  try {
+    const response = await fetch(`/api/user/${encodeURIComponent(userKey)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Save failed");
+    }
+
+    benchmarkProfile = data.profile?.benchmark || payload.benchmark;
+    applyBenchmarkToUI(benchmarkProfile);
+    setBenchmarkStatus("Benchmark saved successfully.", "success");
+  } catch (err) {
+    console.error("saveBenchmarkProfile error:", err);
+    setBenchmarkStatus("Failed to save benchmark profile.", "error");
+  }
+}
+
+function updateBenchmarkReview(entries) {
+  if (!benchmarkProfile || !Array.isArray(entries) || entries.length === 0) {
+    updateReviewCards();
+    return;
+  }
+
+  const latest = [...entries].sort((a, b) => new Date(b.test_date) - new Date(a.test_date))[0];
+  const targetOverall = Number(benchmarkProfile.overallTarget || 0);
+  const currentOverall = Number(latest.total_marks || 0);
+  const gap = Number((targetOverall - currentOverall).toFixed(1));
+
+  let status = "On Track";
+  if (gap > 15) status = "High Attention";
+  else if (gap > 5) status = "Slightly Behind";
+
+  const subjectTargets = benchmarkProfile.subjectTargets || {};
+  const subjectScores = {
+    quant: Number(latest.quant_marks || 0),
+    english: Number(latest.english_marks || 0),
+    reasoning: Number(latest.reasoning_marks || 0),
+    gk: Number(latest.gk_marks || 0),
+    computer: Number(latest.computer_marks || 0)
+  };
+
+  let prioritySubject = "--";
+  let maxGap = -Infinity;
+  Object.keys(subjectScores).forEach((key) => {
+    const target = Number(subjectTargets[key] || 0);
+    const g = target - subjectScores[key];
+    if (g > maxGap) {
+      maxGap = g;
+      prioritySubject = key;
+    }
+  });
+
+  const priorityMap = {
+    quant: "Quant",
+    english: "English",
+    reasoning: "Reasoning",
+    gk: "GK",
+    computer: "Computer"
+  };
+
+  updateReviewCards({
+    status,
+    overallGap: `${gap > 0 ? "-" : "+"}${Math.abs(gap).toFixed(1)}`,
+    prioritySubject: priorityMap[prioritySubject] || "--"
+  });
+}
+
+function setQuestionLabStatus(message, type = "info") {
+  const el = document.getElementById("questionLabStatus");
+  if (!el) return;
+
+  const toneMap = {
+    info: "#4338ca",
+    success: "#047857",
+    error: "#b91c1c"
+  };
+
+  el.style.color = toneMap[type] || toneMap.info;
+  el.textContent = message || "";
+}
+
+function getQuestionLabFilters() {
+  const subject = String(document.getElementById("qlabSubject")?.value || "").trim();
+  const difficulty = String(document.getElementById("qlabDifficulty")?.value || "").trim();
+  const topic = String(document.getElementById("qlabTopic")?.value || "").trim();
+  const count = Math.max(5, Math.min(50, Number(document.getElementById("qlabCount")?.value || 10)));
+
+  return { subject, difficulty, topic, count };
+}
+
+function renderQuestionLabItems(items = []) {
+  const container = document.getElementById("questionLabList");
+  if (!container) return;
+
+  if (!Array.isArray(items) || items.length === 0) {
+    container.innerHTML = "<div class='qlab-item'>No items found for selected filters.</div>";
+    return;
+  }
+
+  container.innerHTML = items.map((item, idx) => {
+    const options = Array.isArray(item.options) ? item.options : [];
+    const optionRows = options.map((opt, i) => {
+      const isAnswer = Number(item.answerIndex) === i;
+      return `<div class=\"text-sm ${isAnswer ? "font-semibold text-emerald-700" : "text-slate-700"}\">${String.fromCharCode(65 + i)}. ${escapeHtml(opt)}</div>`;
+    }).join("");
+
+    return `
+      <div class="qlab-item">
+        <div>
+          <span class="qlab-chip">${escapeHtml(item.subject || "subject")}</span>
+          <span class="qlab-chip">${escapeHtml(item.difficulty || "level")}</span>
+          <span class="qlab-chip">${escapeHtml(item.topic || "topic")}</span>
+        </div>
+        <div class="text-sm text-slate-500 mt-1">Q${idx + 1}</div>
+        <div class="font-semibold text-slate-900 mt-2 leading-relaxed">${escapeHtml(item.question || "")}</div>
+        <div class="mt-3 space-y-1">${optionRows}</div>
+        <div class="text-xs text-slate-500 mt-3">${escapeHtml(item.explanation || "")}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function loadQuestionLabItems() {
+  const { subject, difficulty, topic, count } = getQuestionLabFilters();
+  const params = new URLSearchParams();
+  if (subject) params.set("subject", subject);
+  if (difficulty) params.set("difficulty", difficulty);
+  if (topic) params.set("topic", topic);
+  params.set("limit", String(count));
+
+  setQuestionLabStatus("Loading updated questions...", "info");
+
+  try {
+    const response = await fetch(`/api/questions?${params.toString()}`);
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Could not load questions");
+    }
+
+    questionLabCache = Array.isArray(data.items) ? data.items : [];
+    renderQuestionLabItems(questionLabCache);
+    setQuestionLabStatus(`Loaded ${questionLabCache.length} questions.`, "success");
+  } catch (err) {
+    console.error("loadQuestionLabItems error:", err);
+    setQuestionLabStatus("Failed to load questions.", "error");
+  }
+}
+
+async function generateMockFromLab() {
+  const { subject, difficulty, count } = getQuestionLabFilters();
+  setQuestionLabStatus("Generating mock set...", "info");
+
+  try {
+    const response = await fetch("/api/questions/mocks/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subject, difficulty, count })
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Could not generate mock");
+    }
+
+    questionLabCache = Array.isArray(data.items) ? data.items : [];
+    renderQuestionLabItems(questionLabCache);
+    setQuestionLabStatus(`Mock generated with ${questionLabCache.length} questions.`, "success");
+  } catch (err) {
+    console.error("generateMockFromLab error:", err);
+    setQuestionLabStatus("Failed to generate mock set.", "error");
+  }
+}
+
+// Progress Tracker Functions
+async function saveMarks() {
+  const userKey = getUserKey();
+  const testDate = document.getElementById("testDate")?.value;
+  const quant = Number(document.getElementById("quantMarks")?.value || 0);
+  const english = Number(document.getElementById("englishMarks")?.value || 0);
+  const reasoning = Number(document.getElementById("reasoningMarks")?.value || 0);
+  const gk = Number(document.getElementById("gkMarks")?.value || 0);
+  const computer = Number(document.getElementById("computerMarks")?.value || 0);
+
+  if (!testDate) {
+    showProgressStatus("Please select a date first.", "error");
+    return;
+  }
+
+  const marks = [quant, english, reasoning, gk, computer];
+  const hasInvalid = marks.some((m) => !Number.isFinite(m) || m < 0 || m > 50);
+  if (hasInvalid) {
+    showProgressStatus("Each subject mark must be between 0 and 50.", "error");
+    return;
+  }
+
+  showProgressStatus("Saving your marks...", "info");
+
+  try {
+    const response = await fetch("/api/test", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userKey,
+        testDate,
+        quant,
+        english,
+        reasoning,
+        gk,
+        computer
+      })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      showProgressStatus("Saved successfully. Great consistency.", "success");
+      await loadMarksHistory();
+      // Clear form
+      document.getElementById("quantMarks").value = "";
+      document.getElementById("englishMarks").value = "";
+      document.getElementById("reasoningMarks").value = "";
+      document.getElementById("gkMarks").value = "";
+      document.getElementById("computerMarks").value = "";
+    } else {
+      showProgressStatus("Unable to save: " + (data.error || "Unknown error"), "error");
+    }
+  } catch (error) {
+    console.error("Save marks error:", error);
+    showProgressStatus("Server error while saving marks.", "error");
+  }
+}
+
+async function loadMarksHistory() {
+  const userKey = getUserKey();
+
+  try {
+    const response = await fetch(`/api/test/${encodeURIComponent(userKey)}`);
+    const data = await response.json();
+
+    if (data.success) {
+      displayMarksHistory(data.entries);
+      drawProgressChart(data.entries);
+      drawSubjectChart(data.entries);
+      updateProgressSummary(data.entries);
+      updateBenchmarkReview(data.entries);
+      updateStreakDisplay(data.entries);
+      renderWeeklyReport(buildWeeklyReport(data.entries));
+      if (!Array.isArray(data.entries) || data.entries.length === 0) {
+        showProgressStatus("Start by adding today's marks.", "info");
+      }
+    }
+  } catch (error) {
+    console.error("Load marks error:", error);
+    showProgressStatus("Could not load progress history.", "error");
+  }
+}
+
+function displayMarksHistory(entries) {
+  const historyDiv = document.getElementById("marksHistory");
+  if (!historyDiv) return;
+
+  if (!entries || entries.length === 0) {
+    historyDiv.innerHTML = "<p class='text-gray-500'>No marks recorded yet. Start by adding your daily practice marks!</p>";
+    return;
+  }
+
+  historyDiv.innerHTML = entries.map(entry => `
+    <div class="bg-gray-50 p-4 rounded-xl">
+      <div class="font-semibold">${new Date(entry.test_date).toLocaleDateString()}</div>
+      <div class="grid grid-cols-3 md:grid-cols-6 gap-2 mt-2 text-sm">
+        <div>Quant: ${entry.quant_marks}</div>
+        <div>English: ${entry.english_marks}</div>
+        <div>Reasoning: ${entry.reasoning_marks}</div>
+        <div>GK: ${entry.gk_marks}</div>
+        <div>Computer: ${entry.computer_marks}</div>
+        <div class="font-semibold">Total: ${entry.total_marks}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function drawProgressChart(entries) {
+  const ctx = document.getElementById("progressChart");
+  if (!ctx) return;
+
+  if (progressChartInstance) {
+    progressChartInstance.destroy();
+  }
+
+  if (!entries || entries.length === 0) {
+    ctx.style.display = "none";
+    return;
+  }
+
+  ctx.style.display = "block";
+
+  const sortedEntries = [...entries].sort((a, b) => new Date(a.test_date) - new Date(b.test_date));
+  const labels = sortedEntries.map(e => new Date(e.test_date).toLocaleDateString());
+  const totals = sortedEntries.map(e => e.total_marks);
+
+  const progressDatasets = [{
+    label: "Total Marks",
+    data: totals,
+    borderColor: "rgb(59, 130, 246)",
+    backgroundColor: "rgba(59, 130, 246, 0.1)",
+    tension: 0.1
+  }];
+
+  // Benchmark target line — visible only for ₹99 premium users
+  if (getUnlockedPlan() >= 99 && benchmarkProfile && Number(benchmarkProfile.overallTarget) > 0) {
+    progressDatasets.push({
+      label: "Benchmark Target",
+      data: labels.map(() => benchmarkProfile.overallTarget),
+      borderColor: "rgb(239, 68, 68)",
+      backgroundColor: "transparent",
+      borderDash: [6, 4],
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: 0
+    });
+  }
+
+  progressChartInstance = new Chart(ctx, {
+    type: "line",
+    data: { labels, datasets: progressDatasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: { y: { beginAtZero: true, max: 250 } }
+    }
+  });
+}
+
+function drawSubjectChart(entries) {
+  const ctx = document.getElementById("subjectChart");
+  if (!ctx) return;
+
+  if (subjectChartInstance) {
+    subjectChartInstance.destroy();
+  }
+
+  if (!entries || entries.length === 0) {
+    ctx.style.display = "none";
+    return;
+  }
+
+  ctx.style.display = "block";
+
+  const sortedEntries = [...entries].sort((a, b) => new Date(a.test_date) - new Date(b.test_date));
+  const labels = sortedEntries.map(e => new Date(e.test_date).toLocaleDateString());
+
+  subjectChartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Quant",
+          data: sortedEntries.map(e => e.quant_marks),
+          borderColor: "rgb(239, 68, 68)",
+          backgroundColor: "rgba(239, 68, 68, 0.1)"
+        },
+        {
+          label: "English",
+          data: sortedEntries.map(e => e.english_marks),
+          borderColor: "rgb(34, 197, 94)",
+          backgroundColor: "rgba(34, 197, 94, 0.1)"
+        },
+        {
+          label: "Reasoning",
+          data: sortedEntries.map(e => e.reasoning_marks),
+          borderColor: "rgb(168, 85, 247)",
+          backgroundColor: "rgba(168, 85, 247, 0.1)"
+        },
+        {
+          label: "GK",
+          data: sortedEntries.map(e => e.gk_marks),
+          borderColor: "rgb(251, 191, 36)",
+          backgroundColor: "rgba(251, 191, 36, 0.1)"
+        },
+        {
+          label: "Computer",
+          data: sortedEntries.map(e => e.computer_marks),
+          borderColor: "rgb(6, 182, 212)",
+          backgroundColor: "rgba(6, 182, 212, 0.1)"
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 50
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+// GOAL ONBOARDING
+// ============================================================
+function checkGoalOnboarding() {
+  if (!goalProfile) {
+    const dismissed = localStorage.getItem("sscranklab_goal_dismissed");
+    if (!dismissed) {
+      showGoalModal();
+    }
+  }
+}
+
+function showGoalModal() {
+  const modal = document.getElementById("goalModal");
+  if (!modal) return;
+  if (goalProfile) {
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+    setVal("goalExamFamily", goalProfile.examFamily);
+    setVal("goalCategory", goalProfile.category);
+    setVal("goalTargetPost", goalProfile.targetPost);
+    setVal("goalExamDate", goalProfile.examDate);
+    setVal("goalStudyHours", goalProfile.studyHours);
+    setVal("goalTargetScore", goalProfile.targetScore);
+  }
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeGoalModal() {
+  const modal = document.getElementById("goalModal");
+  if (modal) modal.classList.add("hidden");
+  document.body.style.overflow = "";
+  localStorage.setItem("sscranklab_goal_dismissed", "true");
+}
+
+async function saveGoalProfile() {
+  const userKey = getUserKey();
+  const statusEl = document.getElementById("goalModalStatus");
+  const examFamily = document.getElementById("goalExamFamily")?.value || "ssc_cgl";
+  const category = document.getElementById("goalCategory")?.value || "UR";
+  const targetPost = document.getElementById("goalTargetPost")?.value || "";
+  const examDate = document.getElementById("goalExamDate")?.value || "";
+  const studyHours = Number(document.getElementById("goalStudyHours")?.value || 0);
+  const targetScore = Number(document.getElementById("goalTargetScore")?.value || 0);
+
+  if (statusEl) { statusEl.textContent = "Saving..."; statusEl.style.color = "#1e40af"; }
+
+  try {
+    const response = await fetch(`/api/user/${encodeURIComponent(userKey)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        goal: { examFamily, category, targetPost, examDate, studyHours, targetScore, updatedAt: new Date().toISOString() }
+      })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) throw new Error(data.error || "Save failed");
+    goalProfile = data.profile?.goal || { examFamily, category, targetPost, examDate, studyHours, targetScore };
+    if (statusEl) { statusEl.textContent = "Goal saved!"; statusEl.style.color = "#047857"; }
+    setTimeout(() => closeGoalModal(), 800);
+  } catch (err) {
+    console.error("saveGoalProfile error:", err);
+    if (statusEl) { statusEl.textContent = "Could not save. Try again."; statusEl.style.color = "#b91c1c"; }
+  }
+}
+
+// ============================================================
+// STREAK SYSTEM
+// ============================================================
+function computeStreak(entries) {
+  if (!Array.isArray(entries) || entries.length === 0) {
+    return { streak: 0, daysSinceLastSave: null };
+  }
+  const dateSet = new Set(
+    entries.map(e => (e.test_date || "").split("T")[0]).filter(Boolean)
+  );
+  const today = new Date().toISOString().split("T")[0];
+  const todayMs = new Date(today).getTime();
+  const dates = [...dateSet].sort().reverse();
+  const latestDate = dates[0];
+  const latestMs = new Date(latestDate).getTime();
+  const daysSinceLastSave = Math.round((todayMs - latestMs) / 86400000);
+
+  let streak = 0;
+  let checkMs = latestMs;
+  while (streak < dates.length) {
+    const checkDate = new Date(checkMs).toISOString().split("T")[0];
+    if (dateSet.has(checkDate)) {
+      streak++;
+      checkMs -= 86400000;
+    } else {
+      break;
+    }
+  }
+  return { streak, daysSinceLastSave };
+}
+
+function updateStreakDisplay(entries) {
+  const el = document.getElementById("streakDisplay");
+  if (!el) return;
+  if (!Array.isArray(entries) || entries.length === 0) {
+    el.innerHTML = "";
+    return;
+  }
+  const { streak, daysSinceLastSave } = computeStreak(entries);
+  if (daysSinceLastSave !== null && daysSinceLastSave >= 3) {
+    el.innerHTML = `<span class="comeback-pill">💪 Welcome back! Start fresh today</span>`;
+    return;
+  }
+  if (streak >= 1) {
+    el.innerHTML = `<span class="streak-pill">🔥 ${streak} day${streak !== 1 ? "s" : ""} streak</span>`;
+  } else {
+    el.innerHTML = "";
+  }
+}
+
+// ============================================================
+// WEEKLY REPORT CARD
+// ============================================================
+function buildWeeklyReport(entries) {
+  if (!Array.isArray(entries) || entries.length === 0) return null;
+  const sorted = [...entries].sort((a, b) => new Date(b.test_date) - new Date(a.test_date));
+  const last7 = sorted.slice(0, 7);
+  const subjectKeys = ["quant", "english", "reasoning", "gk", "computer"];
+  const subjectLabels = { quant: "Quant", english: "English", reasoning: "Reasoning", gk: "GK", computer: "Computer" };
+  const subjectAvgs = {};
+  subjectKeys.forEach(key => {
+    const vals = last7.map(e => Number(e[`${key}_marks`] || 0));
+    subjectAvgs[key] = vals.reduce((a, b) => a + b, 0) / vals.length;
+  });
+  const overallAvg = last7.reduce((acc, e) => acc + Number(e.total_marks || 0), 0) / last7.length;
+  const bestDay = last7.reduce((a, b) => Number(a.total_marks) >= Number(b.total_marks) ? a : b);
+  const worstDay = last7.reduce((a, b) => Number(a.total_marks) <= Number(b.total_marks) ? a : b);
+  let benchmarkGap = null;
+  if (benchmarkProfile && Number(benchmarkProfile.overallTarget) > 0) {
+    benchmarkGap = Number((benchmarkProfile.overallTarget - overallAvg).toFixed(1));
+  }
+  return { subjectAvgs, subjectLabels, overallAvg, bestDay, worstDay, benchmarkGap, count: last7.length };
+}
+
+function renderWeeklyReport(report) {
+  const container = document.getElementById("weeklyReportCard");
+  if (!container) return;
+  if (!report) {
+    container.classList.add("hidden");
+    container.innerHTML = "";
+    return;
+  }
+  const unlockedPlan = getUnlockedPlan();
+  const { subjectAvgs, subjectLabels, overallAvg, bestDay, worstDay, benchmarkGap, count } = report;
+
+  const gapHtml = benchmarkGap !== null
+    ? `<div class="report-stat">
+        <div class="k">Benchmark Gap</div>
+        <div class="v" style="color:${benchmarkGap > 0 ? "#b91c1c" : "#047857"}">${benchmarkGap > 0 ? "-" : "+"}${Math.abs(benchmarkGap).toFixed(1)}</div>
+       </div>`
+    : `<div class="report-stat"><div class="k">Benchmark Gap</div><div class="v">—</div></div>`;
+
+  const fmt = d => { try { return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short" }); } catch { return d; } };
+
+  const subjectStatsHtml = Object.entries(subjectAvgs).map(([key, avg]) =>
+    `<div class="report-stat">
+      <div class="k">${escapeHtml(subjectLabels[key] || key)}</div>
+      <div class="v">${avg.toFixed(1)}</div>
+     </div>`
+  ).join("");
+
+  const subjectSection = unlockedPlan >= 99
+    ? `<div class="mt-4">
+        <div class="text-sm font-bold text-slate-600 mb-2">Per-Subject Averages (Last ${count} days)</div>
+        <div class="report-grid">${subjectStatsHtml}</div>
+       </div>`
+    : `<div class="mt-4 relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50 p-4" style="min-height:90px">
+        <div class="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex items-center justify-center z-10">
+          <button type="button" class="js-unlock-plan px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow hover:opacity-90 transition" data-plan="99">🔒 Unlock ₹99 for Subject Breakdown</button>
+        </div>
+        <div class="report-grid opacity-30 pointer-events-none">${subjectStatsHtml}</div>
+       </div>`;
+
+  container.innerHTML = `
+    <div class="report-shell">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h3 class="text-lg font-extrabold text-slate-900">📊 Weekly Report Card</h3>
+          <p class="text-slate-500 text-sm mt-0.5">Last ${count} session${count !== 1 ? "s" : ""} summary</p>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full bg-blue-100 text-blue-700">Auto-generated</span>
+      </div>
+      <div class="report-grid">
+        <div class="report-stat"><div class="k">Avg Score</div><div class="v">${overallAvg.toFixed(1)}</div></div>
+        <div class="report-stat">
+          <div class="k">Best Day</div>
+          <div class="v">${escapeHtml(String(bestDay.total_marks))}<span style="font-size:11px;font-weight:600;color:#64748b;margin-left:4px">${fmt(bestDay.test_date)}</span></div>
+        </div>
+        <div class="report-stat">
+          <div class="k">Worst Day</div>
+          <div class="v">${escapeHtml(String(worstDay.total_marks))}<span style="font-size:11px;font-weight:600;color:#64748b;margin-left:4px">${fmt(worstDay.test_date)}</span></div>
+        </div>
+        ${gapHtml}
+      </div>
+      ${subjectSection}
+    </div>
+  `;
+  container.classList.remove("hidden");
+  bindUnlockButtons();
 }

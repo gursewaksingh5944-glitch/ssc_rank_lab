@@ -7,6 +7,9 @@ const cors = require("cors");
 const predictRoute = require("./routes/predict");
 const predictV2Route = require("./routes/predictV2");
 const paymentRoute = require("./routes/payment");
+const userRoute = require("./routes/user");
+const testRoute = require("./routes/test");
+const questionsRoute = require("./routes/questions");
 
 const app = express();
 app.set("trust proxy", true);
@@ -115,6 +118,17 @@ app.get("/sitemap.xml", (req, res) => {
 app.use((req, res, next) => {
   const host = (req.headers.host || "").toLowerCase();
   const proto = (req.headers["x-forwarded-proto"] || "").toLowerCase();
+  const isProd = String(process.env.NODE_ENV || "").toLowerCase() === "production";
+
+  // Do not force redirects in local/dev runs.
+  if (!isProd) {
+    return next();
+  }
+
+  // Allow localhost and loopback in production-like staging checks.
+  if (host.startsWith("localhost") || host.startsWith("127.0.0.1")) {
+    return next();
+  }
 
   // Force https + non-www
   if (host !== "sscranklab.com" || proto !== "https") {
@@ -168,6 +182,9 @@ app.get("/health", (req, res) => {
 app.use("/api/predict", predictRoute);
 app.use("/api/predict-v2", predictV2Route);
 app.use("/api/payment", paymentRoute);
+app.use("/api/user", userRoute);
+app.use("/api/test", testRoute);
+app.use("/api/questions", questionsRoute);
 
 
 // ===============================

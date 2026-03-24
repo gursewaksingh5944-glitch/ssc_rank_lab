@@ -89,8 +89,46 @@ function hasPaymentId(paymentId) {
   return store.payments.some((item) => item.paymentId === paymentId);
 }
 
+function getUserProfile(userKey) {
+  if (!userKey) return null;
+  const store = readStore();
+  return store.users[userKey] || null;
+}
+
+function setUserProfile(userKey, profile = {}) {
+  if (!userKey || typeof profile !== "object") return null;
+
+  const store = readStore();
+  const existing = store.users[userKey] || {};
+  const updated = {
+    ...existing,
+    ...profile,
+    updatedAt: new Date().toISOString()
+  };
+
+  store.users[userKey] = updated;
+  writeStore(store);
+
+  return updated;
+}
+
+function deleteUserProfile(userKey) {
+  if (!userKey) return false;
+
+  const store = readStore();
+  if (!store.users[userKey]) return false;
+
+  delete store.users[userKey];
+  writeStore(store);
+
+  return true;
+}
+
 module.exports = {
   getUnlockedPlan,
   setUnlockedPlan,
-  hasPaymentId
+  hasPaymentId,
+  getUserProfile,
+  setUserProfile,
+  deleteUserProfile
 };
