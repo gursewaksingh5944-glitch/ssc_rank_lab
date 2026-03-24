@@ -65,6 +65,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  const topOpenGoalBtn = document.getElementById("topOpenGoalBtn");
+  if (topOpenGoalBtn) {
+    topOpenGoalBtn.addEventListener("click", function () {
+      showGoalModal();
+    });
+  }
+
   const closeGoalModalBtn = document.getElementById("closeGoalModal");
   if (closeGoalModalBtn) {
     closeGoalModalBtn.addEventListener("click", closeGoalModal);
@@ -221,24 +228,17 @@ function updatePremiumOptions(unlockedPlan = 0) {
 
   premiumInput.innerHTML = `<option value="0">Free</option>`;
 
-  if (unlockedPlan >= 49) {
-    premiumInput.insertAdjacentHTML(
-      "beforeend",
-      `<option value="49">Premium ₹49 (${trialActive ? "Trial Access" : "Unlocked"})</option>`
-    );
-  }
-
   if (unlockedPlan >= 99) {
     premiumInput.insertAdjacentHTML(
       "beforeend",
-      `<option value="99">Premium ₹99 (${trialActive ? "Trial Access" : "Unlocked"})</option>`
+      `<option value="99">Monthly Premium ₹99 (${trialActive ? "Trial Access" : "Unlocked"})</option>`
     );
   }
 
   if (previousValue > 0 && previousValue <= unlockedPlan) {
     premiumInput.value = String(previousValue);
-  } else if (unlockedPlan >= 49) {
-    premiumInput.value = String(unlockedPlan >= 99 ? 99 : 49);
+  } else if (unlockedPlan >= 99) {
+    premiumInput.value = "99";
   } else {
     premiumInput.value = "0";
   }
@@ -258,27 +258,68 @@ function restoreUnlockedPlan() {
 
 function updatePlanStatusText(unlockedPlan = 0) {
   const planStatusText = document.getElementById("planStatusText");
-  if (!planStatusText) return;
+  if (!planStatusText) {
+    updateSidePredictorBox(unlockedPlan);
+    return;
+  }
 
   const trial = paymentAccessState.trial;
   if (trial && trial.active) {
     const hours = Math.ceil(Number(trial.remainingMs || 0) / (60 * 60 * 1000));
-    planStatusText.textContent = `2-day premium trial active (${Math.max(0, hours)}h left). Upgrade to continue exclusive features.`;
+    planStatusText.textContent = `2-day trial active (${Math.max(0, hours)}h left). Monthly ₹99 service is fully unlocked right now.`;
     return;
   }
 
   if (unlockedPlan >= 99) {
-    planStatusText.textContent = "₹49 and ₹99 premium unlocked.";
-  } else if (unlockedPlan >= 49) {
-    planStatusText.textContent = "₹49 premium unlocked.";
+    planStatusText.textContent = "Monthly ₹99 premium service unlocked.";
   } else {
-    planStatusText.textContent = "Free is default. Premium appears only after payment.";
+    planStatusText.textContent = "Start 2-day trial, then continue with ₹99/month for full service.";
+  }
+
+  updateSidePredictorBox(unlockedPlan);
+}
+
+function updateSidePredictorBox(unlockedPlan = 0) {
+  const badge = document.getElementById("sidePlanBadge");
+  const locked = document.getElementById("sidePremiumLocked");
+  const unlocked = document.getElementById("sidePremiumUnlocked");
+  if (!badge || !locked || !unlocked) return;
+
+  if (Number(unlockedPlan || 0) >= 99) {
+    badge.textContent = "Premium Active";
+    badge.style.background = "#dcfce7";
+    badge.style.color = "#166534";
+    locked.classList.add("hidden");
+    unlocked.classList.remove("hidden");
+  } else {
+    badge.textContent = "Free";
+    badge.style.background = "#e0e7ff";
+    badge.style.color = "#3730a3";
+    locked.classList.remove("hidden");
+    unlocked.classList.add("hidden");
   }
 }
 
+function updateTopGoalFrame() {
+  const postEl = document.getElementById("topGoalPost");
+  const cutoffEl = document.getElementById("topGoalAutoCutoff");
+  const targetEl = document.getElementById("topGoalTargetScore");
+  if (!postEl || !cutoffEl || !targetEl) return;
+
+  if (!goalProfile) {
+    postEl.textContent = "Not set";
+    cutoffEl.textContent = "--";
+    targetEl.textContent = "--";
+    return;
+  }
+
+  postEl.textContent = String(goalProfile.targetPost || "Not set");
+  cutoffEl.textContent = goalProfile.autoCutoff ? String(Math.round(Number(goalProfile.autoCutoff || 0))) : "--";
+  targetEl.textContent = goalProfile.targetScore ? String(Math.round(Number(goalProfile.targetScore || 0))) : "--";
+}
+
 function getPlanName(plan) {
-  if (Number(plan) === 99) return "Premium ₹99";
-  if (Number(plan) === 49) return "Premium ₹49";
+  if (Number(plan) === 99) return "Monthly Premium ₹99";
   return `Plan ₹${plan}`;
 }
 
@@ -673,11 +714,11 @@ function renderResult(data) {
         })}
 
         ${
-          plan >= 49
+          plan >= 99
             ? renderMetricCard({
                 title: `Category Rank (${category})`,
                 value: categoryRankValue,
-                subtitle: plan >= 99 ? "Included in Premium" : "Unlocked in ₹49",
+                subtitle: "Included in Monthly ₹99",
                 locked: false,
                 tone: "emerald"
               })
@@ -685,17 +726,17 @@ function renderResult(data) {
                 title: `Category Rank (${category})`,
                 previewValue: categoryRankValue,
                 subtitle: "Unlock exact category position",
-                lockText: "Unlock ₹49",
-                plan: 49
+                lockText: "Unlock Monthly ₹99",
+                plan: 99
               })
         }
 
         ${
-          plan >= 49
+          plan >= 99
             ? renderMetricCard({
                 title: "Percentile",
                 value: percentileRaw,
-                subtitle: plan >= 99 ? `Included in Premium • ${percentileHelp}` : percentileHelp,
+                subtitle: `Included in Monthly ₹99 • ${percentileHelp}`,
                 locked: false,
                 tone: "indigo"
               })
@@ -703,15 +744,13 @@ function renderResult(data) {
                 title: "Percentile",
                 previewValue: percentileRaw,
                 subtitle: "Unlock percentile insight",
-                lockText: "Unlock ₹49",
-                plan: 49
+                lockText: "Unlock Monthly ₹99",
+                plan: 99
               })
         }
       </div>
 
-      ${plan < 49 ? renderUpgradePanel49() : ""}
-
-      ${plan >= 49 && plan < 99 ? renderPartialAdvancedPreview(data) : ""}
+      ${plan < 99 ? renderUpgradePanel99() : ""}
 
       ${plan >= 99 ? renderInsightsBlock(data.insights || {}, data.postChances || {}) : ""}
     </div>
@@ -748,7 +787,7 @@ function renderLockedMetricCard({
   previewValue = "—",
   subtitle = "",
   lockText = "Unlock",
-  plan = 49
+  plan = 99
 }) {
   return `
     <div class="relative p-5 rounded-3xl border bg-slate-50 shadow-sm overflow-hidden min-h-[150px]">
@@ -776,79 +815,31 @@ function renderLockedMetricCard({
   `;
 }
 
-function renderUpgradePanel49() {
+function renderUpgradePanel99() {
   return `
-    <div class="mt-6 rounded-3xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-white p-6 shadow-sm">
+    <div class="mt-6 rounded-3xl border border-purple-200 bg-gradient-to-r from-purple-50 to-white p-6 shadow-sm">
       <div class="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <div class="text-xl font-bold text-gray-900">Unlock deeper rank clarity in ₹49</div>
+          <div class="text-xl font-bold text-gray-900">Unlock complete rank service in Monthly ₹99</div>
           <div class="text-gray-600 mt-2 max-w-2xl">
-            Get exact category rank, percentile, and a sharper position view based on the qualified candidate pool.
+            Get category rank, percentile, overall seat position, what-if jumps, competition density, and post chances in one monthly plan.
           </div>
 
           <div class="grid sm:grid-cols-3 gap-3 mt-5">
-            <div class="rounded-2xl border bg-white p-4 text-sm text-gray-700">✅ Exact category rank</div>
-            <div class="rounded-2xl border bg-white p-4 text-sm text-gray-700">✅ Percentile insight</div>
-            <div class="rounded-2xl border bg-white p-4 text-sm text-gray-700">✅ Better rank-position clarity</div>
+            <div class="rounded-2xl border bg-white p-4 text-sm text-gray-700">✅ Category rank + percentile</div>
+            <div class="rounded-2xl border bg-white p-4 text-sm text-gray-700">✅ Seat position + score zone</div>
+            <div class="rounded-2xl border bg-white p-4 text-sm text-gray-700">✅ What-if jumps + post chances</div>
           </div>
         </div>
 
         <div class="shrink-0">
           <button
             type="button"
-            class="js-unlock-plan px-5 py-3 rounded-2xl bg-emerald-600 text-white font-semibold shadow hover:bg-emerald-700 transition"
-            data-plan="49"
-          >
-            Premium ₹49
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function renderPartialAdvancedPreview(data) {
-  const insights = data.insights || {};
-  const postChances = data.postChances || {};
-
-  const selectionChance = postChances?.selectionChance || null;
-
-  const seatPosition =
-    selectionChance &&
-    Number(selectionChance.categoryRank) <= Number(selectionChance.categorySeats)
-      ? "Within Seat Range"
-      : "Advanced Insight";
-
-  const scoreZone = insights?.scoreZone || "Competitive Zone";
-
-  const whatIfPreview =
-    insights?.whatIf
-      ? `+2 → ~${insights.whatIf.plus2Rank ?? "—"}, +5 → ~${insights.whatIf.plus5Rank ?? "—"}`
-      : "What-if rank jump analysis";
-
-  return `
-    <div class="mt-6">
-      <div class="rounded-3xl border border-purple-200 bg-gradient-to-r from-purple-50 to-white p-6 shadow-sm">
-        <div class="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <div class="text-xl font-bold text-gray-900">₹99 Advanced Insights 🔒</div>
-            <div class="text-gray-600 mt-2 max-w-3xl">
-              Unlock overall seat position, score zone, what-if rank jumps, competition density, and post chances.
-            </div>
-          </div>
-          <button
-            type="button"
             class="js-unlock-plan px-5 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow hover:bg-purple-700 transition"
             data-plan="99"
           >
-            Unlock ₹99
+            Start Monthly ₹99
           </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
-          ${renderLockedPreviewCard("Overall Seat Position", seatPosition, "Based on category rank vs total category vacancies", 99)}
-          ${renderLockedPreviewCard("Score Zone", scoreZone, "Advanced decision insight", 99)}
-          ${renderLockedPreviewCard("What-if Rank Jump", whatIfPreview, "See how rank may improve with higher marks", 99)}
         </div>
       </div>
     </div>
@@ -1279,7 +1270,9 @@ async function loadBenchmarkProfile() {
 
     if (response.status === 404) {
       benchmarkProfile = null;
+      goalProfile = null;
       applyBenchmarkToUI(null);
+      updateTopGoalFrame();
       setBenchmarkStatus("Set your first benchmark target.", "info");
       return;
     }
@@ -1292,10 +1285,12 @@ async function loadBenchmarkProfile() {
     benchmarkProfile = data.profile?.benchmark || null;
     goalProfile = data.profile?.goal || null;
     applyBenchmarkToUI(benchmarkProfile);
+    updateTopGoalFrame();
     setBenchmarkStatus("Benchmark loaded.", "success");
   } catch (err) {
     console.error("loadBenchmarkProfile error:", err);
     applyBenchmarkToUI(null);
+    updateTopGoalFrame();
     setBenchmarkStatus("Could not load benchmark profile.", "error");
   }
 }
@@ -1767,14 +1762,19 @@ function applyGoalAutoCutoff() {
   autoEl.value = String(Math.round(cutoff));
 
   const targetScoreEl = document.getElementById("goalTargetScore");
-  if (targetScoreEl) {
-    targetScoreEl.max = selectedTier === "tier2" ? "600" : "250";
-    targetScoreEl.placeholder = selectedTier === "tier2" ? "e.g. 360" : "e.g. 150";
-  }
+  const cap = selectedTier === "tier2" ? 600 : 250;
+  const buffer = selectedTier === "tier2" ? 20 : 8;
+  const recommendedTarget = Math.min(cap, Math.round(cutoff + buffer));
 
-  if (targetScoreEl && !targetScoreEl.value) {
-    const cap = selectedTier === "tier2" ? 600 : 250;
-    targetScoreEl.value = String(Math.min(cap, Math.round(cutoff + (selectedTier === "tier2" ? 10 : 5))));
+  if (targetScoreEl) {
+    targetScoreEl.max = String(cap);
+    targetScoreEl.placeholder = selectedTier === "tier2" ? "e.g. 360" : "e.g. 150";
+    const currentTarget = Number(targetScoreEl.value || 0);
+
+    // If target is blank, capped out of range, or below cutoff, auto-correct to a realistic value.
+    if (!currentTarget || currentTarget > cap || currentTarget < Math.round(cutoff)) {
+      targetScoreEl.value = String(recommendedTarget);
+    }
   }
 
   const previousCutoffInput = document.getElementById("previousCutoffInput");
@@ -1785,7 +1785,7 @@ function applyGoalAutoCutoff() {
   if (statusEl) {
     const baseYear = goalCutoffCatalog.baseYear ? String(goalCutoffCatalog.baseYear) : "latest";
     const tierLabel = String(goalCutoffCatalog.tier || "tier1").toUpperCase();
-    statusEl.textContent = `Auto cutoff loaded (${tierLabel}, ${baseYear} baseline): ${Math.round(cutoff)}`;
+    statusEl.textContent = `Auto cutoff loaded (${tierLabel}, ${baseYear} baseline): ${Math.round(cutoff)} | Recommended target: ${recommendedTarget}`;
     statusEl.style.color = "#047857";
   }
 }
@@ -1892,6 +1892,14 @@ async function saveGoalProfile() {
     return;
   }
 
+  if (Number.isFinite(autoCutoff) && autoCutoff > 0 && targetScore < autoCutoff) {
+    if (statusEl) {
+      statusEl.textContent = `Target score is too low for selected post/category. Keep it at or above cutoff (${Math.round(autoCutoff)}).`;
+      statusEl.style.color = "#b91c1c";
+    }
+    return;
+  }
+
   if (statusEl) { statusEl.textContent = "Saving..."; statusEl.style.color = "#1e40af"; }
 
   try {
@@ -1915,6 +1923,7 @@ async function saveGoalProfile() {
     const data = await response.json();
     if (!response.ok || !data.success) throw new Error(data.error || "Save failed");
     goalProfile = data.profile?.goal || { examFamily, category, targetPost, examDate, studyHours, targetScore };
+    updateTopGoalFrame();
     if (statusEl) { statusEl.textContent = "Goal saved!"; statusEl.style.color = "#047857"; }
     setTimeout(() => closeGoalModal(), 800);
   } catch (err) {

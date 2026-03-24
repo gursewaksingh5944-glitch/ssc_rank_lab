@@ -104,7 +104,7 @@ function startTrial(userKey, plan = 99) {
   }
 
   const planNum = Number(plan || 0);
-  if (![49, 99].includes(planNum)) {
+  if (planNum !== 99) {
     return { success: false, error: "Invalid trial plan" };
   }
 

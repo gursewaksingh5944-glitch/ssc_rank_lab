@@ -13,13 +13,11 @@ const {
 const router = express.Router();
 
 const PLAN_PRICES = {
-  49: 4900,
   99: 9900
 };
 
 const PLAN_NAMES = {
-  49: "Premium ₹49",
-  99: "Premium ₹99"
+  99: "Monthly Premium ₹99"
 };
 
 function normalizeUserKey(value) {
@@ -78,7 +76,7 @@ router.post("/create-order", async (req, res) => {
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
-      description: `${PLAN_NAMES[planNum]} Unlock`,
+      description: `${PLAN_NAMES[planNum]} Subscription`,
       brandName: "SSCRankLab",
       themeColor: "#7c3aed",
       notes: order.notes || {}
@@ -171,7 +169,7 @@ router.post("/verify", async (req, res) => {
       userKey,
       paymentId: razorpayPaymentId,
       orderId: razorpayOrderId,
-      message: `${PLAN_NAMES[planNum]} unlocked successfully`
+        message: `${PLAN_NAMES[planNum]} unlocked successfully`
     });
   } catch (err) {
     console.error("verify error:", err);
