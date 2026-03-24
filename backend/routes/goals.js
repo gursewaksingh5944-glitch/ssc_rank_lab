@@ -13,6 +13,24 @@ const historicalPath = path.join(
   "historical_data.json"
 );
 
+const cglTier2OverallPath = path.join(
+  __dirname,
+  "..",
+  "data",
+  "exams",
+  "ssc_cgl",
+  "post_cutoffs_tier2_2023.json"
+);
+
+const cglTier2PostWisePath = path.join(
+  __dirname,
+  "..",
+  "data",
+  "exams",
+  "ssc_cgl",
+  "post_cutoffs_tier2_2024.json"
+);
+
 const TARGET_POSTS = [
   { name: "Inspector Income Tax", delta: 30, safeMin: 155, safeMax: 170 },
   { name: "Sub-Inspector CBI", delta: 20, safeMin: 150, safeMax: 165 },
@@ -24,10 +42,19 @@ const TARGET_POSTS = [
   { name: "Other / Not Sure", delta: 0, safeMin: 130, safeMax: 145 }
 ];
 
-function clampScore(value) {
+const EXAM_CONFIG = {
+  ssc_cgl: { tier1Factor: 1, tier2Factor: 1 },
+  ssc_chsl: { tier1Factor: 0.72, tier2Factor: 0.74 },
+  ssc_mts: { tier1Factor: 0.58, tier2Factor: 0.6 },
+  ssc_cpo: { tier1Factor: 0.82, tier2Factor: 0.85 }
+};
+
+const CATEGORIES = ["UR", "OBC", "SC", "ST", "EWS"];
+
+function clampScore(value, max = 250) {
   const n = Number(value);
   if (!Number.isFinite(n)) return null;
-  return Math.max(0, Math.min(250, Math.round(n)));
+  return Math.max(0, Math.min(Number(max || 250), Math.round(n)));
 }
 
 function loadLatestTier1Cutoff() {
@@ -59,28 +86,145 @@ function loadLatestTier1Cutoff() {
   }
 }
 
+function loadCglTier2OverallCutoff() {
+  try {
+    const raw = fs.readFileSync(cglTier2OverallPath, "utf8");
+    const parsed = JSON.parse(raw || "{}");
+    return {
+      year: Number(parsed.cycle_year || null),
+      overall: parsed.overall_cutoffs || { UR: 287, OBC: 271, SC: 252, ST: 241, EWS: 265 }
+    };
+  } catch (err) {
+    console.error("tier2 overall load error:", err);
+    return {
+      year: null,
+      overall: { UR: 287, OBC: 271, SC: 252, ST: 241, EWS: 265 }
+    };
+  }
+}
+
+function loadCglTier2PostwiseMap() {
+  try {
+    const raw = fs.readFileSync(cglTier2PostWisePath, "utf8");
+    const parsed = JSON.parse(raw || "{}");
+    const posts = Array.isArray(parsed.posts) ? parsed.posts : [];
+
+    const findPost = (predicate) => posts.find((item) => predicate(String(item.post_name || "")));
+
+    // Prefer direct and stable proxies from available 2024 post-wise data.
+    const matchedByTarget = {
+      "Inspector Income Tax": findPost((name) => /income\s*tax/i.test(name)),
+      "Sub-Inspector CBI": findPost((name) => /sub-?inspector\s*\(cbi\)|\bcbi\b/i.test(name)),
+      "Inspector Customs":
+        findPost((name) => /inspector\s*\(examiner\).*cbic/i.test(name)) ||
+        findPost((name) => /inspector\s*\(preventive officer\).*cbic/i.test(name)) ||
+        findPost((name) => /customs|preventive|examiner/i.test(name)),
+      "Assistant Section Officer":
+        findPost((name) => /assistant\/aso\s*-\s*ib/i.test(name)) ||
+        findPost((name) => /assistant\/aso\s*-\s*railways/i.test(name)) ||
+        findPost((name) => /assistant\/aso(?!.*css)/i.test(name)) ||
+        findPost((name) => /assistant\/aso/i.test(name)),
+      "JSO / Statistical Investigator":
+        findPost((name) => /junior statistical officer/i.test(name)) ||
+        findPost((name) => /statistical investigator/i.test(name)),
+      "Tax Assistant":
+        findPost((name) => /tax assistant/i.test(name)) ||
+        findPost((name) => /accountant\/junior accountant/i.test(name)) ||
+        findPost((name) => /accountant/i.test(name)),
+      "Upper Division Clerk": findPost((name) => /udc\/ssa/i.test(name)) || findPost((name) => /\budc\b|\bssa\b/i.test(name)),
+      "Other / Not Sure":
+        findPost((name) => /sub-?inspector\s*\(ncb\)/i.test(name)) ||
+        findPost((name) => /udc\/ssa/i.test(name)) ||
+        findPost((name) => /accountant|assistant|inspector/i.test(name))
+    };
+
+    const result = {};
+    Object.entries(matchedByTarget).forEach(([targetName, matched]) => {
+      if (!matched || !matched.cutoffs) return;
+      const cutoffByCategory = {};
+      CATEGORIES.forEach((cat) => {
+        const n = Number(matched.cutoffs[cat]);
+        cutoffByCategory[cat] = Number.isFinite(n) ? clampScore(n, 600) : null;
+      });
+      result[targetName] = cutoffByCategory;
+    });
+
+    return result;
+  } catch (err) {
+    console.error("tier2 postwise load error:", err);
+    return {};
+  }
+}
+
+function getBaseByTier(tier) {
+  if (tier === "tier2") {
+    const t2 = loadCglTier2OverallCutoff();
+    return { year: t2.year, cutoff: t2.overall };
+  }
+  const t1 = loadLatestTier1Cutoff();
+  return { year: t1.year, cutoff: t1.tier1_cutoff };
+}
+
+function getSmartBlendedBase() {
+  const t1 = loadLatestTier1Cutoff();
+  const t2 = loadCglTier2OverallCutoff();
+  const blended = {};
+  CATEGORIES.forEach((cat) => {
+    const a = Number(t1.tier1_cutoff?.[cat] || 0);
+    const b = Number(t2.overall?.[cat] || 0);
+    blended[cat] = clampScore((a * 0.55) + (b * 0.45));
+  });
+  return {
+    year: `${t1.year || "NA"}/${t2.year || "NA"}`,
+    cutoff: blended
+  };
+}
+
+function scaleCutoffByExam(baseCutoff, examFamily, tier) {
+  const cfg = EXAM_CONFIG[examFamily] || EXAM_CONFIG.ssc_cgl;
+  const factor = tier === "tier2" ? cfg.tier2Factor : cfg.tier1Factor;
+
+  const scaled = {};
+  const maxScore = tier === "tier2" ? 600 : 250;
+  CATEGORIES.forEach((cat) => {
+    scaled[cat] = clampScore(Number(baseCutoff[cat] || 0) * factor, maxScore);
+  });
+  return scaled;
+}
+
 router.get("/cutoffs", (req, res) => {
   try {
     const examFamily = String(req.query.examFamily || "ssc_cgl").trim().toLowerCase();
-    if (examFamily !== "ssc_cgl") {
-      return res.json({
-        success: true,
-        examFamily,
-        baseYear: null,
-        posts: [],
-        note: "Cutoff recommendations are currently available for SSC CGL only"
-      });
+    const tier = String(req.query.tier || "tier1").trim().toLowerCase();
+
+    if (!Object.keys(EXAM_CONFIG).includes(examFamily)) {
+      return res.status(400).json({ success: false, error: "Unsupported examFamily" });
     }
 
-    const latest = loadLatestTier1Cutoff();
-    const base = latest.tier1_cutoff || {};
-    const categories = ["UR", "OBC", "SC", "ST", "EWS"];
+    if (!["tier1", "tier2", "smart"].includes(tier)) {
+      return res.status(400).json({ success: false, error: "Unsupported tier" });
+    }
+
+    const resolvedTier = tier;
+    const baseTierData = resolvedTier === "smart" ? getSmartBlendedBase() : getBaseByTier(resolvedTier);
+    const scaledBase = scaleCutoffByExam(baseTierData.cutoff || {}, examFamily, resolvedTier);
+    const cglTier2PostMap = resolvedTier === "tier2" && examFamily === "ssc_cgl"
+      ? loadCglTier2PostwiseMap()
+      : {};
+    const maxScore = resolvedTier === "tier2" ? 600 : 250;
 
     const posts = TARGET_POSTS.map((item) => {
       const cutoffByCategory = {};
-      categories.forEach((cat) => {
-        const baseVal = Number(base[cat] || 0);
-        cutoffByCategory[cat] = clampScore(baseVal + Number(item.delta || 0));
+      CATEGORIES.forEach((cat) => {
+        const modelBase = Number(scaledBase[cat] || 0);
+        const modeled = clampScore(modelBase + Number(item.delta || 0), maxScore);
+        const cglTier2Real = cglTier2PostMap[item.name]?.[cat];
+
+        if (resolvedTier === "tier2" && examFamily === "ssc_cgl" && Number.isFinite(cglTier2Real)) {
+          cutoffByCategory[cat] = clampScore(cglTier2Real, maxScore);
+        } else {
+          cutoffByCategory[cat] = modeled;
+        }
       });
 
       return {
@@ -90,13 +234,22 @@ router.get("/cutoffs", (req, res) => {
       };
     });
 
+    let note = "Generated from existing project historical cutoffs + post target model";
+    if (examFamily !== "ssc_cgl") {
+      note = "Generated using calibrated model from SSC CGL historical baseline for this exam family";
+    }
+    if (resolvedTier === "tier2" && examFamily === "ssc_cgl") {
+      note = "Tier-2 mode uses post-wise 2024 cutoffs where available, else modeled fallback";
+    }
+
     return res.json({
       success: true,
       examFamily,
-      baseYear: latest.year,
-      categories,
+      tier: resolvedTier,
+      baseYear: baseTierData.year,
+      categories: CATEGORIES,
       posts,
-      note: "Generated using historical Tier-1 category cutoffs and post target ranges from project data"
+      note
     });
   } catch (error) {
     console.error("/api/goals/cutoffs error:", error);

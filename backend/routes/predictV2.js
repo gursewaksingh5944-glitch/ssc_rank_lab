@@ -5,7 +5,7 @@ const { loadExamData } = require("../engine/examLoader");
 const { estimateFromCumulative } = require("../engine/rankEngine");
 const { buildInsights } = require("../engine/premiumInsights");
 const { getPostChances } = require("../engine/postAllocator");
-const { getUnlockedPlan } = require("../utils/planStore");
+const { getUnlockedPlan, getEffectiveAccessPlan, getTrialInfo } = require("../utils/planStore");
 
 function normalizeUserKey(value) {
   return String(value || "").trim().toLowerCase();
@@ -51,18 +51,13 @@ router.post("/", (req, res) => {
 
     const normalizedUserKey = normalizeUserKey(userKey);
 
-    let storedUnlockedPlan = getUnlockedPlan(normalizedUserKey);
-
-    // Temporary fallback:
-    // If backend file storage resets but frontend is already sending a valid unlocked plan,
-    // allow premium response instead of forcing free result.
-    if (!storedUnlockedPlan && [49, 99].includes(requestedPlan)) {
-      storedUnlockedPlan = requestedPlan;
-    }
+    const storedUnlockedPlan = getUnlockedPlan(normalizedUserKey);
+    const effectiveAccessPlan = getEffectiveAccessPlan(normalizedUserKey);
+    const trial = getTrialInfo(normalizedUserKey);
 
     const finalPlan =
       requestedPlan > 0
-        ? Math.min(requestedPlan, storedUnlockedPlan)
+        ? Math.min(requestedPlan, effectiveAccessPlan)
         : 0;
 
     const unlockedPlan = storedUnlockedPlan;
@@ -123,6 +118,8 @@ router.post("/", (req, res) => {
       userKey: normalizedUserKey || null,
       requestedPlan,
       unlockedPlan,
+      effectiveAccessPlan,
+      trial,
       plan: finalPlan,
       mode: selectedMode,
       ...safeEst

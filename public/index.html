@@ -421,6 +421,8 @@
     .goal-form-grid label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:4px;text-transform:uppercase;letter-spacing:.02em;}
     .goal-form-grid select,.goal-form-grid input{width:100%;border:1px solid #d1d5db;border-radius:12px;padding:10px 12px;font-size:14px;outline:none;}
     .goal-form-grid select:focus,.goal-form-grid input:focus{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(59,130,246,.15);}
+    .trial-strip{margin-top:14px;border:1px solid #fde68a;background:linear-gradient(90deg,#fffbeb,#fef3c7);border-radius:18px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+    .trial-strip p{margin:0;font-size:13px;font-weight:700;color:#92400e;}
 
     @media (max-width:1024px){
       .two-col{
@@ -552,7 +554,7 @@
         </a>
 
         <a href="#predictor" class="flex items-center justify-center whitespace-nowrap text-base font-semibold px-4 py-2 rounded-xl hover:bg-blue-50">
-          Rank Predictor
+          Rank Insights (Side)
         </a>
 
         <a href="#progress" class="flex items-center justify-center whitespace-nowrap text-base font-semibold px-4 py-2 rounded-xl hover:bg-blue-50">
@@ -724,6 +726,10 @@
           <div class="text-sm text-purple-700 mt-2">Category rank, percentile, post-wise insights, what-if jumps, benchmark target overlays, and deep weekly analytics.</div>
         </div>
       </div>
+      <div class="trial-strip">
+        <p>Activate 2-day premium trial free. Continue only if it helps your final selection decision.</p>
+        <button id="startTrialBtn" class="px-4 py-2 rounded-xl bg-amber-500 text-white font-bold hover:bg-amber-600 transition">Start 2-Day Free Trial</button>
+      </div>
     </div>
   </section>
 
@@ -738,12 +744,12 @@
           </div>
 
           <h2 class="text-3xl md:text-4xl font-black text-gray-900">
-            Rank Predictor
+            Rank Insights (Side Feature)
           </h2>
 
           <p class="text-gray-600 mt-3 max-w-2xl">
-            Enter your marks, choose your category, and get a result based on historical SSC trends.
-            Free users get the base estimate. Premium users unlock deeper decision insights.
+            Your main daily workflow is the tracker above. Use this module as a decision layer for expected rank and final post strategy.
+            Free gives base estimate; premium unlocks selection-critical insights.
           </p>
         </div>
 
@@ -850,9 +856,9 @@
         </div>
 
         <div class="legacy-card">
-          <h3>Legacy Predictor Kept Strong</h3>
+          <h3>Rank Insights, Now a Smart Add-On</h3>
           <p>
-            Your earlier project stays on the homepage with clear visibility. Users can still run fast rank prediction and premium insights.
+            Daily prep remains the core product. Rank prediction is now intentionally positioned as a high-value side module for conversion.
           </p>
           <ul class="legacy-list">
             <li>Category-aware rank estimation</li>
@@ -1188,7 +1194,7 @@
             <li>🔒 Post chances</li>
           </ul>
 
-          <div class="mt-6 text-sm text-gray-500">Best for first check.</div>
+          <div class="mt-6 text-sm text-gray-500">Best for daily free usage.</div>
         </div>
 
         <div class="p-6 rounded-3xl border-2 border-emerald-300 bg-emerald-50 shadow-xl relative">
@@ -1196,7 +1202,7 @@
             Most Popular
           </div>
 
-          <div class="text-sm font-extrabold text-emerald-700 uppercase">Premium</div>
+          <div class="text-sm font-extrabold text-emerald-700 uppercase">Premium Starter</div>
 
           <div class="flex items-end gap-2 mt-2">
             <div class="text-4xl font-black text-gray-900">₹49</div>
@@ -1204,7 +1210,7 @@
           </div>
 
           <p class="text-sm text-gray-600 mt-2">
-            For aspirants who want accurate rank and position clarity.
+            Includes 2-day free trial entry path before payment decision.
           </p>
 
           <ul class="mt-5 space-y-2 text-gray-700">
@@ -1224,7 +1230,7 @@
             class="js-unlock-plan mt-6 w-full px-5 py-3 rounded-2xl bg-emerald-600 text-white font-semibold shadow hover:bg-emerald-700 transition"
             data-plan="49"
           >
-            Unlock ₹49
+            Upgrade ₹49
           </button>
         </div>
 
@@ -1253,9 +1259,13 @@
             class="js-unlock-plan mt-6 w-full px-5 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow hover:bg-purple-700 transition"
             data-plan="99"
           >
-            Unlock ₹99
+            Upgrade ₹99
           </button>
         </div>
+      </div>
+
+      <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-800 text-sm font-semibold">
+        Clear premium funnel: 2-day trial -> value experience -> paid continuation for exclusive insights.
       </div>
     </div>
   </section>
@@ -1346,6 +1356,14 @@
           </select>
         </div>
         <div>
+          <label for="goalTier">Target Tier</label>
+          <select id="goalTier">
+            <option value="tier1">Tier 1</option>
+            <option value="tier2">Tier 2</option>
+            <option value="smart">Smart (Auto Blend)</option>
+          </select>
+        </div>
+        <div>
           <label for="goalCategory">Category</label>
           <select id="goalCategory">
             <option value="UR">General (UR)</option>
@@ -1379,7 +1397,7 @@
         </div>
         <div>
           <label for="goalTargetScore">Target Score</label>
-          <input type="number" id="goalTargetScore" min="60" max="250" placeholder="e.g. 150" />
+          <input type="number" id="goalTargetScore" min="60" max="600" placeholder="e.g. 150" />
         </div>
         <div>
           <label for="goalAutoCutoff">Auto Cutoff (From Data)</label>

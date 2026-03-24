@@ -43,10 +43,19 @@ document.addEventListener("DOMContentLoaded", function () {
     generateMockBtn.addEventListener("click", generateMockFromLab);
   }
 
+  const startTrialBtn = document.getElementById("startTrialBtn");
+  if (startTrialBtn) {
+    startTrialBtn.addEventListener("click", function () {
+      startFreeTrial(startTrialBtn);
+    });
+  }
+
   bindUnlockButtons();
   loadBenchmarkProfile();
   loadMarksHistory();
   loadQuestionLabItems();
+  syncPaymentStatus();
+  setInterval(syncPaymentStatus, 60000);
 
   const navOpenGoalBtn = document.getElementById("navOpenGoal");
   if (navOpenGoalBtn) {
@@ -84,6 +93,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  const goalTierEl = document.getElementById("goalTier");
+  if (goalTierEl) {
+    goalTierEl.addEventListener("change", async function () {
+      await loadGoalCutoffCatalog();
+      applyGoalAutoCutoff();
+    });
+  }
+
   const skipGoalBtnEl = document.getElementById("skipGoalBtn");
   if (skipGoalBtnEl) {
     skipGoalBtnEl.addEventListener("click", closeGoalModal);
@@ -108,6 +125,11 @@ let benchmarkProfile = null;
 let questionLabCache = [];
 let goalProfile = null;
 let goalCutoffCatalog = null;
+let paymentAccessState = {
+  unlockedPlan: 0,
+  effectivePlan: 0,
+  trial: null
+};
 
 function bindUnlockButtons() {
   const unlockButtons = document.querySelectorAll(".js-unlock-plan");
@@ -158,9 +180,19 @@ function saveUnlockedPlan(plan) {
   }
 }
 
+function setCurrentAccessPlan(plan) {
+  try {
+    localStorage.setItem("sscranklab_current_access_plan", String(Number(plan || 0)));
+  } catch (err) {
+    console.error("setCurrentAccessPlan error:", err);
+  }
+}
+
 function getUnlockedPlan() {
   try {
-    return Number(localStorage.getItem("sscranklab_unlocked_plan") || 0);
+    const current = Number(localStorage.getItem("sscranklab_current_access_plan") || 0);
+    const paid = Number(localStorage.getItem("sscranklab_unlocked_plan") || 0);
+    return Math.max(current, paid);
   } catch (err) {
     console.error("getUnlockedPlan error:", err);
     return 0;
@@ -185,20 +217,21 @@ function updatePremiumOptions(unlockedPlan = 0) {
   if (!premiumInput) return;
 
   const previousValue = Number(premiumInput.value || 0);
+  const trialActive = Boolean(paymentAccessState?.trial?.active);
 
   premiumInput.innerHTML = `<option value="0">Free</option>`;
 
   if (unlockedPlan >= 49) {
     premiumInput.insertAdjacentHTML(
       "beforeend",
-      `<option value="49">Premium ₹49 (Unlocked)</option>`
+      `<option value="49">Premium ₹49 (${trialActive ? "Trial Access" : "Unlocked"})</option>`
     );
   }
 
   if (unlockedPlan >= 99) {
     premiumInput.insertAdjacentHTML(
       "beforeend",
-      `<option value="99">Premium ₹99 (Unlocked)</option>`
+      `<option value="99">Premium ₹99 (${trialActive ? "Trial Access" : "Unlocked"})</option>`
     );
   }
 
@@ -214,14 +247,25 @@ function updatePremiumOptions(unlockedPlan = 0) {
 }
 
 function restoreUnlockedPlan() {
-  const savedPlan = getUnlockedPlan();
-  updatePremiumOptions(savedPlan);
-  hideUnlockedPlanButtons(savedPlan);
+  const paidPlan = Number(localStorage.getItem("sscranklab_unlocked_plan") || 0);
+  setCurrentAccessPlan(paidPlan);
+  paymentAccessState.unlockedPlan = paidPlan;
+  paymentAccessState.effectivePlan = paidPlan;
+  paymentAccessState.trial = null;
+  updatePremiumOptions(paidPlan);
+  hideUnlockedPlanButtons(paidPlan);
 }
 
 function updatePlanStatusText(unlockedPlan = 0) {
   const planStatusText = document.getElementById("planStatusText");
   if (!planStatusText) return;
+
+  const trial = paymentAccessState.trial;
+  if (trial && trial.active) {
+    const hours = Math.ceil(Number(trial.remainingMs || 0) / (60 * 60 * 1000));
+    planStatusText.textContent = `2-day premium trial active (${Math.max(0, hours)}h left). Upgrade to continue exclusive features.`;
+    return;
+  }
 
   if (unlockedPlan >= 99) {
     planStatusText.textContent = "₹49 and ₹99 premium unlocked.";
@@ -357,7 +401,14 @@ async function startRazorpayUnlock(plan, triggerButton = null) {
             Number(getUnlockedPlan() || 0)
           );
 
+          paymentAccessState = {
+            unlockedPlan: newUnlockedPlan,
+            effectivePlan: newUnlockedPlan,
+            trial: null
+          };
+
           saveUnlockedPlan(newUnlockedPlan);
+          setCurrentAccessPlan(newUnlockedPlan);
           savePaymentMeta({
             paymentId: response.razorpay_payment_id,
             orderId: response.razorpay_order_id
@@ -443,6 +494,7 @@ function showPaymentStatus(message, type = "info") {
 }
 
 async function predictRank() {
+  await syncPaymentStatus();
   const marks = Number(document.getElementById("marksInput")?.value);
   const category = document.getElementById("categoryInput")?.value;
   const selectedPlan = Number(document.getElementById("premiumInput")?.value || 0);
@@ -1666,8 +1718,9 @@ function drawSubjectChart(entries) {
 
 async function loadGoalCutoffCatalog() {
   const examFamily = String(document.getElementById("goalExamFamily")?.value || "ssc_cgl");
+  const tier = String(document.getElementById("goalTier")?.value || "tier1");
   try {
-    const response = await fetch(`/api/goals/cutoffs?examFamily=${encodeURIComponent(examFamily)}`);
+    const response = await fetch(`/api/goals/cutoffs?examFamily=${encodeURIComponent(examFamily)}&tier=${encodeURIComponent(tier)}`);
     const data = await response.json();
     if (!response.ok || !data.success) {
       throw new Error(data.error || "Could not load cutoff catalog");
@@ -1682,6 +1735,7 @@ async function loadGoalCutoffCatalog() {
 function applyGoalAutoCutoff() {
   const post = String(document.getElementById("goalTargetPost")?.value || "").trim();
   const category = String(document.getElementById("goalCategory")?.value || "UR").trim().toUpperCase();
+  const selectedTier = String(document.getElementById("goalTier")?.value || "tier1").toLowerCase();
   const autoEl = document.getElementById("goalAutoCutoff");
   const statusEl = document.getElementById("goalModalStatus");
 
@@ -1713,18 +1767,25 @@ function applyGoalAutoCutoff() {
   autoEl.value = String(Math.round(cutoff));
 
   const targetScoreEl = document.getElementById("goalTargetScore");
+  if (targetScoreEl) {
+    targetScoreEl.max = selectedTier === "tier2" ? "600" : "250";
+    targetScoreEl.placeholder = selectedTier === "tier2" ? "e.g. 360" : "e.g. 150";
+  }
+
   if (targetScoreEl && !targetScoreEl.value) {
-    targetScoreEl.value = String(Math.min(250, Math.round(cutoff + 5)));
+    const cap = selectedTier === "tier2" ? 600 : 250;
+    targetScoreEl.value = String(Math.min(cap, Math.round(cutoff + (selectedTier === "tier2" ? 10 : 5))));
   }
 
   const previousCutoffInput = document.getElementById("previousCutoffInput");
-  if (previousCutoffInput && !previousCutoffInput.value) {
+  if (selectedTier !== "tier2" && previousCutoffInput && !previousCutoffInput.value) {
     previousCutoffInput.value = String(Math.round(cutoff));
   }
 
   if (statusEl) {
     const baseYear = goalCutoffCatalog.baseYear ? String(goalCutoffCatalog.baseYear) : "latest";
-    statusEl.textContent = `Auto cutoff loaded (${baseYear} baseline): ${Math.round(cutoff)}`;
+    const tierLabel = String(goalCutoffCatalog.tier || "tier1").toUpperCase();
+    statusEl.textContent = `Auto cutoff loaded (${tierLabel}, ${baseYear} baseline): ${Math.round(cutoff)}`;
     statusEl.style.color = "#047857";
   }
 }
@@ -1747,6 +1808,7 @@ function showGoalModal() {
   if (goalProfile) {
     const setVal = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
     setVal("goalExamFamily", goalProfile.examFamily);
+    setVal("goalTier", goalProfile.tier || "tier1");
     setVal("goalCategory", goalProfile.category);
     setVal("goalTargetPost", goalProfile.targetPost);
     setVal("goalExamDate", goalProfile.examDate);
@@ -1769,6 +1831,7 @@ async function saveGoalProfile() {
   const userKey = getUserKey();
   const statusEl = document.getElementById("goalModalStatus");
   const examFamily = document.getElementById("goalExamFamily")?.value || "ssc_cgl";
+  const tier = document.getElementById("goalTier")?.value || "tier1";
   const category = document.getElementById("goalCategory")?.value || "UR";
   const targetPost = document.getElementById("goalTargetPost")?.value || "";
   const examDate = document.getElementById("goalExamDate")?.value || "";
@@ -1777,6 +1840,7 @@ async function saveGoalProfile() {
   const autoCutoff = Number(document.getElementById("goalAutoCutoff")?.value || 0);
 
   const examAllowed = ["ssc_cgl", "ssc_chsl", "ssc_mts", "ssc_cpo"];
+  const tierAllowed = ["tier1", "tier2", "smart"];
   const categoryAllowed = ["UR", "OBC", "SC", "ST", "EWS"];
 
   if (!examAllowed.includes(examFamily)) {
@@ -1790,6 +1854,14 @@ async function saveGoalProfile() {
   if (!categoryAllowed.includes(category)) {
     if (statusEl) {
       statusEl.textContent = "Invalid category selection.";
+      statusEl.style.color = "#b91c1c";
+    }
+    return;
+  }
+
+  if (!tierAllowed.includes(tier)) {
+    if (statusEl) {
+      statusEl.textContent = "Invalid tier selection.";
       statusEl.style.color = "#b91c1c";
     }
     return;
@@ -1811,9 +1883,10 @@ async function saveGoalProfile() {
     return;
   }
 
-  if (!Number.isFinite(targetScore) || targetScore < 60 || targetScore > 250) {
+  const targetMaxByTier = tier === "tier2" ? 600 : 250;
+  if (!Number.isFinite(targetScore) || targetScore < 60 || targetScore > targetMaxByTier) {
     if (statusEl) {
-      statusEl.textContent = "Target score must be between 60 and 250.";
+      statusEl.textContent = `Target score must be between 60 and ${targetMaxByTier}.`;
       statusEl.style.color = "#b91c1c";
     }
     return;
@@ -1828,6 +1901,7 @@ async function saveGoalProfile() {
       body: JSON.stringify({
         goal: {
           examFamily,
+          tier,
           category,
           targetPost,
           examDate,
@@ -1988,4 +2062,61 @@ function renderWeeklyReport(report) {
   `;
   container.classList.remove("hidden");
   bindUnlockButtons();
+}
+
+async function syncPaymentStatus() {
+  try {
+    const userKey = getUserKey();
+    const response = await fetch(`/api/payment/status?userKey=${encodeURIComponent(userKey)}`);
+    const data = await response.json();
+    if (!response.ok || !data.success) return;
+
+    const unlockedPlan = Number(data.unlockedPlan || 0);
+    const effectivePlan = Number(data.effectivePlan || unlockedPlan || 0);
+    paymentAccessState = {
+      unlockedPlan,
+      effectivePlan,
+      trial: data.trial || null
+    };
+
+    saveUnlockedPlan(unlockedPlan);
+    setCurrentAccessPlan(effectivePlan);
+    updatePremiumOptions(effectivePlan);
+    hideUnlockedPlanButtons(effectivePlan);
+  } catch (err) {
+    console.error("syncPaymentStatus error:", err);
+  }
+}
+
+async function startFreeTrial(triggerButton = null) {
+  const originalText = showButtonLoading(triggerButton, "Activating...");
+  try {
+    const response = await fetch("/api/payment/start-trial", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userKey: getUserKey(), plan: 99 })
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Unable to start trial");
+    }
+
+    paymentAccessState = {
+      unlockedPlan: Number(data.unlockedPlan || 0),
+      effectivePlan: Number(data.effectivePlan || 0),
+      trial: data.trial || null
+    };
+
+    saveUnlockedPlan(paymentAccessState.unlockedPlan);
+    setCurrentAccessPlan(paymentAccessState.effectivePlan);
+    updatePremiumOptions(paymentAccessState.effectivePlan);
+    hideUnlockedPlanButtons(paymentAccessState.effectivePlan);
+    showPaymentStatus("2-day premium trial activated. Explore all exclusive insights now.", "success");
+  } catch (err) {
+    console.error("startFreeTrial error:", err);
+    showPaymentStatus(err.message || "Could not start trial", "error");
+  } finally {
+    resetButtonLoading(triggerButton, originalText);
+  }
 }

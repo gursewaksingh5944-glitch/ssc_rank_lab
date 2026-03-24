@@ -3,6 +3,9 @@ const crypto = require("crypto");
 const Razorpay = require("razorpay");
 const {
   getUnlockedPlan,
+  getEffectiveAccessPlan,
+  getTrialInfo,
+  startTrial,
   setUnlockedPlan,
   hasPaymentId
 } = require("../utils/planStore");
@@ -193,11 +196,15 @@ router.get("/status", (req, res) => {
     }
 
     const unlockedPlan = getUnlockedPlan(userKey);
+    const effectivePlan = getEffectiveAccessPlan(userKey);
+    const trial = getTrialInfo(userKey);
 
     return res.status(200).json({
       success: true,
       userKey,
-      unlockedPlan
+      unlockedPlan,
+      effectivePlan,
+      trial
     });
   } catch (err) {
     console.error("status error:", err);
@@ -205,6 +212,41 @@ router.get("/status", (req, res) => {
     return res.status(500).json({
       success: false,
       error: "Unable to fetch payment status"
+    });
+  }
+});
+
+router.post("/start-trial", (req, res) => {
+  try {
+    const userKey = normalizeUserKey(req.body.userKey);
+    const planNum = Number(req.body.plan || 99);
+
+    if (!userKey) {
+      return res.status(400).json({ success: false, error: "userKey required" });
+    }
+
+    const trialResult = startTrial(userKey, planNum);
+    if (!trialResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: trialResult.error || "Could not start trial"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      userKey,
+      message: "2-day premium trial activated",
+      ...trialResult,
+      unlockedPlan: getUnlockedPlan(userKey),
+      effectivePlan: getEffectiveAccessPlan(userKey),
+      trial: getTrialInfo(userKey)
+    });
+  } catch (err) {
+    console.error("start-trial error:", err);
+    return res.status(500).json({
+      success: false,
+      error: "Unable to start trial"
     });
   }
 });
