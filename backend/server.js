@@ -10,6 +10,7 @@ const paymentRoute = require("./routes/payment");
 const userRoute = require("./routes/user");
 const testRoute = require("./routes/test");
 const questionsRoute = require("./routes/questions");
+const goalsRoute = require("./routes/goals");
 
 const app = express();
 app.set("trust proxy", true);
@@ -185,6 +186,7 @@ app.use("/api/payment", paymentRoute);
 app.use("/api/user", userRoute);
 app.use("/api/test", testRoute);
 app.use("/api/questions", questionsRoute);
+app.use("/api/goals", goalsRoute);
 
 
 // ===============================

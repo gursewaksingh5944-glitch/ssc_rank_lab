@@ -66,6 +66,24 @@ document.addEventListener("DOMContentLoaded", function () {
     saveGoalBtnEl.addEventListener("click", saveGoalProfile);
   }
 
+  const goalTargetPostEl = document.getElementById("goalTargetPost");
+  if (goalTargetPostEl) {
+    goalTargetPostEl.addEventListener("change", applyGoalAutoCutoff);
+  }
+
+  const goalCategoryEl = document.getElementById("goalCategory");
+  if (goalCategoryEl) {
+    goalCategoryEl.addEventListener("change", applyGoalAutoCutoff);
+  }
+
+  const goalExamFamilyEl = document.getElementById("goalExamFamily");
+  if (goalExamFamilyEl) {
+    goalExamFamilyEl.addEventListener("change", async function () {
+      await loadGoalCutoffCatalog();
+      applyGoalAutoCutoff();
+    });
+  }
+
   const skipGoalBtnEl = document.getElementById("skipGoalBtn");
   if (skipGoalBtnEl) {
     skipGoalBtnEl.addEventListener("click", closeGoalModal);
@@ -78,6 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  loadGoalCutoffCatalog();
   setTimeout(checkGoalOnboarding, 900);
 });
 
@@ -88,6 +107,7 @@ let subjectChartInstance = null;
 let benchmarkProfile = null;
 let questionLabCache = [];
 let goalProfile = null;
+let goalCutoffCatalog = null;
 
 function bindUnlockButtons() {
   const unlockButtons = document.querySelectorAll(".js-unlock-plan");
@@ -1644,6 +1664,71 @@ function drawSubjectChart(entries) {
   });
 }
 
+async function loadGoalCutoffCatalog() {
+  const examFamily = String(document.getElementById("goalExamFamily")?.value || "ssc_cgl");
+  try {
+    const response = await fetch(`/api/goals/cutoffs?examFamily=${encodeURIComponent(examFamily)}`);
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Could not load cutoff catalog");
+    }
+    goalCutoffCatalog = data;
+  } catch (err) {
+    console.error("loadGoalCutoffCatalog error:", err);
+    goalCutoffCatalog = null;
+  }
+}
+
+function applyGoalAutoCutoff() {
+  const post = String(document.getElementById("goalTargetPost")?.value || "").trim();
+  const category = String(document.getElementById("goalCategory")?.value || "UR").trim().toUpperCase();
+  const autoEl = document.getElementById("goalAutoCutoff");
+  const statusEl = document.getElementById("goalModalStatus");
+
+  if (!autoEl) return;
+  if (!post || !goalCutoffCatalog || !Array.isArray(goalCutoffCatalog.posts)) {
+    autoEl.value = "";
+    return;
+  }
+
+  const found = goalCutoffCatalog.posts.find((item) => String(item.name || "") === post);
+  if (!found || !found.cutoffByCategory) {
+    autoEl.value = "";
+    if (statusEl) {
+      statusEl.textContent = "No mapped cutoff for selected post yet.";
+      statusEl.style.color = "#b45309";
+    }
+    return;
+  }
+
+  const cutoff = Number(
+    found.cutoffByCategory[category] ?? found.cutoffByCategory.UR ?? 0
+  );
+
+  if (!Number.isFinite(cutoff) || cutoff <= 0) {
+    autoEl.value = "";
+    return;
+  }
+
+  autoEl.value = String(Math.round(cutoff));
+
+  const targetScoreEl = document.getElementById("goalTargetScore");
+  if (targetScoreEl && !targetScoreEl.value) {
+    targetScoreEl.value = String(Math.min(250, Math.round(cutoff + 5)));
+  }
+
+  const previousCutoffInput = document.getElementById("previousCutoffInput");
+  if (previousCutoffInput && !previousCutoffInput.value) {
+    previousCutoffInput.value = String(Math.round(cutoff));
+  }
+
+  if (statusEl) {
+    const baseYear = goalCutoffCatalog.baseYear ? String(goalCutoffCatalog.baseYear) : "latest";
+    statusEl.textContent = `Auto cutoff loaded (${baseYear} baseline): ${Math.round(cutoff)}`;
+    statusEl.style.color = "#047857";
+  }
+}
+
 // ============================================================
 // GOAL ONBOARDING
 // ============================================================
@@ -1668,6 +1753,7 @@ function showGoalModal() {
     setVal("goalStudyHours", goalProfile.studyHours);
     setVal("goalTargetScore", goalProfile.targetScore);
   }
+  applyGoalAutoCutoff();
   modal.classList.remove("hidden");
   document.body.style.overflow = "hidden";
 }
@@ -1688,6 +1774,50 @@ async function saveGoalProfile() {
   const examDate = document.getElementById("goalExamDate")?.value || "";
   const studyHours = Number(document.getElementById("goalStudyHours")?.value || 0);
   const targetScore = Number(document.getElementById("goalTargetScore")?.value || 0);
+  const autoCutoff = Number(document.getElementById("goalAutoCutoff")?.value || 0);
+
+  const examAllowed = ["ssc_cgl", "ssc_chsl", "ssc_mts", "ssc_cpo"];
+  const categoryAllowed = ["UR", "OBC", "SC", "ST", "EWS"];
+
+  if (!examAllowed.includes(examFamily)) {
+    if (statusEl) {
+      statusEl.textContent = "Invalid exam selection.";
+      statusEl.style.color = "#b91c1c";
+    }
+    return;
+  }
+
+  if (!categoryAllowed.includes(category)) {
+    if (statusEl) {
+      statusEl.textContent = "Invalid category selection.";
+      statusEl.style.color = "#b91c1c";
+    }
+    return;
+  }
+
+  if (!targetPost || String(targetPost).length > 80) {
+    if (statusEl) {
+      statusEl.textContent = "Please select a valid target post.";
+      statusEl.style.color = "#b91c1c";
+    }
+    return;
+  }
+
+  if (!Number.isFinite(studyHours) || studyHours < 1 || studyHours > 16) {
+    if (statusEl) {
+      statusEl.textContent = "Study hours must be between 1 and 16.";
+      statusEl.style.color = "#b91c1c";
+    }
+    return;
+  }
+
+  if (!Number.isFinite(targetScore) || targetScore < 60 || targetScore > 250) {
+    if (statusEl) {
+      statusEl.textContent = "Target score must be between 60 and 250.";
+      statusEl.style.color = "#b91c1c";
+    }
+    return;
+  }
 
   if (statusEl) { statusEl.textContent = "Saving..."; statusEl.style.color = "#1e40af"; }
 
@@ -1696,7 +1826,16 @@ async function saveGoalProfile() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        goal: { examFamily, category, targetPost, examDate, studyHours, targetScore, updatedAt: new Date().toISOString() }
+        goal: {
+          examFamily,
+          category,
+          targetPost,
+          examDate,
+          studyHours,
+          targetScore,
+          autoCutoff: Number.isFinite(autoCutoff) && autoCutoff > 0 ? Math.round(autoCutoff) : null,
+          updatedAt: new Date().toISOString()
+        }
       })
     });
     const data = await response.json();
