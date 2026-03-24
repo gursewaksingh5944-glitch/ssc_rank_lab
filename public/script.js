@@ -72,6 +72,40 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Upgrade modal wiring
+  const closeUpgradeModalBtn = document.getElementById("closeUpgradeModal");
+  if (closeUpgradeModalBtn) closeUpgradeModalBtn.addEventListener("click", closeUpgradeModal);
+
+  const upgradeModalPayBtn = document.getElementById("upgradeModalPayBtn");
+  if (upgradeModalPayBtn) {
+    upgradeModalPayBtn.addEventListener("click", async function () {
+      closeUpgradeModal();
+      await startRazorpayUnlock(99, upgradeModalPayBtn);
+    });
+  }
+
+  const upgradeModalTrialBtn = document.getElementById("upgradeModalTrialBtn");
+  if (upgradeModalTrialBtn) {
+    upgradeModalTrialBtn.addEventListener("click", function () {
+      closeUpgradeModal();
+      const startTrialBtn = document.getElementById("startTrialBtn");
+      startFreeTrial(startTrialBtn);
+    });
+  }
+
+  // Close upgrade modal on backdrop click
+  document.getElementById("upgradeModal")?.addEventListener("click", function (e) {
+    if (e.target === this) closeUpgradeModal();
+  });
+
+  // Pricing section trial button
+  const pricingTrialBtn = document.getElementById("pricingTrialBtn");
+  if (pricingTrialBtn) {
+    pricingTrialBtn.addEventListener("click", function () {
+      startFreeTrial(pricingTrialBtn);
+    });
+  }
+
   const closeGoalModalBtn = document.getElementById("closeGoalModal");
   if (closeGoalModalBtn) {
     closeGoalModalBtn.addEventListener("click", closeGoalModal);
@@ -144,12 +178,21 @@ function bindUnlockButtons() {
     if (button.dataset.bound === "true") return;
 
     button.dataset.bound = "true";
-    button.addEventListener("click", async function () {
-      const plan = Number(button.dataset.plan || 0);
-      if (!plan) return;
-      await startRazorpayUnlock(plan, button);
+    button.addEventListener("click", function () {
+      // Open the upgrade modal so user sees trial + pay options first.
+      openUpgradeModal();
     });
   });
+}
+
+function openUpgradeModal() {
+  const modal = document.getElementById("upgradeModal");
+  if (modal) modal.classList.remove("hidden");
+}
+
+function closeUpgradeModal() {
+  const modal = document.getElementById("upgradeModal");
+  if (modal) modal.classList.add("hidden");
 }
 
 function ensureUserKey() {
@@ -360,12 +403,13 @@ async function startRazorpayUnlock(plan, triggerButton = null) {
 
   try {
     const userKey = getUserKey();
-    const currentUnlocked = getUnlockedPlan();
+    // Only bail out for PAID unlocks — a trial-active user should still be able to pay.
+    const paidUnlocked = Number(paymentAccessState.unlockedPlan || 0);
 
-    if (currentUnlocked >= plan) {
-      showPaymentStatus(`${getPlanName(plan)} already unlocked.`, "success");
-      hideUnlockedPlanButtons(currentUnlocked);
-      updatePremiumOptions(currentUnlocked);
+    if (paidUnlocked >= plan) {
+      showPaymentStatus(`${getPlanName(plan)} already subscribed. Thank you!`, "success");
+      hideUnlockedPlanButtons(paidUnlocked);
+      updatePremiumOptions(paidUnlocked);
       return;
     }
 
