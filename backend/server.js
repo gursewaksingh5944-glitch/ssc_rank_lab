@@ -70,7 +70,7 @@ app.get("/sitemap.xml", (req, res) => {
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://sscranklab.com/ssc-syllabus.html</loc>
+    <loc>https://sscranklab.com/ssc-cgl-syllabus.html</loc>
     <lastmod>${today}</lastmod>
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>
