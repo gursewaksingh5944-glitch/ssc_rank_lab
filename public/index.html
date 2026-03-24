@@ -703,6 +703,131 @@
     </div>
   </section>
 
+  <!-- Progress Tracker -->
+  <section id="progress" class="max-w-5xl mx-auto px-6 py-10">
+    <div class="progress-shell p-8 md:p-10">
+      <div class="mb-8">
+        <div class="flex items-center gap-3 flex-wrap mb-2">
+          <h2 class="text-3xl md:text-4xl font-black text-gray-900">
+            Daily Progress Tracker
+          </h2>
+          <div id="streakDisplay"></div>
+        </div>
+        <p class="text-gray-600 mt-1 max-w-2xl">
+          Track daily practice marks, measure benchmark gap, and review subject trends with a clean visual dashboard.
+        </p>
+      </div>
+
+      <div class="benchmark-shell">
+        <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
+          <h3 class="text-xl font-extrabold text-slate-900">Benchmark Control Center</h3>
+          <span class="text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full bg-cyan-100 text-cyan-700">Flagship Premium Flow</span>
+        </div>
+
+        <div class="benchmark-grid">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Benchmark Mode</label>
+            <select id="benchmarkMode">
+              <option value="manual_overall">Manual Overall Target</option>
+              <option value="manual_subject">Manual Subject-wise Targets</option>
+              <option value="cutoff_plus_5">Previous Cutoff +5</option>
+              <option value="cutoff_plus_7">Previous Cutoff +7</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Previous Year Cutoff</label>
+            <input id="previousCutoffInput" type="number" min="0" max="250" placeholder="e.g. 128" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1">Overall Target</label>
+            <input id="overallTargetInput" type="number" min="0" max="250" placeholder="e.g. 140" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2" id="subjectTargetsBox">
+            <input id="quantTargetInput" type="number" min="0" max="50" placeholder="Quant target" />
+            <input id="englishTargetInput" type="number" min="0" max="50" placeholder="English target" />
+            <input id="reasoningTargetInput" type="number" min="0" max="50" placeholder="Reasoning target" />
+            <input id="gkTargetInput" type="number" min="0" max="50" placeholder="GK target" />
+            <input id="computerTargetInput" type="number" min="0" max="50" placeholder="Computer target" />
+          </div>
+        </div>
+
+        <div class="mt-3 flex gap-3 flex-wrap">
+          <button id="saveBenchmarkBtn" class="px-5 py-2 rounded-xl bg-cyan-600 text-white font-semibold hover:bg-cyan-700 transition">Save Benchmark</button>
+          <div id="benchmarkStatusText" class="text-sm font-semibold text-cyan-700 py-2"></div>
+        </div>
+
+        <div class="review-grid">
+          <div class="review-card">
+            <div class="k">Today Status</div>
+            <div class="v" id="todayStatusValue">--</div>
+          </div>
+          <div class="review-card">
+            <div class="k">Overall Gap</div>
+            <div class="v" id="overallGapValue">--</div>
+          </div>
+          <div class="review-card">
+            <div class="k">Priority Subject</div>
+            <div class="v" id="prioritySubjectValue">--</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-top-grid">
+        <div class="quick-stat">
+          <div class="k">Latest Total</div>
+          <div class="v" id="latestTotalStat">--</div>
+        </div>
+        <div class="quick-stat">
+          <div class="k">7-Day Average</div>
+          <div class="v" id="avg7Stat">--</div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8 mb-8">
+        <div>
+          <h3 class="text-xl font-bold mb-4">Add Today's Marks</h3>
+          <div class="space-y-4">
+            <input type="date" id="testDate" class="w-full border border-gray-200 bg-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+            <div class="grid grid-cols-2 gap-3">
+              <input type="number" id="quantMarks" placeholder="Quant" min="0" max="50" class="border border-gray-200 bg-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="number" id="englishMarks" placeholder="English" min="0" max="50" class="border border-gray-200 bg-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="number" id="reasoningMarks" placeholder="Reasoning" min="0" max="50" class="border border-gray-200 bg-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="number" id="gkMarks" placeholder="GK" min="0" max="50" class="border border-gray-200 bg-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="number" id="computerMarks" placeholder="Computer" min="0" max="50" class="border border-gray-200 bg-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+
+            <button id="saveMarksBtn" class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
+              Save Marks
+            </button>
+
+            <div id="progressStatus"></div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold mb-4">Your Progress</h3>
+          <div class="chart-box">
+            <canvas id="progressChart" width="400" height="300"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <h3 class="text-xl font-bold mb-4">Subject-wise Trends</h3>
+        <div class="chart-box">
+          <canvas id="subjectChart" width="800" height="400"></canvas>
+        </div>
+      </div>
+
+      <div id="weeklyReportCard" class="hidden mb-6"></div>
+      <div id="marksHistory" class="space-y-2"></div>
+    </div>
+  </section>
+
   <aside class="predictor-sidebox" id="rankSideBox">
     <div class="flex items-center justify-between gap-2">
       <h4>Rank Predictor Box</h4>
@@ -1115,131 +1240,6 @@
           </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Progress Tracker -->
-  <section id="progress" class="max-w-5xl mx-auto px-6 py-14">
-    <div class="progress-shell p-8 md:p-10">
-      <div class="mb-8">
-        <div class="flex items-center gap-3 flex-wrap mb-2">
-          <h2 class="text-3xl md:text-4xl font-black text-gray-900">
-            Daily Progress Tracker
-          </h2>
-          <div id="streakDisplay"></div>
-        </div>
-        <p class="text-gray-600 mt-1 max-w-2xl">
-          Track daily practice marks, measure benchmark gap, and review subject trends with a clean visual dashboard.
-        </p>
-      </div>
-
-      <div class="benchmark-shell">
-        <div class="flex items-center justify-between gap-3 flex-wrap mb-3">
-          <h3 class="text-xl font-extrabold text-slate-900">Benchmark Control Center</h3>
-          <span class="text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full bg-cyan-100 text-cyan-700">Flagship Premium Flow</span>
-        </div>
-
-        <div class="benchmark-grid">
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1">Benchmark Mode</label>
-            <select id="benchmarkMode">
-              <option value="manual_overall">Manual Overall Target</option>
-              <option value="manual_subject">Manual Subject-wise Targets</option>
-              <option value="cutoff_plus_5">Previous Cutoff +5</option>
-              <option value="cutoff_plus_7">Previous Cutoff +7</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1">Previous Year Cutoff</label>
-            <input id="previousCutoffInput" type="number" min="0" max="250" placeholder="e.g. 128" />
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1">Overall Target</label>
-            <input id="overallTargetInput" type="number" min="0" max="250" placeholder="e.g. 140" />
-          </div>
-
-          <div class="grid grid-cols-2 gap-2" id="subjectTargetsBox">
-            <input id="quantTargetInput" type="number" min="0" max="50" placeholder="Quant target" />
-            <input id="englishTargetInput" type="number" min="0" max="50" placeholder="English target" />
-            <input id="reasoningTargetInput" type="number" min="0" max="50" placeholder="Reasoning target" />
-            <input id="gkTargetInput" type="number" min="0" max="50" placeholder="GK target" />
-            <input id="computerTargetInput" type="number" min="0" max="50" placeholder="Computer target" />
-          </div>
-        </div>
-
-        <div class="mt-3 flex gap-3 flex-wrap">
-          <button id="saveBenchmarkBtn" class="px-5 py-2 rounded-xl bg-cyan-600 text-white font-semibold hover:bg-cyan-700 transition">Save Benchmark</button>
-          <div id="benchmarkStatusText" class="text-sm font-semibold text-cyan-700 py-2"></div>
-        </div>
-
-        <div class="review-grid">
-          <div class="review-card">
-            <div class="k">Today Status</div>
-            <div class="v" id="todayStatusValue">--</div>
-          </div>
-          <div class="review-card">
-            <div class="k">Overall Gap</div>
-            <div class="v" id="overallGapValue">--</div>
-          </div>
-          <div class="review-card">
-            <div class="k">Priority Subject</div>
-            <div class="v" id="prioritySubjectValue">--</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="progress-top-grid">
-        <div class="quick-stat">
-          <div class="k">Latest Total</div>
-          <div class="v" id="latestTotalStat">--</div>
-        </div>
-        <div class="quick-stat">
-          <div class="k">7-Day Average</div>
-          <div class="v" id="avg7Stat">--</div>
-        </div>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-8 mb-8">
-        <div>
-          <h3 class="text-xl font-bold mb-4">Add Today's Marks</h3>
-          <div class="space-y-4">
-            <input type="date" id="testDate" class="w-full border border-gray-200 bg-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
-
-            <div class="grid grid-cols-2 gap-3">
-              <input type="number" id="quantMarks" placeholder="Quant" min="0" max="50" class="border border-gray-200 bg-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              <input type="number" id="englishMarks" placeholder="English" min="0" max="50" class="border border-gray-200 bg-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              <input type="number" id="reasoningMarks" placeholder="Reasoning" min="0" max="50" class="border border-gray-200 bg-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              <input type="number" id="gkMarks" placeholder="GK" min="0" max="50" class="border border-gray-200 bg-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              <input type="number" id="computerMarks" placeholder="Computer" min="0" max="50" class="border border-gray-200 bg-white p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
-
-            <button id="saveMarksBtn" class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
-              Save Marks
-            </button>
-
-            <div id="progressStatus"></div>
-          </div>
-        </div>
-
-        <div>
-          <h3 class="text-xl font-bold mb-4">Your Progress</h3>
-          <div class="chart-box">
-            <canvas id="progressChart" width="400" height="300"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <div class="mb-6">
-        <h3 class="text-xl font-bold mb-4">Subject-wise Trends</h3>
-        <div class="chart-box">
-          <canvas id="subjectChart" width="800" height="400"></canvas>
-        </div>
-      </div>
-
-      <div id="weeklyReportCard" class="hidden mb-6"></div>
-      <div id="marksHistory" class="space-y-2"></div>
     </div>
   </section>
 
