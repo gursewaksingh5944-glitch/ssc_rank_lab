@@ -99,6 +99,12 @@ app.get("/sitemap.xml", (req, res) => {
     <priority>0.85</priority>
     <changefreq>weekly</changefreq>
   </url>
+  <url>
+    <loc>https://sscranklab.com/ssc-rank-calculator.html</loc>
+    <lastmod>${today}</lastmod>
+    <priority>0.95</priority>
+    <changefreq>weekly</changefreq>
+  </url>
 </urlset>`);
 });
 
