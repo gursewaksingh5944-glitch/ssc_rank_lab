@@ -674,7 +674,12 @@
         <div class="flex gap-3 flex-wrap">
           <a href="#progress" class="px-5 py-3 rounded-2xl bg-cyan-600 text-white font-semibold shadow hover:bg-cyan-700 transition">Open Daily Progress</a>
           <button id="startTrialBtn" class="px-5 py-3 rounded-2xl bg-amber-500 text-white font-bold hover:bg-amber-600 transition">Start 2-Day Free Trial</button>
+          <button type="button" class="js-direct-buy-now px-5 py-3 rounded-2xl bg-purple-700 text-white font-black shadow hover:bg-purple-800 transition">Buy Premium Now ₹99</button>
         </div>
+      </div>
+
+      <div class="mt-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800">
+        Most aspirants start with 2-day trial and then continue premium for rank certainty.
       </div>
 
       <div class="daily-target-frame">
@@ -1070,6 +1075,31 @@
         <button onclick="shareWhatsApp()">Share on WhatsApp</button>
         <button onclick="shareTelegram()">Share on Telegram</button>
       </div>
+
+      <div class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <h3 class="text-xl font-black text-emerald-900">Boost & Challenge Features</h3>
+          <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold uppercase tracking-wide">Growth Mode</span>
+        </div>
+
+        <p class="text-sm text-emerald-800 mt-2">
+          Use these features to bring more aspirants, create competition, and make SSCRankLab spread naturally.
+        </p>
+
+        <div class="grid sm:grid-cols-2 gap-3 mt-4 text-sm text-emerald-900 font-semibold">
+          <div class="rounded-xl border border-emerald-200 bg-white p-3">Challenge a friend with your predicted rank</div>
+          <div class="rounded-xl border border-emerald-200 bg-white p-3">Get +2 trial days only when your invited aspirant joins</div>
+          <div class="rounded-xl border border-emerald-200 bg-white p-3">Weekly rank challenge leaderboard</div>
+          <div class="rounded-xl border border-emerald-200 bg-white p-3">One-tap WhatsApp and Telegram sharing</div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 mt-4">
+          <button type="button" onclick="challengeFriend()" class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition">Challenge a Friend</button>
+          <button type="button" onclick="inviteForTrialBoost()" class="px-4 py-2 rounded-xl bg-teal-600 text-white font-bold hover:bg-teal-700 transition">Invite for +2 Trial Days</button>
+          <button type="button" onclick="copyReferralLink()" class="px-4 py-2 rounded-xl bg-white border border-emerald-300 text-emerald-900 font-bold hover:bg-emerald-100 transition">Copy Referral Link</button>
+          <button type="button" onclick="joinWeeklyChallenge()" class="px-4 py-2 rounded-xl bg-slate-900 text-white font-bold hover:bg-black transition">Join Weekly Challenge</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1343,8 +1373,7 @@
             </button>
             <button
               type="button"
-              class="js-unlock-plan w-full px-5 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow hover:bg-purple-700 transition"
-              data-plan="99"
+              class="js-direct-buy-now w-full px-5 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow hover:bg-purple-700 transition"
             >
               Subscribe ₹99/month via Razorpay
             </button>
@@ -1352,8 +1381,14 @@
         </div>
       </div>
 
-      <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-800 text-sm font-semibold">
-        Clear premium funnel: 2-day trial -> value experience -> paid continuation for exclusive insights.
+      <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-900 text-sm font-semibold">
+        Trial-first funnel: Start free for 2 days, experience full rank intelligence, then lock premium at ₹99/month.
+      </div>
+
+      <div class="mt-4 rounded-2xl border border-purple-200 bg-purple-50 p-4">
+        <div class="text-sm font-extrabold text-purple-800">Want instant access without waiting?</div>
+        <div class="text-sm text-purple-700 mt-1">Direct premium checkout is enabled below. One click, secure Razorpay, full unlock.</div>
+        <button type="button" class="js-direct-buy-now mt-3 w-full sm:w-auto px-5 py-3 rounded-2xl bg-purple-700 text-white font-black shadow hover:bg-purple-800 transition">Buy Premium Instantly ₹99</button>
       </div>
     </div>
   </section>
@@ -1404,10 +1439,17 @@
 
       <li><a href="./ssc-cgl-previous-year-cutoff.html">SSC CGL Previous Year Cutoff</a></li>
       <li><a href="./ssc-cgl-expected-cutoff-2026.html">SSC CGL Expected Cutoff 2026</a></li>
-      <li><a href="./ssc-chsl-expected-cutoff-2026.html">SSC CHSL Expected Cutoff 2026</a></li>
+      <li><a href="./ssc-chsl-rank-predictor.html">SSC CHSL Rank Predictor 2026</a></li>
 
       <li><a href="./ssc-cgl-normalization-explained.html">SSC Normalization Explained</a></li>
       <li><a href="./ssc-cgl-syllabus.html">SSC CGL Syllabus</a></li>
+
+      <li><a href="./ssc-daily-prep-tracker.html">SSC Daily Prep Tracker</a></li>
+      <li><a href="./ssc-post-wise-preparation-tracker.html">SSC Post Wise Preparation Tracker</a></li>
+      <li><a href="./ssc-cgl-study-planner.html">SSC CGL Study Planner</a></li>
+      <li><a href="./ssc-mock-test-progress-tracker.html">SSC Mock Test Progress Tracker</a></li>
+      <li><a href="./ssc-cgl-goal-tracker.html">SSC CGL Goal Tracker</a></li>
+      <li><a href="./ssc-preparation-tracker-app.html">SSC Preparation Tracker App</a></li>
     </ul>
   </section>
 
@@ -1497,14 +1539,48 @@
   <script src="script.js"></script>
 
   <script>
+    function openWhatsAppShare(text){
+      window.open("https://wa.me/?text=" + encodeURIComponent(text));
+    }
+
     function shareWhatsApp(){
       let text = "I predicted my SSC rank using SSCRankLab 🔥 Check yours: https://sscranklab.com/";
-      window.open("https://wa.me/?text=" + encodeURIComponent(text));
+      openWhatsAppShare(text);
     }
 
     function shareTelegram(){
       let text = "I predicted my SSC rank using SSCRankLab 🔥 Check yours: https://sscranklab.com/";
       window.open("https://t.me/share/url?url=https://sscranklab.com/&text=" + encodeURIComponent(text));
+    }
+
+    function challengeFriend(){
+      const text = "Challenge time! I checked my SSC rank on SSCRankLab. Beat my predicted rank this week: https://sscranklab.com/";
+      openWhatsAppShare(text);
+    }
+
+    function inviteForTrialBoost(){
+      const referralLink = typeof getReferralLinkForCurrentUser === "function"
+        ? getReferralLinkForCurrentUser()
+        : "https://sscranklab.com/";
+      const text = `Join SSCRankLab with my invite. If you join successfully, I get +2 trial days on SSCRankLab. Start here: ${referralLink}`;
+      openWhatsAppShare(text);
+    }
+
+    async function copyReferralLink(){
+      const referralLink = typeof getReferralLinkForCurrentUser === "function"
+        ? getReferralLinkForCurrentUser()
+        : "https://sscranklab.com/";
+
+      try {
+        await navigator.clipboard.writeText(referralLink);
+        alert("Referral link copied. Share it with aspirants now.");
+      } catch (err) {
+        prompt("Copy this referral link:", referralLink);
+      }
+    }
+
+    function joinWeeklyChallenge(){
+      window.location.href = "#beta";
     }
   </script>
 

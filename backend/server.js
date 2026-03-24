@@ -23,12 +23,7 @@ const publicPath = path.join(__dirname, "..", "public");
 // 🔥 ROBOTS.TXT (MUST BE FIRST!)
 // ===============================
 app.get("/robots.txt", (req, res) => {
-  res.setHeader("Content-Type", "text/plain");
-
-  return res.send(`User-agent: *
-Allow: /
-
-Sitemap: https://sscranklab.com/sitemap.xml`);
+  return res.sendFile(path.join(publicPath, "robots.txt"));
 });
 
 
@@ -36,80 +31,7 @@ Sitemap: https://sscranklab.com/sitemap.xml`);
 // 🔥 SITEMAP (MUST BE BEFORE REDIRECT!)
 // ===============================
 app.get("/sitemap.xml", (req, res) => {
-  res.setHeader("Content-Type", "application/xml");
-  res.setHeader("charset", "utf-8");
-
-  const today = new Date().toISOString().split('T')[0]; // Gets current date like 2026-03-23
-
-  return res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://sscranklab.com/</loc>
-    <lastmod>${today}</lastmod>
-    <priority>1.0</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-cgl-expected-cutoff-2026.html</loc>
-    <lastmod>${today}</lastmod>
-    <priority>0.9</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-cgl-normalization-explained.html</loc>
-    <lastmod>${today}</lastmod>
-    <priority>0.9</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-cgl-previous-year-cutoff.html</loc>
-    <lastmod>${today}</lastmod>
-    <priority>0.9</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-cgl-rank-predictor.html</loc>
-    <lastmod>${today}</lastmod>
-    <priority>0.95</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-cgl-syllabus.html</loc>
-    <lastmod>${today}</lastmod>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-chsl-rank-predictor.html</loc>
-    <lastmod>${today}</lastmod>
-    <priority>0.9</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-marks-vs-rank.html</loc>
-    <lastmod>${today}</lastmod>
-    <priority>0.85</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-rank-predictor.html</loc>
-    <lastmod>${today}</lastmod>
-    <priority>0.95</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-score-vs-rank.html</loc>
-    <lastmod>${today}</lastmod>
-    <priority>0.85</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://sscranklab.com/ssc-rank-calculator.html</loc>
-    <lastmod>${today}</lastmod>
-    <priority>0.95</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-</urlset>`);
+  return res.sendFile(path.join(publicPath, "sitemap.xml"));
 });
 
 
