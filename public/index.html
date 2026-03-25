@@ -20,18 +20,21 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=20260325d" />
 
-  <title>SSC Rank Lab SaaS - Daily Prep Tracker + Rank Predictor for SSC Aspirants</title>
+  <title>SSCRankLab - SSC Exam Progress Tracker, Goal-Oriented Preparation and Rank Analysis</title>
 
-  <meta name="description" content="SSC Rank Lab is a daily preparation SaaS for SSC aspirants: track marks, hit benchmark cutoffs, generate mocks, and use rank prediction with premium decision intelligence." />
-  <meta name="keywords" content="SSC prep SaaS, SSC rank predictor, daily tracker for SSC, SSC benchmark tracker, SSC CGL rank predictor, SSC CHSL rank predictor" />
+  <meta name="description" content="SSCRankLab helps SSC aspirants track exam progress daily, follow goal-oriented preparation by post and category, and use rank analysis to make smarter preparation decisions." />
+  <meta name="keywords" content="SSCRankLab, SSC exam progress tracker, goal oriented SSC preparation, SSC rank analysis, SSC CGL tracker, SSC CHSL tracker, SSC rank predictor" />
   <meta name="author" content="SSC Rank Lab">
 
-  <meta property="og:title" content="SSC Rank Lab SaaS - Daily Tracker + Rank Predictor" />
-  <meta property="og:description" content="Track daily performance, benchmark against cutoffs, and predict SSC rank with premium post intelligence." />
+  <meta property="og:title" content="SSCRankLab - Track Progress, Build Goals, Analyze Rank" />
+  <meta property="og:description" content="Daily SSC exam progress tracking, post-specific goal planning, and practical rank analysis in one platform." />
   <meta property="og:url" content="https://sscranklab.com" />
   <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SSCRankLab - SSC Progress Tracker and Rank Analysis" />
+  <meta name="twitter:description" content="Track your SSC exam preparation daily, follow goal-oriented strategy, and analyze rank trends with SSCRankLab." />
 
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://sscranklab.com">
@@ -424,6 +427,17 @@
     .trial-strip{margin-top:14px;border:1px solid #fde68a;background:linear-gradient(90deg,#fffbeb,#fef3c7);border-radius:18px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
     .trial-strip p{margin:0;font-size:13px;font-weight:700;color:#92400e;}
     .daily-target-frame{margin-top:12px;border:1px solid #bfdbfe;background:linear-gradient(140deg,#eff6ff,#ffffff);border-radius:20px;padding:14px;}
+    .goal-reminder-shell{margin-top:12px;}
+    .goal-reminder-badge{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:16px;border:1px solid #fcd34d;background:linear-gradient(120deg,#fef3c7,#fffbeb 45%,#fff7ed);box-shadow:0 10px 26px rgba(217,119,6,.16);transition:transform .2s ease, box-shadow .2s ease;}
+    .goal-reminder-badge:hover{transform:translateY(-1px);box-shadow:0 14px 32px rgba(217,119,6,.22);}
+    .goal-reminder-left{display:flex;align-items:center;gap:10px;min-width:0;}
+    .goal-reminder-icon{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:#f59e0b;color:#fff;font-size:17px;box-shadow:0 8px 16px rgba(245,158,11,.35);}
+    .goal-reminder-text{min-width:0;}
+    .goal-reminder-title{font-size:11px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#92400e;}
+    .goal-reminder-meta{margin-top:2px;font-size:15px;font-weight:900;color:#7c2d12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .goal-reminder-sub{margin-top:2px;font-size:12px;font-weight:700;color:#b45309;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .goal-reminder-btn{border:none;border-radius:999px;background:#1d4ed8;color:#fff;font-size:12px;font-weight:800;padding:9px 12px;cursor:pointer;white-space:nowrap;box-shadow:0 8px 14px rgba(29,78,216,.24);}
+    .goal-reminder-btn:hover{background:#1e40af;}
     .daily-target-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px;}
     .daily-target-item{border:1px solid #dbeafe;background:#ffffffd9;border-radius:12px;padding:10px;}
     .daily-target-item .k{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:#475569;}
@@ -499,6 +513,8 @@
       .daily-target-grid{
         grid-template-columns:1fr;
       }
+      .goal-reminder-badge{flex-direction:column;align-items:flex-start;}
+      .goal-reminder-btn{width:100%;}
       .predictor-sidebox{
         position:static;
         transform:none;
@@ -531,7 +547,7 @@
 <body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 overflow-x-hidden text-gray-900">
 
   <!-- Upgrade Modal -->
-  <div id="upgradeModal" class="hidden fixed inset-0 z-[90] flex items-center justify-center bg-black/55 backdrop-blur-sm">
+  <div id="upgradeModal" class="hidden fixed inset-0 z-[90] flex items-center justify-center bg-black/55 backdrop-blur-sm" style="display:none;">
     <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full mx-4 p-7 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between mb-1">
         <div>
@@ -575,6 +591,7 @@
   <div
     id="paymentStatus"
     class="hidden fixed top-24 right-4 z-[60] max-w-sm bg-white border border-gray-200 shadow-2xl rounded-2xl px-4 py-3"
+    style="display:none;"
   ></div>
 
   <!-- Header -->
@@ -659,7 +676,7 @@
       <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold border border-purple-200">🏆 Post Chances</span>
       <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold border border-indigo-200">📅 Weekly Report Card</span>
       <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold border border-indigo-200">🧪 Question Lab</span>
-      <button class="js-unlock-plan inline-flex items-center gap-1 px-4 py-1.5 rounded-full bg-purple-700 text-white text-xs font-black border border-purple-800 hover:bg-purple-800 transition" data-plan="99">⚡ Get All Features ₹99/mo</button>
+      <button id="getAllFeaturesTopBtn" class="js-unlock-plan inline-flex items-center gap-1 px-4 py-1.5 rounded-full bg-purple-700 text-white text-xs font-black border border-purple-800 hover:bg-purple-800 transition" data-plan="99" onclick="if (typeof openUpgradeModal === 'function') { openUpgradeModal(); }">⚡ Get All Features ₹99/mo</button>
     </div>
   </section>
 
@@ -674,12 +691,26 @@
         <div class="flex gap-3 flex-wrap">
           <a href="#progress" class="px-5 py-3 rounded-2xl bg-cyan-600 text-white font-semibold shadow hover:bg-cyan-700 transition">Open Daily Progress</a>
           <button id="startTrialBtn" class="px-5 py-3 rounded-2xl bg-amber-500 text-white font-bold hover:bg-amber-600 transition">Start 2-Day Free Trial</button>
-          <button type="button" class="js-direct-buy-now px-5 py-3 rounded-2xl bg-purple-700 text-white font-black shadow hover:bg-purple-800 transition">Buy Premium Now ₹99</button>
+          <button id="heroBuyBtn" type="button" class="js-direct-buy-now px-5 py-3 rounded-2xl bg-purple-700 text-white font-black shadow hover:bg-purple-800 transition">Buy Premium Now ₹99</button>
         </div>
       </div>
 
       <div class="mt-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800">
         Most aspirants start with 2-day trial and then continue premium for rank certainty.
+      </div>
+
+      <div id="goalReminderWrap" class="goal-reminder-shell hidden">
+        <div class="goal-reminder-badge">
+          <div class="goal-reminder-left">
+            <span class="goal-reminder-icon">🎯</span>
+            <div class="goal-reminder-text">
+              <div class="goal-reminder-title">Goal Reminder</div>
+              <div id="goalReminderMain" class="goal-reminder-meta">Your selected goal will appear here</div>
+              <div id="goalReminderSub" class="goal-reminder-sub">Set your dream post and daily target.</div>
+            </div>
+          </div>
+          <button id="goalReminderBtn" type="button" class="goal-reminder-btn">Update Goal</button>
+        </div>
       </div>
 
       <div class="daily-target-frame">
@@ -933,6 +964,7 @@
                 <button
                   type="button"
                   class="js-unlock-plan px-4 py-2 rounded-xl bg-indigo-700 text-white text-sm font-semibold shadow hover:opacity-90 transition"
+                  onclick="if (typeof openUpgradeModal === 'function') { openUpgradeModal(); }"
                   data-plan="99"
                 >
                   Unlock Monthly ₹99
@@ -948,6 +980,7 @@
                 <button
                   type="button"
                   class="js-unlock-plan px-4 py-2 rounded-xl bg-indigo-700 text-white text-sm font-semibold shadow hover:opacity-90 transition"
+                  onclick="if (typeof openUpgradeModal === 'function') { openUpgradeModal(); }"
                   data-plan="99"
                 >
                   Unlock Monthly ₹99
@@ -963,6 +996,7 @@
                 <button
                   type="button"
                   class="js-unlock-plan px-4 py-2 rounded-xl bg-indigo-700 text-white text-sm font-semibold shadow hover:opacity-90 transition"
+                  onclick="if (typeof openUpgradeModal === 'function') { openUpgradeModal(); }"
                   data-plan="99"
                 >
                   Unlock Monthly ₹99
@@ -1326,12 +1360,12 @@
           </p>
         </div>
 
-        <a
-          href="#predictor"
-          class="px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold shadow hover:shadow-xl transition"
+        <button
+          type="button"
+          class="js-open-trial-buy px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold shadow hover:shadow-xl transition"
         >
           Try Now →
-        </a>
+        </button>
       </div>
 
       <div class="grid grid-cols-1 gap-6 mt-8">
@@ -1372,6 +1406,7 @@
               Start 2-Day Free Trial →
             </button>
             <button
+              id="pricingBuyBtn"
               type="button"
               class="js-direct-buy-now w-full px-5 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow hover:bg-purple-700 transition"
             >
@@ -1388,7 +1423,7 @@
       <div class="mt-4 rounded-2xl border border-purple-200 bg-purple-50 p-4">
         <div class="text-sm font-extrabold text-purple-800">Want instant access without waiting?</div>
         <div class="text-sm text-purple-700 mt-1">Direct premium checkout is enabled below. One click, secure Razorpay, full unlock.</div>
-        <button type="button" class="js-direct-buy-now mt-3 w-full sm:w-auto px-5 py-3 rounded-2xl bg-purple-700 text-white font-black shadow hover:bg-purple-800 transition">Buy Premium Instantly ₹99</button>
+        <button id="instantBuyBtn" type="button" class="js-direct-buy-now mt-3 w-full sm:w-auto px-5 py-3 rounded-2xl bg-purple-700 text-white font-black shadow hover:bg-purple-800 transition">Buy Premium Instantly ₹99</button>
       </div>
     </div>
   </section>
@@ -1536,7 +1571,7 @@
   </div>
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="script.js"></script>
+  <script src="script.js?v=20260325d"></script>
 
   <script>
     function openWhatsAppShare(text){
@@ -1586,24 +1621,48 @@
 
   <script type="application/ld+json">
   {
-    "@context":"https://schema.org",
-    "@type":"FAQPage",
-    "mainEntity":[
+    "@context": "https://schema.org",
+    "@graph": [
       {
-        "@type":"Question",
-        "name":"Is SSC rank predictor accurate?",
-        "acceptedAnswer":{
-          "@type":"Answer",
-          "text":"Rank predictors estimate ranks using previous year cutoffs and score trends. Actual results may vary."
+        "@type": "WebSite",
+        "name": "SSCRankLab",
+        "url": "https://sscranklab.com/",
+        "description": "SSC exam progress tracker with goal-oriented preparation workflows and rank analysis tools."
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "SSCRankLab",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "url": "https://sscranklab.com/",
+        "description": "A daily SSC preparation platform for tracking progress, managing goal-oriented strategy, and analyzing rank trends.",
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "INR",
+          "price": "99",
+          "category": "Subscription"
         }
       },
       {
-        "@type":"Question",
-        "name":"What is a safe score in SSC CGL?",
-        "acceptedAnswer":{
-          "@type":"Answer",
-          "text":"A score above 155 in Tier 1 is generally considered safe for the General category based on recent trends."
-        }
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How does SSCRankLab improve daily SSC preparation?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "SSCRankLab helps aspirants track marks daily, compare progress against benchmark targets, and spot weak areas early."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What makes SSCRankLab goal-oriented?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "You can choose your target post and category, then monitor preparation with cutoff-aware goals and practical rank analysis."
+            }
+          }
+        ]
       }
     ]
   }

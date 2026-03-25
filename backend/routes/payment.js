@@ -7,7 +7,11 @@ const {
   getTrialInfo,
   startTrial,
   setUnlockedPlan,
-  hasPaymentId
+  hasPaymentId,
+  getOrCreateReferralCode,
+  getUserKeyByReferralCode,
+  creditReferralJoin,
+  getUserProfile
 } = require("../utils/planStore");
 
 const router = express.Router();
@@ -22,6 +26,10 @@ const PLAN_NAMES = {
 
 function normalizeUserKey(value) {
   return String(value || "").trim().toLowerCase();
+}
+
+function normalizeReferralCode(value) {
+  return String(value || "").trim().toUpperCase();
 }
 
 function getRazorpayClient() {
@@ -196,13 +204,17 @@ router.get("/status", (req, res) => {
     const unlockedPlan = getUnlockedPlan(userKey);
     const effectivePlan = getEffectiveAccessPlan(userKey);
     const trial = getTrialInfo(userKey);
+    const profile = getUserProfile(userKey) || {};
+    const referralCode = getOrCreateReferralCode(userKey);
 
     return res.status(200).json({
       success: true,
       userKey,
       unlockedPlan,
       effectivePlan,
-      trial
+      trial,
+      referralCode,
+      referralStats: profile.referralStats || { acceptedJoins: 0, bonusDaysGranted: 0 }
     });
   } catch (err) {
     console.error("status error:", err);
@@ -218,6 +230,7 @@ router.post("/start-trial", (req, res) => {
   try {
     const userKey = normalizeUserKey(req.body.userKey);
     const planNum = Number(req.body.plan || 99);
+    const referralCode = normalizeReferralCode(req.body.referralCode || req.body.ref || "");
 
     if (!userKey) {
       return res.status(400).json({ success: false, error: "userKey required" });
@@ -231,6 +244,21 @@ router.post("/start-trial", (req, res) => {
       });
     }
 
+    let referralReward = null;
+    if (referralCode) {
+      const referrerKey = getUserKeyByReferralCode(referralCode);
+      if (referrerKey) {
+        const rewardResult = creditReferralJoin(referrerKey, userKey, 2);
+        if (rewardResult.success && rewardResult.rewarded) {
+          referralReward = {
+            credited: true,
+            bonusDays: rewardResult.bonusDays,
+            referrerKey: rewardResult.referrerKey
+          };
+        }
+      }
+    }
+
     return res.status(200).json({
       success: true,
       userKey,
@@ -238,7 +266,8 @@ router.post("/start-trial", (req, res) => {
       ...trialResult,
       unlockedPlan: getUnlockedPlan(userKey),
       effectivePlan: getEffectiveAccessPlan(userKey),
-      trial: getTrialInfo(userKey)
+      trial: getTrialInfo(userKey),
+      referralReward
     });
   } catch (err) {
     console.error("start-trial error:", err);

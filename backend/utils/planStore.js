@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 const TRIAL_DURATION_MS = 2 * 24 * 60 * 60 * 1000;
 
@@ -14,7 +15,7 @@ function ensureStoreFile() {
   if (!fs.existsSync(filePath)) {
     fs.writeFileSync(
       filePath,
-      JSON.stringify({ users: {}, payments: [] }, null, 2),
+      JSON.stringify({ users: {}, payments: [], referrals: [] }, null, 2),
       "utf8"
     );
   }
@@ -29,11 +30,12 @@ function readStore() {
 
     return {
       users: parsed.users && typeof parsed.users === "object" ? parsed.users : {},
-      payments: Array.isArray(parsed.payments) ? parsed.payments : []
+      payments: Array.isArray(parsed.payments) ? parsed.payments : [],
+      referrals: Array.isArray(parsed.referrals) ? parsed.referrals : []
     };
   } catch (err) {
     console.error("planStore read error:", err);
-    return { users: {}, payments: [] };
+    return { users: {}, payments: [], referrals: [] };
   }
 }
 
@@ -142,6 +144,113 @@ function startTrial(userKey, plan = 99) {
   };
 }
 
+function buildReferralCode(userKey) {
+  const normalized = String(userKey || "").trim().toLowerCase();
+  if (!normalized) return "";
+  const hash = crypto.createHash("sha256").update(normalized).digest("hex").slice(0, 10);
+  return `RL${hash}`.toUpperCase();
+}
+
+function getOrCreateReferralCode(userKey) {
+  if (!userKey) return "";
+
+  const store = readStore();
+  const existing = store.users[userKey] || {};
+
+  if (existing.referralCode) {
+    return String(existing.referralCode).trim().toUpperCase();
+  }
+
+  const referralCode = buildReferralCode(userKey);
+  store.users[userKey] = {
+    ...existing,
+    referralCode,
+    updatedAt: new Date().toISOString()
+  };
+  writeStore(store);
+  return referralCode;
+}
+
+function getUserKeyByReferralCode(referralCode) {
+  const code = String(referralCode || "").trim().toUpperCase();
+  if (!code) return "";
+
+  const store = readStore();
+  for (const [userKey, profile] of Object.entries(store.users || {})) {
+    if (String(profile?.referralCode || "").trim().toUpperCase() === code) {
+      return userKey;
+    }
+  }
+
+  return "";
+}
+
+function creditReferralJoin(referrerKey, invitedUserKey, bonusDays = 2) {
+  const referrer = String(referrerKey || "").trim().toLowerCase();
+  const invited = String(invitedUserKey || "").trim().toLowerCase();
+  const days = Number(bonusDays || 0);
+
+  if (!referrer || !invited) {
+    return { success: false, rewarded: false, error: "Missing referral user keys" };
+  }
+
+  if (referrer === invited) {
+    return { success: false, rewarded: false, error: "Self referral not allowed" };
+  }
+
+  if (days <= 0) {
+    return { success: false, rewarded: false, error: "Invalid bonus days" };
+  }
+
+  const store = readStore();
+  const duplicate = store.referrals.some(
+    (item) => item.referrerKey === referrer && item.invitedUserKey === invited
+  );
+
+  if (duplicate) {
+    return { success: true, rewarded: false, duplicate: true };
+  }
+
+  const referrerProfile = store.users[referrer] || {};
+  const now = Date.now();
+  const bonusMs = days * 24 * 60 * 60 * 1000;
+  const existingTrialEndMs = new Date(referrerProfile.trialEndsAt || "").getTime();
+  const baseMs = Number.isFinite(existingTrialEndMs) && existingTrialEndMs > now ? existingTrialEndMs : now;
+  const newTrialEndMs = baseMs + bonusMs;
+
+  store.users[referrer] = {
+    ...referrerProfile,
+    trialPlan: Math.max(99, Number(referrerProfile.trialPlan || 0)),
+    trialStartedAt: referrerProfile.trialStartedAt || new Date(now).toISOString(),
+    trialEndsAt: new Date(newTrialEndMs).toISOString(),
+    hasUsedTrial: true,
+    referralCode: referrerProfile.referralCode || buildReferralCode(referrer),
+    referralStats: {
+      acceptedJoins: Number(referrerProfile.referralStats?.acceptedJoins || 0) + 1,
+      bonusDaysGranted: Number(referrerProfile.referralStats?.bonusDaysGranted || 0) + days
+    },
+    updatedAt: new Date().toISOString()
+  };
+
+  store.referrals.push({
+    referrerKey: referrer,
+    invitedUserKey: invited,
+    bonusDays: days,
+    at: new Date().toISOString()
+  });
+
+  writeStore(store);
+
+  return {
+    success: true,
+    rewarded: true,
+    bonusDays: days,
+    referrerKey: referrer,
+    invitedUserKey: invited,
+    trialEndsAt: store.users[referrer].trialEndsAt
+  };
+}
+
 function setUnlockedPlan(userKey, plan, paymentMeta = {}) {
   if (!userKey) return 0;
 
@@ -235,5 +344,8 @@ module.exports = {
   hasPaymentId,
   getUserProfile,
   setUserProfile,
-  deleteUserProfile
+  deleteUserProfile,
+  getOrCreateReferralCode,
+  getUserKeyByReferralCode,
+  creditReferralJoin
 };

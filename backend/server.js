@@ -114,14 +114,33 @@ app.use("/api/goals", goalsRoute);
 // ===============================
 // STATIC FILES
 // ===============================
-app.use(express.static(publicPath));
+app.use(express.static(publicPath, {
+  setHeaders: (res, filePath) => {
+    const lower = String(filePath || "").toLowerCase();
+
+    if (lower.endsWith(".html") || lower.endsWith(".js") || lower.endsWith(".css")) {
+      // Prevent stale frontend bundles causing broken/hidden CTAs across browsers.
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
+    }
+  }
+}));
 
 
 // ===============================
 // HOMEPAGE
 // ===============================
 app.get("/", (req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
   return res.sendFile(path.join(publicPath, "index.html"));
+});
+
+// Legacy premium CTA links used /predict. Redirect to the pricing section.
+app.get("/predict", (req, res) => {
+  return res.redirect(302, "/index.html#pricing");
 });
 
 

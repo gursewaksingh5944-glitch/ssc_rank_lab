@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   ensureUserKey();
+  captureReferralCodeFromUrl();
   restoreUnlockedPlan();
   initCharts();
 
@@ -35,7 +36,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const loadQuestionsBtn = document.getElementById("btnLoadQuestions");
   if (loadQuestionsBtn) {
-    loadQuestionsBtn.addEventListener("click", loadQuestionLabItems);
+    loadQuestionsBtn.addEventListener("click", function () {
+      loadQuestionLabItems({ interactive: true });
+    });
   }
 
   const generateMockBtn = document.getElementById("btnGenerateMock");
@@ -53,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
   bindUnlockButtons();
   loadBenchmarkProfile();
   loadMarksHistory();
-  loadQuestionLabItems();
+  loadQuestionLabItems({ interactive: false });
   syncPaymentStatus();
   setInterval(syncPaymentStatus, 60000);
 
@@ -68,6 +71,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const topOpenGoalBtn = document.getElementById("topOpenGoalBtn");
   if (topOpenGoalBtn) {
     topOpenGoalBtn.addEventListener("click", function () {
+      showGoalModal();
+    });
+  }
+
+  const goalReminderBtn = document.getElementById("goalReminderBtn");
+  if (goalReminderBtn) {
+    goalReminderBtn.addEventListener("click", function () {
       showGoalModal();
     });
   }
@@ -105,6 +115,18 @@ document.addEventListener("DOMContentLoaded", function () {
       startFreeTrial(pricingTrialBtn);
     });
   }
+
+  bindDirectBuyButtons();
+
+  const openTrialBuyButtons = document.querySelectorAll(".js-open-trial-buy");
+  openTrialBuyButtons.forEach((button) => {
+    if (button.dataset.bound === "true") return;
+
+    button.dataset.bound = "true";
+    button.addEventListener("click", function () {
+      openTrialBuyWindow();
+    });
+  });
 
   const closeGoalModalBtn = document.getElementById("closeGoalModal");
   if (closeGoalModalBtn) {
@@ -171,13 +193,18 @@ let paymentAccessState = {
   effectivePlan: 0,
   trial: null
 };
+let referralState = {
+  code: ""
+};
+
+const REFERRAL_STORAGE_KEY = "sscranklab_referral_code";
 
 function bindUnlockButtons() {
   const unlockButtons = document.querySelectorAll(".js-unlock-plan");
   unlockButtons.forEach((button) => {
-    if (button.dataset.bound === "true") return;
+    if (button.dataset.unlockBound === "true") return;
 
-    button.dataset.bound = "true";
+    button.dataset.unlockBound = "true";
     button.addEventListener("click", function () {
       // Open the upgrade modal so user sees trial + pay options first.
       openUpgradeModal();
@@ -185,14 +212,105 @@ function bindUnlockButtons() {
   });
 }
 
+function bindSingleDirectBuyButton(button) {
+  if (!button) return;
+  if (button.dataset.buyBound === "true") return;
+
+  button.dataset.buyBound = "true";
+  button.addEventListener("click", async function () {
+    await startRazorpayUnlock(99, button);
+  });
+}
+
+function bindDirectBuyButtons() {
+  // Keep explicit IDs for reliability and class selector as a fallback.
+  bindSingleDirectBuyButton(document.getElementById("heroBuyBtn"));
+  bindSingleDirectBuyButton(document.getElementById("pricingBuyBtn"));
+  bindSingleDirectBuyButton(document.getElementById("instantBuyBtn"));
+
+  const directBuyButtons = document.querySelectorAll(".js-direct-buy-now");
+  directBuyButtons.forEach((button) => {
+    bindSingleDirectBuyButton(button);
+  });
+}
+
 function openUpgradeModal() {
   const modal = document.getElementById("upgradeModal");
-  if (modal) modal.classList.remove("hidden");
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.style.display = "flex";
+  }
 }
 
 function closeUpgradeModal() {
   const modal = document.getElementById("upgradeModal");
-  if (modal) modal.classList.add("hidden");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.style.display = "none";
+  }
+}
+
+function openTrialBuyWindow() {
+  openUpgradeModal();
+  showPaymentStatus("Choose Start 2-Day Free Trial or Buy Premium ₹99.", "info");
+}
+
+async function ensurePremiumAccess(actionLabel = "This action") {
+  try {
+    await syncPaymentStatus();
+  } catch (err) {
+    console.error("ensurePremiumAccess sync error:", err);
+  }
+
+  const hasPremium = Number(paymentAccessState.effectivePlan || 0) >= 99;
+  if (hasPremium) return true;
+
+  openTrialBuyWindow();
+  showPaymentStatus(`${actionLabel} is available in trial/premium. Start trial or buy ₹99 to continue.`, "info");
+  return false;
+}
+
+function normalizeReferralCode(code) {
+  return String(code || "").trim().toUpperCase();
+}
+
+function setStoredReferralCode(code) {
+  try {
+    const normalized = normalizeReferralCode(code);
+    if (!normalized) return;
+    localStorage.setItem(REFERRAL_STORAGE_KEY, normalized);
+  } catch (err) {
+    console.error("setStoredReferralCode error:", err);
+  }
+}
+
+function getStoredReferralCode() {
+  try {
+    return normalizeReferralCode(localStorage.getItem(REFERRAL_STORAGE_KEY) || "");
+  } catch (err) {
+    console.error("getStoredReferralCode error:", err);
+    return "";
+  }
+}
+
+function captureReferralCodeFromUrl() {
+  try {
+    const url = new URL(window.location.href);
+    const referralCode = normalizeReferralCode(url.searchParams.get("ref"));
+    if (!referralCode) return;
+
+    setStoredReferralCode(referralCode);
+    url.searchParams.delete("ref");
+    window.history.replaceState({}, "", url.toString());
+  } catch (err) {
+    console.error("captureReferralCodeFromUrl error:", err);
+  }
+}
+
+function getReferralLinkForCurrentUser() {
+  const code = normalizeReferralCode(referralState.code || getStoredReferralCode());
+  if (!code) return "https://sscranklab.com/";
+  return `https://sscranklab.com/?ref=${encodeURIComponent(code)}`;
 }
 
 function ensureUserKey() {
@@ -303,6 +421,7 @@ function updatePlanStatusText(unlockedPlan = 0) {
   const planStatusText = document.getElementById("planStatusText");
   if (!planStatusText) {
     updateSidePredictorBox(unlockedPlan);
+    updatePremiumLockedCtas(unlockedPlan);
     return;
   }
 
@@ -310,6 +429,8 @@ function updatePlanStatusText(unlockedPlan = 0) {
   if (trial && trial.active) {
     const hours = Math.ceil(Number(trial.remainingMs || 0) / (60 * 60 * 1000));
     planStatusText.textContent = `2-day trial active (${Math.max(0, hours)}h left). Monthly ₹99 service is fully unlocked right now.`;
+    updateSidePredictorBox(unlockedPlan);
+    updatePremiumLockedCtas(unlockedPlan);
     return;
   }
 
@@ -320,6 +441,33 @@ function updatePlanStatusText(unlockedPlan = 0) {
   }
 
   updateSidePredictorBox(unlockedPlan);
+  updatePremiumLockedCtas(unlockedPlan);
+}
+
+function updatePremiumLockedCtas(unlockedPlan = 0) {
+  const hasPremium = Number(unlockedPlan || 0) >= 99;
+
+  const saveMarksBtn = document.getElementById("saveMarksBtn");
+  if (saveMarksBtn) {
+    saveMarksBtn.textContent = hasPremium ? "Save Today's Marks" : "Unlock Trial/Premium To Add Marks";
+    saveMarksBtn.classList.toggle("ring-2", !hasPremium);
+    saveMarksBtn.classList.toggle("ring-amber-300", !hasPremium);
+  }
+
+  const saveBenchmarkBtn = document.getElementById("saveBenchmarkBtn");
+  if (saveBenchmarkBtn) {
+    saveBenchmarkBtn.textContent = hasPremium ? "Save Benchmark" : "Unlock Trial/Premium To Save Benchmark";
+  }
+
+  const loadQuestionsBtn = document.getElementById("btnLoadQuestions");
+  if (loadQuestionsBtn) {
+    loadQuestionsBtn.textContent = hasPremium ? "Load Questions" : "Unlock Trial/Premium To Load Questions";
+  }
+
+  const generateMockBtn = document.getElementById("btnGenerateMock");
+  if (generateMockBtn) {
+    generateMockBtn.textContent = hasPremium ? "Generate Mock" : "Unlock Trial/Premium To Generate Mock";
+  }
 }
 
 function updateSidePredictorBox(unlockedPlan = 0) {
@@ -347,18 +495,42 @@ function updateTopGoalFrame() {
   const postEl = document.getElementById("topGoalPost");
   const cutoffEl = document.getElementById("topGoalAutoCutoff");
   const targetEl = document.getElementById("topGoalTargetScore");
+  const reminderWrap = document.getElementById("goalReminderWrap");
+  const reminderMain = document.getElementById("goalReminderMain");
+  const reminderSub = document.getElementById("goalReminderSub");
   if (!postEl || !cutoffEl || !targetEl) return;
 
   if (!goalProfile) {
     postEl.textContent = "Not set";
     cutoffEl.textContent = "--";
     targetEl.textContent = "--";
+    if (reminderWrap) reminderWrap.classList.add("hidden");
     return;
   }
 
-  postEl.textContent = String(goalProfile.targetPost || "Not set");
-  cutoffEl.textContent = goalProfile.autoCutoff ? String(Math.round(Number(goalProfile.autoCutoff || 0))) : "--";
-  targetEl.textContent = goalProfile.targetScore ? String(Math.round(Number(goalProfile.targetScore || 0))) : "--";
+  const post = String(goalProfile.targetPost || "Not set");
+  const cutoff = goalProfile.autoCutoff ? String(Math.round(Number(goalProfile.autoCutoff || 0))) : "--";
+  const target = goalProfile.targetScore ? String(Math.round(Number(goalProfile.targetScore || 0))) : "--";
+  const category = String(goalProfile.category || "UR");
+  const examDate = String(goalProfile.examDate || "").trim();
+  let examText = "Upcoming exam";
+
+  if (examDate) {
+    const dateObj = new Date(`${examDate}-01T00:00:00`);
+    if (!Number.isNaN(dateObj.getTime())) {
+      examText = dateObj.toLocaleDateString("en-IN", { month: "short", year: "numeric" });
+    }
+  }
+
+  postEl.textContent = post;
+  cutoffEl.textContent = cutoff;
+  targetEl.textContent = target;
+
+  if (reminderWrap && reminderMain && reminderSub) {
+    reminderWrap.classList.remove("hidden");
+    reminderMain.textContent = `${post} • ${category} • Target ${target}`;
+    reminderSub.textContent = `Auto cutoff ${cutoff} • ${examText}`;
+  }
 }
 
 function getPlanName(plan) {
@@ -370,14 +542,28 @@ function hideUnlockedPlanButtons(unlockedPlan) {
   const unlockButtons = document.querySelectorAll(".js-unlock-plan");
   unlockButtons.forEach((button) => {
     const buttonPlan = Number(button.dataset.plan || 0);
-    if (buttonPlan > 0 && buttonPlan <= Number(unlockedPlan || 0)) {
-      button.classList.add("hidden");
-      button.disabled = true;
-    } else {
-      button.classList.remove("hidden");
-      button.disabled = false;
-    }
+    const isUnlocked = buttonPlan > 0 && buttonPlan <= Number(unlockedPlan || 0);
+
+    // Keep CTA visible for everyone so there is always a way to open trial/buy modal.
+    button.classList.remove("hidden");
+    button.disabled = false;
+    button.classList.toggle("premium-active", isUnlocked);
   });
+
+  // Never hide direct-buy buttons; they are the fail-safe checkout path.
+  const directBuyButtons = document.querySelectorAll(".js-direct-buy-now");
+  directBuyButtons.forEach((button) => {
+    button.classList.remove("hidden");
+    button.disabled = false;
+  });
+
+  const topGetAllFeaturesBtn = document.getElementById("getAllFeaturesTopBtn");
+  if (topGetAllFeaturesBtn) {
+    topGetAllFeaturesBtn.classList.remove("hidden");
+    topGetAllFeaturesBtn.disabled = false;
+    topGetAllFeaturesBtn.style.display = "inline-flex";
+    topGetAllFeaturesBtn.style.visibility = "visible";
+  }
 }
 
 function showButtonLoading(triggerButton, loadingText = "Processing...") {
@@ -399,7 +585,14 @@ function resetButtonLoading(triggerButton, originalText = "") {
 }
 
 async function startRazorpayUnlock(plan, triggerButton = null) {
+  if (startRazorpayUnlock._inFlight) {
+    showPaymentStatus("Checkout is already opening...", "info");
+    return;
+  }
+
+  startRazorpayUnlock._inFlight = true;
   const originalText = showButtonLoading(triggerButton, "Starting payment...");
+  showPaymentStatus("Preparing secure checkout...", "info");
 
   try {
     const userKey = getUserKey();
@@ -410,6 +603,7 @@ async function startRazorpayUnlock(plan, triggerButton = null) {
       showPaymentStatus(`${getPlanName(plan)} already subscribed. Thank you!`, "success");
       hideUnlockedPlanButtons(paidUnlocked);
       updatePremiumOptions(paidUnlocked);
+      resetButtonLoading(triggerButton, originalText);
       return;
     }
 
@@ -553,6 +747,8 @@ async function startRazorpayUnlock(plan, triggerButton = null) {
     console.error("startRazorpayUnlock error:", error);
     showPaymentStatus(error.message || "Unable to start payment", "error");
     resetButtonLoading(triggerButton, originalText);
+  } finally {
+    startRazorpayUnlock._inFlight = false;
   }
 }
 
@@ -566,15 +762,17 @@ function showPaymentStatus(message, type = "info") {
     error: "border-red-200 bg-red-50 text-red-700"
   };
 
-  statusDiv.className = `fixed top-24 right-4 z-[60] max-w-sm border shadow-2xl rounded-2xl px-4 py-3 ${styleMap[type] || styleMap.info}`;
+  statusDiv.className = `fixed top-24 right-4 z-[200] max-w-sm border shadow-2xl rounded-2xl px-4 py-3 ${styleMap[type] || styleMap.info}`;
   statusDiv.innerHTML = `
     <div class="font-semibold">${escapeHtml(message)}</div>
   `;
   statusDiv.classList.remove("hidden");
+  statusDiv.style.display = "block";
 
   clearTimeout(showPaymentStatus._timer);
   showPaymentStatus._timer = setTimeout(() => {
     statusDiv.classList.add("hidden");
+    statusDiv.style.display = "none";
   }, 3200);
 }
 
@@ -1340,6 +1538,10 @@ async function loadBenchmarkProfile() {
 }
 
 async function saveBenchmarkProfile() {
+  if (!(await ensurePremiumAccess("Benchmark saving"))) {
+    return;
+  }
+
   const userKey = getUserKey();
   const payload = buildBenchmarkPayload();
 
@@ -1476,7 +1678,12 @@ function renderQuestionLabItems(items = []) {
   }).join("");
 }
 
-async function loadQuestionLabItems() {
+async function loadQuestionLabItems(options = {}) {
+  const interactive = options.interactive !== false;
+  if (interactive && !(await ensurePremiumAccess("Question Lab loading"))) {
+    return;
+  }
+
   const { subject, difficulty, topic, count } = getQuestionLabFilters();
   const params = new URLSearchParams();
   if (subject) params.set("subject", subject);
@@ -1504,6 +1711,10 @@ async function loadQuestionLabItems() {
 }
 
 async function generateMockFromLab() {
+  if (!(await ensurePremiumAccess("Mock generation"))) {
+    return;
+  }
+
   const { subject, difficulty, count } = getQuestionLabFilters();
   setQuestionLabStatus("Generating mock set...", "info");
 
@@ -1530,6 +1741,10 @@ async function generateMockFromLab() {
 
 // Progress Tracker Functions
 async function saveMarks() {
+  if (!(await ensurePremiumAccess("Adding marks"))) {
+    return;
+  }
+
   const userKey = getUserKey();
   const testDate = document.getElementById("testDate")?.value;
   const quant = Number(document.getElementById("quantMarks")?.value || 0);
@@ -2131,11 +2346,15 @@ async function syncPaymentStatus() {
       effectivePlan,
       trial: data.trial || null
     };
+    referralState.code = normalizeReferralCode(data.referralCode || "");
+    if (referralState.code) {
+      setStoredReferralCode(referralState.code);
+    }
 
     saveUnlockedPlan(unlockedPlan);
     setCurrentAccessPlan(effectivePlan);
     updatePremiumOptions(effectivePlan);
-    hideUnlockedPlanButtons(effectivePlan);
+    hideUnlockedPlanButtons(unlockedPlan);
   } catch (err) {
     console.error("syncPaymentStatus error:", err);
   }
@@ -2147,7 +2366,11 @@ async function startFreeTrial(triggerButton = null) {
     const response = await fetch("/api/payment/start-trial", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userKey: getUserKey(), plan: 99 })
+      body: JSON.stringify({
+        userKey: getUserKey(),
+        plan: 99,
+        referralCode: getStoredReferralCode()
+      })
     });
 
     const data = await response.json();
@@ -2164,8 +2387,13 @@ async function startFreeTrial(triggerButton = null) {
     saveUnlockedPlan(paymentAccessState.unlockedPlan);
     setCurrentAccessPlan(paymentAccessState.effectivePlan);
     updatePremiumOptions(paymentAccessState.effectivePlan);
-    hideUnlockedPlanButtons(paymentAccessState.effectivePlan);
-    showPaymentStatus("2-day premium trial activated. Explore all exclusive insights now.", "success");
+    hideUnlockedPlanButtons(paymentAccessState.unlockedPlan);
+
+    if (data?.referralReward?.credited) {
+      showPaymentStatus("2-day premium trial activated. Referral validated and +2 bonus days credited to inviter.", "success");
+    } else {
+      showPaymentStatus("2-day premium trial activated. Explore all exclusive insights now.", "success");
+    }
   } catch (err) {
     console.error("startFreeTrial error:", err);
     showPaymentStatus(err.message || "Could not start trial", "error");
