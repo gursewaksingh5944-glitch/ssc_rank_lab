@@ -1,4 +1,32 @@
 {
-  "users": {},
-  "payments": []
+  "users": {
+    "guest_1774545465829_iiyjiv5n": {
+      "referralCode": "RL4EF63B950B",
+      "updatedAt": "2026-03-26T17:17:45.918Z"
+    },
+    "guest_1773590513851_1nbyjgfx": {
+      "referralCode": "RL475C647046",
+      "updatedAt": "2026-03-26T17:18:53.622Z"
+    },
+    "guest_1774587991103_3yb2estw": {
+      "referralCode": "RL8401DFF145",
+      "updatedAt": "2026-03-27T05:06:52.001Z",
+      "goal": {
+        "examFamily": "ssc_cgl",
+        "tier": "tier2",
+        "category": "UR",
+        "targetPost": "Assistant Section Officer",
+        "examDate": "",
+        "studyHours": 6,
+        "targetScore": 374,
+        "autoCutoff": 354,
+        "updatedAt": "2026-03-27T05:06:51.985Z"
+      }
+    }
+  },
+  "payments": [],
+  "referrals": [],
+  "settings": {
+    "subscriberGoal": 100000
+  }
 }

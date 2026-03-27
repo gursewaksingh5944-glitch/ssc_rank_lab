@@ -5,6 +5,8 @@ const {
   getUnlockedPlan,
   getEffectiveAccessPlan,
   getTrialInfo,
+  setSubscriberGoal,
+  getSubscriberStats,
   startTrial,
   setUnlockedPlan,
   hasPaymentId,
@@ -30,6 +32,23 @@ function normalizeUserKey(value) {
 
 function normalizeReferralCode(value) {
   return String(value || "").trim().toUpperCase();
+}
+
+function requireAdminKey(req, res) {
+  const adminKey = String(process.env.ADMIN_API_KEY || "").trim();
+
+  if (!adminKey) {
+    res.status(403).json({ success: false, error: "Admin key not configured" });
+    return false;
+  }
+
+  const incomingKey = String(req.headers["x-admin-key"] || "").trim();
+  if (!incomingKey || incomingKey !== adminKey) {
+    res.status(401).json({ success: false, error: "Unauthorized" });
+    return false;
+  }
+
+  return true;
 }
 
 function getRazorpayClient() {
@@ -222,6 +241,56 @@ router.get("/status", (req, res) => {
     return res.status(500).json({
       success: false,
       error: "Unable to fetch payment status"
+    });
+  }
+});
+
+router.get("/metrics/subscribers", (req, res) => {
+  try {
+    if (!requireAdminKey(req, res)) {
+      return;
+    }
+
+    return res.status(200).json({
+      success: true,
+      metrics: getSubscriberStats()
+    });
+  } catch (err) {
+    console.error("metrics/subscribers error:", err);
+    return res.status(500).json({
+      success: false,
+      error: "Unable to fetch subscriber metrics"
+    });
+  }
+});
+
+router.post("/metrics/subscribers/goal", (req, res) => {
+  try {
+    if (!requireAdminKey(req, res)) {
+      return;
+    }
+
+    const requestedGoal = Number(req.body.goalSubscribers || 0);
+    if (!Number.isFinite(requestedGoal) || requestedGoal <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: "goalSubscribers must be a positive number"
+      });
+    }
+
+    const saved = setSubscriberGoal(requestedGoal);
+    const metrics = getSubscriberStats();
+
+    return res.status(200).json({
+      success: true,
+      goal: saved,
+      metrics
+    });
+  } catch (err) {
+    console.error("metrics/subscribers/goal error:", err);
+    return res.status(500).json({
+      success: false,
+      error: "Unable to update subscriber goal"
     });
   }
 });

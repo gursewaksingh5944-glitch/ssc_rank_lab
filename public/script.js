@@ -56,6 +56,31 @@ document.addEventListener("DOMContentLoaded", function () {
   bindUnlockButtons();
   loadBenchmarkProfile();
   loadMarksHistory();
+
+  const hookSetupGoalBtn = document.getElementById("hookSetupGoalBtn");
+  if (hookSetupGoalBtn) {
+    hookSetupGoalBtn.addEventListener("click", function () { showGoalModal(); });
+  }
+
+  const hzWhatifBtn = document.getElementById("hzWhatifBtn");
+  if (hzWhatifBtn) {
+    hzWhatifBtn.addEventListener("click", runWhatIfSimulator);
+  }
+
+  const hzWhatifInput = document.getElementById("hzWhatifInput");
+  if (hzWhatifInput) {
+    hzWhatifInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") runWhatIfSimulator();
+    });
+  }
+
+  const hzNotifClose = document.getElementById("hzNotifClose");
+  if (hzNotifClose) {
+    hzNotifClose.addEventListener("click", function () {
+      const toast = document.getElementById("hzNotifToast");
+      if (toast) toast.style.display = "none";
+    });
+  }
   loadQuestionLabItems({ interactive: false });
   syncPaymentStatus();
   setInterval(syncPaymentStatus, 60000);
@@ -128,6 +153,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  initLiveAdminGrowthPanel();
+
   const closeGoalModalBtn = document.getElementById("closeGoalModal");
   if (closeGoalModalBtn) {
     closeGoalModalBtn.addEventListener("click", closeGoalModal);
@@ -176,6 +203,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  initSocialFeatures();
+
   loadGoalCutoffCatalog();
   setTimeout(checkGoalOnboarding, 900);
 });
@@ -188,6 +217,7 @@ let benchmarkProfile = null;
 let questionLabCache = [];
 let goalProfile = null;
 let goalCutoffCatalog = null;
+let lastMarksEntries = [];
 let paymentAccessState = {
   unlockedPlan: 0,
   effectivePlan: 0,
@@ -198,6 +228,17 @@ let referralState = {
 };
 
 const REFERRAL_STORAGE_KEY = "sscranklab_referral_code";
+const ADMIN_MODE_STORAGE_KEY = "sscranklab_admin_mode";
+const SOCIAL_POLL_MS = 7000;
+
+let socialState = {
+  activeGroupId: "",
+  myGroups: [],
+  discoverGroups: [],
+  challenges: []
+};
+let socialChatPollTimer = null;
+let socialNotifPollTimer = null;
 
 function bindUnlockButtons() {
   const unlockButtons = document.querySelectorAll(".js-unlock-plan");
@@ -533,9 +574,422 @@ function updateTopGoalFrame() {
   }
 }
 
+function computeOverallAverageScore(entries) {
+  if (!Array.isArray(entries) || entries.length === 0) return 0;
+  const total = entries.reduce((acc, item) => acc + Number(item.total_marks || 0), 0);
+  return total / entries.length;
+}
+
+// Goal gap banner removed — info is now in the hook zone
+function updateGoalGapBanner(_entries) { /* no-op: hook zone shows this */ }
+
+function updateTodayActionPlan(entries = []) {
+  const titleEl = document.getElementById("todayActionTitle");
+  const gainEl = document.getElementById("todayActionGain");
+  const listEl = document.getElementById("todayActionList");
+  if (!titleEl || !gainEl || !listEl) return;
+
+  if (!Array.isArray(entries) || entries.length === 0) {
+    titleEl.textContent = "Today's Focus Plan";
+    gainEl.textContent = "Expected gain: --";
+    listEl.innerHTML = "<li>Add today's marks to generate your action plan.</li>";
+    return;
+  }
+
+  const latest = [...entries].sort((a, b) => new Date(b.test_date) - new Date(a.test_date))[0] || {};
+  const subjects = [
+    { label: "Quant", value: Number(latest.quant_marks || 0) },
+    { label: "English", value: Number(latest.english_marks || 0) },
+    { label: "Reasoning", value: Number(latest.reasoning_marks || 0) },
+    { label: "GK", value: Number(latest.gk_marks || 0) },
+    { label: "Computer", value: Number(latest.computer_marks || 0) }
+  ];
+
+  const weakest = [...subjects].sort((a, b) => a.value - b.value).slice(0, 2);
+  const overallAvg = computeOverallAverageScore(entries);
+  const goalScore = Number(goalProfile?.autoCutoff || 0) > 0 ? Math.min(250, Number(goalProfile.autoCutoff || 0) + 5) : 0;
+  const marksAway = goalScore > 0 ? Math.max(0, Number((goalScore - overallAvg).toFixed(1))) : 0;
+
+  let expectedGain = 1.0;
+  if (marksAway > 15) expectedGain = 2.0;
+  else if (marksAway > 8) expectedGain = 1.6;
+  else if (marksAway > 3) expectedGain = 1.2;
+
+  if (goalScore > 0) {
+    titleEl.textContent = `Today's Focus: close ${marksAway.toFixed(1)} marks to safe zone`;
+  } else {
+    titleEl.textContent = "Today's Focus: boost your weakest subjects";
+  }
+
+  gainEl.textContent = `Expected gain: +${expectedGain.toFixed(1)} marks`;
+
+  const first = weakest[0]?.label || "Quant";
+  const second = weakest[1]?.label || "GK";
+  listEl.innerHTML = [
+    `Solve 20 targeted ${escapeHtml(first)} questions and analyze mistakes.`,
+    `Run 2 timed mini-mocks focused on ${escapeHtml(second)} accuracy and speed.`,
+    goalScore > 0
+      ? `Maintain revision so your overall average moves from ${overallAvg.toFixed(1)} toward goal ${Math.round(goalScore)}.`
+      : "Set target post to activate cutoff + 5 safe-zone planning."
+  ].map((item) => `<li>${item}</li>`).join("");
+}
+
 function getPlanName(plan) {
   if (Number(plan) === 99) return "Monthly Premium ₹99";
   return `Plan ₹${plan}`;
+}
+
+/* ============================================================
+   OUTCOME HOOK ZONE — real API-driven selection intelligence
+   ============================================================ */
+
+/**
+ * Animate a numeric counter from 0 → target using ease-out cubic.
+ */
+function animateNumber(el, target, decimalPlaces = 0, durationMs = 1100, suffix = "") {
+  if (!el) return;
+  const startTime = performance.now();
+  function step(now) {
+    const progress = Math.min((now - startTime) / durationMs, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = (target * eased).toFixed(decimalPlaces) + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/**
+ * Fetch /api/user/:userKey/outcome and push results to the hook zone.
+ */
+async function loadUserOutcome() {
+  const userKey = getUserKey();
+  if (!userKey) return;
+  try {
+    const res = await fetch(`/api/user/${encodeURIComponent(userKey)}/outcome`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.success) updateHookZone(data);
+    // Also wire API daily plan into today-action shell
+    if (data.success && Array.isArray(data.dailyPlan) && data.dailyPlan.length) {
+      const listEl = document.getElementById("todayActionList");
+      if (listEl) listEl.innerHTML = data.dailyPlan.map(t => `<li>${escapeHtml(t)}</li>`).join("");
+    }
+  } catch (_) { /* keep hook zone in its current state on network failure */ }
+}
+
+/* ==============================================================
+   HOOK ZONE ENGINE
+   ============================================================== */
+
+// Last known outcome for what-if comparisons
+let _lastOutcome = null;
+
+/**
+ * Populate the dark hook zone from outcome API data.
+ */
+function updateHookZone(outcome) {
+  _lastOutcome = outcome;
+
+  const headlineIcon   = document.getElementById("hookHeadlineIcon");
+  const headlineText   = document.getElementById("hookHeadlineText");
+  const setupBtn       = document.getElementById("hookSetupGoalBtn");
+  const marksAwayEl    = document.getElementById("hzMarksAway");
+  const marksUnitEl    = document.getElementById("hzMarksUnit");
+  const safeScoreEl    = document.getElementById("hzSafeScore");
+  const cutoffValEl    = document.getElementById("hzCutoffVal");
+  const yourAvgEl      = document.getElementById("hzYourAvg");
+  const selChanceEl    = document.getElementById("hzSelChance");
+  const zoneLabelEl    = document.getElementById("hzZoneLabel");
+  const confidenceEl   = document.getElementById("hzConfidenceChip");
+  const daysLabelEl    = document.getElementById("hzDaysLabel");
+  const dailyGainEl    = document.getElementById("hzDailyGain");
+  const daysToGoalEl   = document.getElementById("hzDaysToGoal");
+  const urgencyIconEl  = document.getElementById("hzUrgencyIcon");
+  const urgencyTextEl  = document.getElementById("hzUrgencyText");
+  const subjectGridEl  = document.getElementById("hzSubjectGrid");
+
+  if (!headlineText) return;
+
+  const post        = outcome.goalProfile?.targetPost || null;
+  const cutoff      = outcome.goalProfile?.autoCutoff || null;
+  const marksAway   = outcome.scores?.marksAway;
+  const safeScore   = outcome.scores?.safeScore;
+  const overallAvg  = outcome.scores?.overallAvg;
+  const avg7        = outcome.scores?.avg7;
+  const probability = outcome.selection?.probability;
+  const zoneLabel   = outcome.selection?.zoneLabel || "";
+  const daysToGoal  = outcome.trend?.daysToGoal;
+  const displayGain = outcome.trend?.displayDailyGain || 0;
+  const dailyGainRate = outcome.trend?.dailyGainRate || 0;
+  const sessionCount  = outcome.trend?.sessionCount || 0;
+  const subjectAvgs   = outcome.subjects?.avgs || null;
+  const confidence    = outcome.confidence || "low";
+
+  /* ── Headline ── */
+  if (!outcome.goalProfile) {
+    if (headlineIcon) headlineIcon.textContent = "🎯";
+    headlineText.textContent = "Set your target post to see your personal selection forecast";
+    if (setupBtn) setupBtn.classList.remove("hidden");
+  } else if (!outcome.hasHistory) {
+    if (headlineIcon) headlineIcon.textContent = "📊";
+    headlineText.textContent = `${post} — add today's marks to unlock your selection forecast`;
+    if (setupBtn) setupBtn.classList.add("hidden");
+  } else if (marksAway === 0) {
+    if (headlineIcon) headlineIcon.textContent = "✅";
+    headlineText.textContent = `You're inside the safe zone for ${post} — keep the momentum!`;
+    if (setupBtn) setupBtn.classList.add("hidden");
+  } else {
+    if (headlineIcon) headlineIcon.textContent = "🚨";
+    headlineText.textContent = `You're ${marksAway} marks away from ${post} — here's exactly what to do:`;
+    if (setupBtn) setupBtn.classList.add("hidden");
+  }
+
+  /* ── Gap card ── hero number with gradient */
+  if (marksAwayEl) {
+    if (marksAway != null) {
+      animateNumber(marksAwayEl, marksAway, 0, 1000);
+      marksAwayEl.className = marksAway === 0 ? "hz-gap-hero hz-no-gap" : "hz-gap-hero";
+    } else {
+      marksAwayEl.textContent = "--";
+      marksAwayEl.className = "hz-gap-hero";
+    }
+  }
+  if (marksUnitEl) marksUnitEl.textContent = (marksAway === 0) ? "✓" : "marks";
+  if (safeScoreEl) safeScoreEl.textContent = safeScore != null ? safeScore : "--";
+  if (cutoffValEl) cutoffValEl.textContent  = cutoff != null   ? cutoff  : "--";
+  if (yourAvgEl)   yourAvgEl.textContent    = overallAvg != null ? overallAvg : "--";
+
+  /* ── Selection Chance card ── */
+  if (selChanceEl) {
+    if (probability != null) {
+      animateNumber(selChanceEl, probability, 0, 1100, "%");
+      selChanceEl.className = "hz-big-num" + (
+        probability >= 70 ? " hz-chance-high" :
+        probability >= 40 ? " hz-chance-mid"  : " hz-chance-low"
+      );
+    } else {
+      selChanceEl.textContent = "--";
+    }
+  }
+  if (zoneLabelEl) {
+    zoneLabelEl.textContent = zoneLabel || "No data";
+    zoneLabelEl.style.color =
+      zoneLabel === "High Chance"   ? "#4ade80" :
+      zoneLabel === "Above Average" ? "#86efac" :
+      zoneLabel === "Moderate"      ? "#fbbf24" : "#f87171";
+  }
+  /* Confidence indicator */
+  if (confidenceEl) {
+    if (outcome.hasHistory) {
+      const confLabel =
+        confidence === "high"   ? "✓ High confidence (strong data)" :
+        confidence === "medium" ? "~ Medium confidence" :
+                                  "⚠ Low confidence (add more entries)";
+      confidenceEl.textContent = confLabel;
+      confidenceEl.className = `hz-confidence ${escapeHtml(confidence)}`;
+      confidenceEl.style.display = "inline-flex";
+    } else {
+      confidenceEl.style.display = "none";
+    }
+  }
+
+  if (daysLabelEl) {
+    daysLabelEl.textContent = (daysToGoal != null && daysToGoal > 0)
+      ? `~${daysToGoal} days to safe zone`
+      : outcome.hasHistory ? "at current pace" : "no data yet";
+  }
+
+  /* ── Daily Gain card ── */
+  if (dailyGainEl) {
+    if (outcome.hasHistory) {
+      animateNumber(dailyGainEl, displayGain, 1, 1000);
+    } else {
+      dailyGainEl.textContent = "--";
+    }
+  }
+  if (daysToGoalEl) {
+    if (daysToGoal != null && daysToGoal > 0) {
+      daysToGoalEl.textContent = `~${daysToGoal} days to safe zone`;
+    } else if (marksAway === 0) {
+      daysToGoalEl.textContent = "Already in safe zone ✓";
+    } else if (outcome.hasHistory && dailyGainRate <= 0) {
+      daysToGoalEl.textContent = "Trend flat — add more data";
+    } else {
+      daysToGoalEl.textContent = "Track more entries for estimate";
+    }
+  }
+
+  /* ── Urgency Bar ── */
+  if (urgencyIconEl && urgencyTextEl) {
+    _setUrgencyBar(urgencyIconEl, urgencyTextEl, {
+      marksAway, safeScore, overallAvg, avg7, dailyGainRate,
+      daysToGoal, probability, hasHistory: outcome.hasHistory, post
+    });
+  }
+
+  /* ── Subject Weakness Grid with weighted impact ── */
+  if (subjectGridEl) {
+    if (subjectAvgs) {
+      // Weights per subject: Quant and Reasoning are high-value for CGL/CHSL
+      const weights = { Quant: 1.3, Reasoning: 1.2, GK: 1.0, English: 1.0, Computer: 0.8 };
+      const order = ["Quant", "English", "Reasoning", "GK", "Computer"];
+      const rows = order.map(s => ({
+        label: s,
+        avg: subjectAvgs[s] || 0,
+        weight: weights[s] || 1.0
+      }));
+      const maxAvg = Math.max(...rows.map(r => r.avg), 1);
+      subjectGridEl.innerHTML = rows.map(({ label, avg, weight }) => {
+        const relScore = avg / maxAvg;
+        const impact   = ((1 - relScore) * weight * 10).toFixed(0); // potential gain
+        const cls = relScore < 0.75 ? "weak" : relScore >= 0.92 ? "strong" : "neutral";
+        const statusTag =
+          cls === "weak"   ? `+${impact} pts potential` :
+          cls === "strong" ? "✓ GOOD"                   : "OK";
+        return `<div class="hz-subject ${escapeHtml(cls)}">
+          <div class="hz-subject-label">${escapeHtml(label)}</div>
+          <div class="hz-subject-score">${avg.toFixed(1)}</div>
+          <div class="hz-subject-impact">${escapeHtml(statusTag)}</div>
+        </div>`;
+      }).join("");
+    } else {
+      subjectGridEl.innerHTML = "";
+    }
+  }
+
+  // Check for milestone notifications
+  _checkMilestoneNotifications(outcome);
+}
+
+/** Compute and render urgency message */
+function _setUrgencyBar(iconEl, textEl, d) {
+  if (!d.hasHistory || d.marksAway == null) {
+    iconEl.textContent = "⏳";
+    textEl.textContent = "Add your first marks to see your urgency status.";
+    textEl.className = "hz-urgency-text";
+    return;
+  }
+  if (d.marksAway === 0) {
+    iconEl.textContent = "🎉";
+    textEl.textContent = `You're ${Math.abs(d.overallAvg - d.safeScore + d.marksAway).toFixed(1)} marks above the safe zone. Selection chance is high — stay consistent.`;
+    textEl.className = "hz-urgency-text good";
+    return;
+  }
+  // Build urgency based on trend vs gap
+  const gainRate = d.dailyGainRate || 0;
+  const marksAway = d.marksAway;
+  const daysToGoal = d.daysToGoal;
+
+  if (gainRate <= 0) {
+    iconEl.textContent = "🚨";
+    textEl.textContent = `At current pace, you may miss cutoff by ~${marksAway} marks. Focus on GK and Quant to reverse this trend.`;
+    textEl.className = "hz-urgency-text danger";
+  } else if (gainRate < 0.5) {
+    iconEl.textContent = "⚠️";
+    textEl.textContent = `Gaining ${gainRate.toFixed(1)} marks/day — you'll close the gap in ~${daysToGoal || "?"} days. Push to 1.5 marks/day to cut that in half.`;
+    textEl.className = "hz-urgency-text warn";
+  } else {
+    iconEl.textContent = "🔥";
+    textEl.textContent = `If you keep gaining +${gainRate.toFixed(1)} marks/day → you'll hit the safe zone in ~${daysToGoal || "?"} days. High selection chance!`;
+    textEl.className = "hz-urgency-text good";
+  }
+}
+
+/** Smart milestone notifications — fire once per session */
+const _firedMilestones = new Set();
+function _checkMilestoneNotifications(outcome) {
+  if (!outcome.hasHistory) return;
+  const p  = outcome.selection?.probability;
+  const ma = outcome.scores?.marksAway;
+  const gainRate = outcome.trend?.dailyGainRate || 0;
+
+  const fire = (key, icon, msg) => {
+    if (_firedMilestones.has(key)) return;
+    _firedMilestones.add(key);
+    showHookNotif(icon, msg);
+  };
+
+  if (ma === 0) {
+    fire("inzone", "✅", "You're now inside the safe zone! Keep the momentum.");
+  } else if (ma != null && ma <= 5) {
+    fire("near5", "🔥", `Just ${ma} marks to the safe zone — one strong session away!`);
+  } else if (ma != null && ma <= 10) {
+    fire("near10", "⚠️", `${ma} marks to safe zone. Double your GK & Quant sessions this week.`);
+  }
+
+  if (p != null && p >= 60 && p < 65) {
+    fire("cross60", "🎯", "You just crossed 60% selection chance. Keep improving!");
+  }
+  if (gainRate > 2) {
+    fire("highgain", "📈", `Your daily gain is +${gainRate.toFixed(1)} marks/day — you're on track!`);
+  }
+}
+
+/** Show a toast notification in the hook zone */
+let _notifTimer = null;
+function showHookNotif(icon, message) {
+  const toast   = document.getElementById("hzNotifToast");
+  const iconEl  = document.getElementById("hzNotifIcon");
+  const msgEl   = document.getElementById("hzNotifMsg");
+  if (!toast || !iconEl || !msgEl) return;
+
+  if (iconEl) iconEl.textContent = icon;
+  if (msgEl)  msgEl.textContent  = message;
+  toast.style.display = "block";
+
+  if (_notifTimer) clearTimeout(_notifTimer);
+  _notifTimer = setTimeout(() => { toast.style.display = "none"; }, 6000);
+}
+
+/** What-If Simulator: "if I score X today, what happens?" */
+function runWhatIfSimulator() {
+  const inputEl  = document.getElementById("hzWhatifInput");
+  const resultEl = document.getElementById("hzWhatifResult");
+  if (!inputEl || !resultEl) return;
+
+  const score = Number(inputEl.value);
+  if (!Number.isFinite(score) || score < 0 || score > 250) {
+    resultEl.textContent = "Enter a score between 0 and 250.";
+    resultEl.style.color = "#f87171";
+    return;
+  }
+
+  const outcome   = _lastOutcome;
+  const safeScore = outcome?.scores?.safeScore;
+  const overallAvg = outcome?.scores?.overallAvg;
+  const sessionCount = outcome?.trend?.sessionCount || 1;
+
+  if (!safeScore || !overallAvg) {
+    resultEl.textContent = "Set your goal first to run simulations.";
+    resultEl.style.color = "#fbbf24";
+    return;
+  }
+
+  // Simulate new avg = rolling in this one score
+  const newAvg = ((overallAvg * sessionCount) + score) / (sessionCount + 1);
+  const newGap = safeScore - newAvg;
+  const newRatio = newAvg / safeScore;
+
+  let newProb;
+  if (newRatio >= 1.05) newProb = 92;
+  else if (newRatio >= 1.0) newProb = 82;
+  else if (newRatio >= 0.96) newProb = 68;
+  else if (newRatio >= 0.92) newProb = 52;
+  else if (newRatio >= 0.87) newProb = 38;
+  else if (newRatio >= 0.80) newProb = 22;
+  else newProb = 10;
+
+  const currentProb = outcome?.selection?.probability || 0;
+  const probDelta = newProb - currentProb;
+  const deltaStr = probDelta >= 0 ? `↑ +${probDelta}%` : `↓ ${probDelta}%`;
+
+  if (newGap <= 0) {
+    resultEl.textContent = `Score ${score} → avg ${newAvg.toFixed(1)} → ✅ Safe Zone! Selection chance ~${newProb}% (${deltaStr})`;
+    resultEl.style.color = "#4ade80";
+  } else {
+    resultEl.textContent = `Score ${score} → avg ${newAvg.toFixed(1)} → gap ${newGap.toFixed(1)} marks | chance ${newProb}% (${deltaStr})`;
+    resultEl.style.color = newProb >= 60 ? "#a78bfa" : "#fbbf24";
+  }
 }
 
 function hideUnlockedPlanButtons(unlockedPlan) {
@@ -608,7 +1062,7 @@ async function startRazorpayUnlock(plan, triggerButton = null) {
     }
 
     if (typeof window.Razorpay === "undefined") {
-      throw new Error("Razorpay SDK not loaded. Check index.html script tag.");
+      throw new Error("Razorpay SDK not loaded. Check app-preview.html script tag.");
     }
 
     const createOrderResponse = await fetch("/api/payment/create-order", {
@@ -1515,6 +1969,8 @@ async function loadBenchmarkProfile() {
       goalProfile = null;
       applyBenchmarkToUI(null);
       updateTopGoalFrame();
+      updateGoalGapBanner(lastMarksEntries);
+      updateTodayActionPlan(lastMarksEntries);
       setBenchmarkStatus("Set your first benchmark target.", "info");
       return;
     }
@@ -1528,11 +1984,15 @@ async function loadBenchmarkProfile() {
     goalProfile = data.profile?.goal || null;
     applyBenchmarkToUI(benchmarkProfile);
     updateTopGoalFrame();
+    updateGoalGapBanner(lastMarksEntries);
+    updateTodayActionPlan(lastMarksEntries);
     setBenchmarkStatus("Benchmark loaded.", "success");
   } catch (err) {
     console.error("loadBenchmarkProfile error:", err);
     applyBenchmarkToUI(null);
     updateTopGoalFrame();
+    updateGoalGapBanner(lastMarksEntries);
+    updateTodayActionPlan(lastMarksEntries);
     setBenchmarkStatus("Could not load benchmark profile.", "error");
   }
 }
@@ -1809,6 +2269,7 @@ async function loadMarksHistory() {
     const data = await response.json();
 
     if (data.success) {
+      lastMarksEntries = Array.isArray(data.entries) ? data.entries : [];
       displayMarksHistory(data.entries);
       drawProgressChart(data.entries);
       drawSubjectChart(data.entries);
@@ -1816,12 +2277,19 @@ async function loadMarksHistory() {
       updateBenchmarkReview(data.entries);
       updateStreakDisplay(data.entries);
       renderWeeklyReport(buildWeeklyReport(data.entries));
+      updateGoalGapBanner(lastMarksEntries);
+      updateTodayActionPlan(lastMarksEntries);
+      loadUserOutcome();
       if (!Array.isArray(data.entries) || data.entries.length === 0) {
         showProgressStatus("Start by adding today's marks.", "info");
       }
     }
   } catch (error) {
     console.error("Load marks error:", error);
+    lastMarksEntries = [];
+    updateGoalGapBanner(lastMarksEntries);
+    updateTodayActionPlan(lastMarksEntries);
+    loadUserOutcome();
     showProgressStatus("Could not load progress history.", "error");
   }
 }
@@ -2183,6 +2651,9 @@ async function saveGoalProfile() {
     if (!response.ok || !data.success) throw new Error(data.error || "Save failed");
     goalProfile = data.profile?.goal || { examFamily, category, targetPost, examDate, studyHours, targetScore };
     updateTopGoalFrame();
+    updateGoalGapBanner(lastMarksEntries);
+    updateTodayActionPlan(lastMarksEntries);
+    loadUserOutcome();
     if (statusEl) { statusEl.textContent = "Goal saved!"; statusEl.style.color = "#047857"; }
     setTimeout(() => closeGoalModal(), 800);
   } catch (err) {
@@ -2248,6 +2719,7 @@ function buildWeeklyReport(entries) {
   if (!Array.isArray(entries) || entries.length === 0) return null;
   const sorted = [...entries].sort((a, b) => new Date(b.test_date) - new Date(a.test_date));
   const last7 = sorted.slice(0, 7);
+  const prev7 = sorted.slice(7, 14);
   const subjectKeys = ["quant", "english", "reasoning", "gk", "computer"];
   const subjectLabels = { quant: "Quant", english: "English", reasoning: "Reasoning", gk: "GK", computer: "Computer" };
   const subjectAvgs = {};
@@ -2262,7 +2734,13 @@ function buildWeeklyReport(entries) {
   if (benchmarkProfile && Number(benchmarkProfile.overallTarget) > 0) {
     benchmarkGap = Number((benchmarkProfile.overallTarget - overallAvg).toFixed(1));
   }
-  return { subjectAvgs, subjectLabels, overallAvg, bestDay, worstDay, benchmarkGap, count: last7.length };
+  // Weekly improvement vs previous week
+  let weekImprovement = null;
+  if (prev7.length >= 3) {
+    const prevAvg = prev7.reduce((acc, e) => acc + Number(e.total_marks || 0), 0) / prev7.length;
+    weekImprovement = Number((overallAvg - prevAvg).toFixed(1));
+  }
+  return { subjectAvgs, subjectLabels, overallAvg, bestDay, worstDay, benchmarkGap, weekImprovement, count: last7.length };
 }
 
 function renderWeeklyReport(report) {
@@ -2274,7 +2752,23 @@ function renderWeeklyReport(report) {
     return;
   }
   const unlockedPlan = getUnlockedPlan();
-  const { subjectAvgs, subjectLabels, overallAvg, bestDay, worstDay, benchmarkGap, count } = report;
+  const { subjectAvgs, subjectLabels, overallAvg, bestDay, worstDay, benchmarkGap, weekImprovement, count } = report;
+
+  // Weekly improvement headline sentence
+  let improvementHtml = "";
+  if (weekImprovement != null) {
+    const daysGoal = _lastOutcome?.trend?.daysToGoal;
+    const sign   = weekImprovement >= 0 ? "+" : "";
+    const color  = weekImprovement >= 0 ? "#047857" : "#b91c1c";
+    const emoji  = weekImprovement >= 0 ? "📈" : "📉";
+    const paceMsg = daysGoal != null && daysGoal > 0
+      ? ` At this rate → safe zone in ~${daysGoal} days.`
+      : "";
+    improvementHtml = `
+      <div style="margin-top:12px;padding:10px 14px;border-radius:12px;background:#0f172a;border:1px solid #334155;color:#f1f5f9;font-size:13px;font-weight:700;">
+        ${emoji} You ${weekImprovement >= 0 ? "improved" : "dropped"} <span style="color:${color}">${sign}${weekImprovement} marks</span> this week.${escapeHtml(paceMsg)}
+      </div>`;
+  }
 
   const gapHtml = benchmarkGap !== null
     ? `<div class="report-stat">
@@ -2326,6 +2820,7 @@ function renderWeeklyReport(report) {
         ${gapHtml}
       </div>
       ${subjectSection}
+      ${improvementHtml}
     </div>
   `;
   container.classList.remove("hidden");
@@ -2400,4 +2895,714 @@ async function startFreeTrial(triggerButton = null) {
   } finally {
     resetButtonLoading(triggerButton, originalText);
   }
+}
+
+function isLiveAdminModeEnabled() {
+  try {
+    const url = new URL(window.location.href);
+    const adminParam = String(url.searchParams.get("admin") || "").trim();
+    if (adminParam === "1" || adminParam.toLowerCase() === "true") {
+      localStorage.setItem(ADMIN_MODE_STORAGE_KEY, "1");
+      return true;
+    }
+    return String(localStorage.getItem(ADMIN_MODE_STORAGE_KEY) || "") === "1";
+  } catch (err) {
+    console.error("isLiveAdminModeEnabled error:", err);
+    return false;
+  }
+}
+
+function setLiveAdminStatus(message, isError = false) {
+  const el = document.getElementById("liveAdminStatus");
+  if (!el) return;
+  el.textContent = message || "";
+  el.style.color = isError ? "#b91c1c" : "#334155";
+}
+
+function renderLiveAdminMetrics(metrics = {}) {
+  const el = document.getElementById("liveAdminMetrics");
+  if (!el) return;
+
+  el.innerHTML = `
+    <div class="rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-700">Goal: ${Number(metrics.goalSubscribers || 0).toLocaleString("en-IN")}</div>
+    <div class="rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-700">Paid: ${Number(metrics.paidSubscribers || 0).toLocaleString("en-IN")}</div>
+    <div class="rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-700">Remaining: ${Number(metrics.remainingToGoal || 0).toLocaleString("en-IN")}</div>
+    <div class="rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-700">Progress: ${Number(metrics.goalProgressPct || 0).toFixed(2)}%</div>
+    <div class="rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-700">Active Trials: ${Number(metrics.activeTrials || 0).toLocaleString("en-IN")}</div>
+    <div class="rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-700">Trial-to-Paid Gap: ${Number(metrics.trialToPaidGap || 0).toLocaleString("en-IN")}</div>
+    <div class="rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-700">Month Adds: ${Number(metrics.currentMonthPaidAdds || 0).toLocaleString("en-IN")}</div>
+    <div class="rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-700">Daily Run-Rate: ${Number(metrics.dailyRunRateThisMonth || 0).toFixed(2)}</div>
+    <div class="rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-700">Projected Month Adds: ${Number(metrics.projectedMonthPaidAdds || 0).toLocaleString("en-IN")}</div>
+    <div class="rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-700">Days To Goal: ${metrics.estimatedDaysToGoal == null ? "N/A" : Number(metrics.estimatedDaysToGoal).toLocaleString("en-IN")}</div>
+    <div class="rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-700">MRR (Rs): ${Number(metrics.monthlyRecurringRevenueRs || 0).toLocaleString("en-IN")}</div>
+    <div class="rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-700">ARR (Rs): ${Number(metrics.annualRunRateRs || 0).toLocaleString("en-IN")}</div>
+  `;
+}
+
+async function requestLiveAdminMetrics(path, method = "GET", body = null) {
+  const adminKey = String(document.getElementById("liveAdminKey")?.value || "").trim();
+  if (!adminKey) {
+    throw new Error("Enter admin key");
+  }
+
+  const options = {
+    method,
+    headers: {
+      "x-admin-key": adminKey
+    }
+  };
+
+  if (body && method !== "GET") {
+    options.headers["Content-Type"] = "application/json";
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(path, options);
+  const data = await response.json();
+  if (!response.ok || !data.success) {
+    throw new Error(data.error || "Admin request failed");
+  }
+  return data;
+}
+
+async function loadLiveAdminMetrics() {
+  try {
+    setLiveAdminStatus("Loading subscriber growth metrics...");
+    const data = await requestLiveAdminMetrics("/api/payment/metrics/subscribers", "GET");
+    const metrics = data.metrics || {};
+    renderLiveAdminMetrics(metrics);
+
+    const goalInput = document.getElementById("liveGoalInput");
+    if (goalInput) {
+      goalInput.value = String(Number(metrics.goalSubscribers || 100000));
+    }
+
+    setLiveAdminStatus("Metrics loaded.");
+  } catch (err) {
+    console.error("loadLiveAdminMetrics error:", err);
+    setLiveAdminStatus(err.message || "Could not load metrics", true);
+  }
+}
+
+async function saveLiveSubscriberGoal() {
+  try {
+    const goalValue = Number(document.getElementById("liveGoalInput")?.value || 0);
+    if (!Number.isFinite(goalValue) || goalValue <= 0) {
+      setLiveAdminStatus("Enter a valid positive goal.", true);
+      return;
+    }
+
+    setLiveAdminStatus("Saving goal...");
+    await requestLiveAdminMetrics("/api/payment/metrics/subscribers/goal", "POST", {
+      goalSubscribers: goalValue
+    });
+    setLiveAdminStatus("Goal saved.");
+    await loadLiveAdminMetrics();
+  } catch (err) {
+    console.error("saveLiveSubscriberGoal error:", err);
+    setLiveAdminStatus(err.message || "Could not save goal", true);
+  }
+}
+
+function initLiveAdminGrowthPanel() {
+  const panel = document.getElementById("liveAdminGrowthPanel");
+  if (!panel) return;
+
+  if (!isLiveAdminModeEnabled()) {
+    panel.classList.add("hidden");
+    return;
+  }
+
+  panel.classList.remove("hidden");
+
+  const loadBtn = document.getElementById("liveLoadMetricsBtn");
+  if (loadBtn) {
+    loadBtn.addEventListener("click", function () {
+      loadLiveAdminMetrics();
+    });
+  }
+
+  const saveBtn = document.getElementById("liveSaveGoalBtn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", function () {
+      saveLiveSubscriberGoal();
+    });
+  }
+}
+
+function getSocialDisplayName() {
+  try {
+    const saved = String(localStorage.getItem("sscranklab_display_name") || "").trim();
+    if (saved) return saved;
+
+    const userKey = String(getUserKey() || "");
+    const suffix = userKey.slice(-4).toUpperCase();
+    const generated = suffix ? `SSC#${suffix}` : "SSC Aspirant";
+    localStorage.setItem("sscranklab_display_name", generated);
+    return generated;
+  } catch (err) {
+    console.error("getSocialDisplayName error:", err);
+    return "SSC Aspirant";
+  }
+}
+
+function setSocialStatus(message, isError = false) {
+  const el = document.getElementById("socialStatus");
+  if (!el) return;
+  el.textContent = message || "";
+  el.style.color = isError ? "#b91c1c" : "#334155";
+}
+
+async function socialRequest(path, method = "GET", body = null) {
+  const options = { method, headers: {} };
+  if (body && method !== "GET") {
+    options.headers["Content-Type"] = "application/json";
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(path, options);
+  const data = await response.json();
+  if (!response.ok || !data.success) {
+    throw new Error(data.error || "Request failed");
+  }
+  return data;
+}
+
+function renderMyGroups() {
+  const host = document.getElementById("myGroupsList");
+  if (!host) return;
+
+  if (!Array.isArray(socialState.myGroups) || socialState.myGroups.length === 0) {
+    host.innerHTML = '<div class="group-item">No groups yet. Create one or join with invite.</div>';
+    return;
+  }
+
+  host.innerHTML = socialState.myGroups.map((group) => {
+    const active = socialState.activeGroupId === group.id ? " active" : "";
+    const invite = group.inviteCode ? `<div style="font-size:11px;color:#475569;margin-top:4px;">Invite: ${escapeHtml(group.inviteCode)}</div>` : "";
+    return `
+      <div class="group-item${active}" data-group-id="${escapeHtml(group.id)}">
+        <div style="font-weight:800;">${escapeHtml(group.name)} (${Number(group.memberCount || 0)}/${Number(group.memberLimit || 0)})</div>
+        ${invite}
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button type="button" data-action="open" data-group-id="${escapeHtml(group.id)}" style="padding:6px 10px;border:none;border-radius:8px;background:#0f172a;color:#fff;font-size:11px;font-weight:800;cursor:pointer;">Open</button>
+          <button type="button" data-action="copy" data-code="${escapeHtml(group.inviteCode || "")}" style="padding:6px 10px;border:none;border-radius:8px;background:#e2e8f0;color:#0f172a;font-size:11px;font-weight:800;cursor:pointer;">Copy Invite</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderDiscoverGroups() {
+  const host = document.getElementById("discoverGroupsList");
+  if (!host) return;
+
+  if (!Array.isArray(socialState.discoverGroups) || socialState.discoverGroups.length === 0) {
+    host.innerHTML = '<div class="group-item">No public groups available.</div>';
+    return;
+  }
+
+  host.innerHTML = socialState.discoverGroups.map((group) => {
+    const memberLabel = `${Number(group.memberCount || 0)}/${Number(group.memberLimit || 0)}`;
+    const action = group.isMember
+      ? `<button type="button" data-action="open" data-group-id="${escapeHtml(group.id)}" style="padding:6px 10px;border:none;border-radius:8px;background:#0f172a;color:#fff;font-size:11px;font-weight:800;cursor:pointer;">Open</button>`
+      : `<button type="button" data-action="join-code" data-code="${escapeHtml(group.inviteCode || "")}" style="padding:6px 10px;border:none;border-radius:8px;background:#1d4ed8;color:#fff;font-size:11px;font-weight:800;cursor:pointer;">Join</button>`;
+
+    return `
+      <div class="group-item">
+        <div style="font-weight:800;">${escapeHtml(group.name)} (${memberLabel})</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+          <span style="font-size:11px;color:#64748b;">${escapeHtml(group.visibility || "public")}</span>
+          ${action}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderMembers(members = []) {
+  const host = document.getElementById("groupMembersList");
+  if (!host) return;
+
+  if (!Array.isArray(members) || members.length === 0) {
+    host.innerHTML = '<div class="member"><div class="name">No members loaded</div></div>';
+    return;
+  }
+
+  host.innerHTML = members.map((member) => {
+    const role = member.role === "owner" ? "Owner" : "Member";
+    return `
+      <div class="member">
+        <div class="name">${escapeHtml(member.displayName || member.userKey || "Member")}</div>
+        <div class="meta">${escapeHtml(member.userKey || "")} | <strong>${escapeHtml(role)}</strong></div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderChat(messages = []) {
+  const host = document.getElementById("groupChatList");
+  if (!host) return;
+
+  if (!Array.isArray(messages) || messages.length === 0) {
+    host.innerHTML = '<div class="msg">No chat yet. Send the first message.</div>';
+    return;
+  }
+
+  host.innerHTML = messages.map((msg) => {
+    const isChallenge = String(msg.messageType || "") === "challenge";
+    const cls = isChallenge ? "msg challenge" : "msg";
+    return `<div class="${cls}"><b>${escapeHtml(msg.displayName || msg.userKey || "User")}:</b> ${escapeHtml(msg.text || "")}</div>`;
+  }).join("");
+  host.scrollTop = host.scrollHeight;
+}
+
+function renderChallenges(challenges = []) {
+  const listHost = document.getElementById("challengeList");
+  const select = document.getElementById("challengeSelectInput");
+  if (listHost) {
+    if (!Array.isArray(challenges) || challenges.length === 0) {
+      listHost.innerHTML = '<div class="group-item">No challenges yet.</div>';
+    } else {
+      listHost.innerHTML = challenges.map((challenge) => `
+        <div class="group-item" data-challenge-id="${escapeHtml(challenge.id)}">
+          <div style="font-weight:800;">${escapeHtml(challenge.title)}</div>
+          <div style="font-size:11px;color:#64748b;margin-top:4px;">${Number(challenge.questionCount || 0)}Q | ${Number(challenge.timeLimitMin || 0)} min | attempts ${Number(challenge.attemptCount || 0)}</div>
+          <button type="button" data-action="view-results" data-challenge-id="${escapeHtml(challenge.id)}" style="margin-top:8px;padding:6px 10px;border:none;border-radius:8px;background:#334155;color:#fff;font-size:11px;font-weight:800;cursor:pointer;">View Results</button>
+        </div>
+      `).join("");
+    }
+  }
+
+  if (select) {
+    if (!Array.isArray(challenges) || challenges.length === 0) {
+      select.innerHTML = '<option value="">No challenges</option>';
+    } else {
+      select.innerHTML = challenges.map((challenge) => `<option value="${escapeHtml(challenge.id)}">${escapeHtml(challenge.title)}</option>`).join("");
+    }
+  }
+}
+
+function renderChallengeResults(payload = {}) {
+  const host = document.getElementById("challengeResultsList");
+  if (!host) return;
+
+  const rows = Array.isArray(payload.results) ? payload.results : [];
+  if (rows.length === 0) {
+    host.innerHTML = '<div class="member"><div class="name">No attempts yet.</div></div>';
+    return;
+  }
+
+  host.innerHTML = rows.map((row) => `
+    <div class="member">
+      <div class="name">#${Number(row.rank || 0)} ${escapeHtml(row.displayName || row.userKey || "Member")}</div>
+      <div class="meta">${Number(row.score || 0)}/${Number(row.total || 0)} (${Number(row.pct || 0).toFixed(2)}%) | ${Number(row.timeTakenSec || 0)} sec</div>
+    </div>
+  `).join("");
+}
+
+function renderNotifications(notifications = []) {
+  const list = document.getElementById("notifList");
+  const toggle = document.getElementById("notifToggle");
+  if (!list || !toggle) return;
+
+  const unread = notifications.filter((item) => !item.read).length;
+  toggle.textContent = `Notifications (${unread})`;
+
+  if (notifications.length === 0) {
+    list.innerHTML = '<div class="notif-item">No notifications yet.</div>';
+    return;
+  }
+
+  list.innerHTML = notifications.map((item) => {
+    const dot = item.read ? "" : "<span style=\"display:inline-block;width:8px;height:8px;border-radius:50%;background:#2563eb;margin-right:8px;\"></span>";
+    const title = escapeHtml(String(item.title || "Update"));
+    const message = escapeHtml(String(item.message || ""));
+    return `<div class="notif-item">${dot}<strong>${title}</strong><div style="margin-top:4px;color:#64748b;">${message}</div></div>`;
+  }).join("");
+}
+
+async function loadMyGroups({ silent = false } = {}) {
+  try {
+    const data = await socialRequest(`/api/social/groups/my?userKey=${encodeURIComponent(getUserKey())}`);
+    socialState.myGroups = Array.isArray(data.groups) ? data.groups : [];
+    renderMyGroups();
+    if (!socialState.activeGroupId && socialState.myGroups.length > 0) {
+      await openGroupById(socialState.myGroups[0].id, { silent: true });
+    }
+    if (!silent) setSocialStatus("Groups loaded.");
+  } catch (err) {
+    console.error("loadMyGroups error:", err);
+    setSocialStatus(err.message || "Could not load groups", true);
+  }
+}
+
+async function loadDiscoverGroups({ silent = false } = {}) {
+  try {
+    const data = await socialRequest(`/api/social/groups/discover?userKey=${encodeURIComponent(getUserKey())}`);
+    socialState.discoverGroups = Array.isArray(data.groups) ? data.groups : [];
+    renderDiscoverGroups();
+    if (!silent) setSocialStatus("Discover list updated.");
+  } catch (err) {
+    console.error("loadDiscoverGroups error:", err);
+    setSocialStatus(err.message || "Could not load discover groups", true);
+  }
+}
+
+async function loadGroupMembers(groupId, { silent = false } = {}) {
+  const data = await socialRequest(`/api/social/groups/${encodeURIComponent(groupId)}/members?userKey=${encodeURIComponent(getUserKey())}`);
+  renderMembers(Array.isArray(data.members) ? data.members : []);
+  if (!silent) setSocialStatus("Members loaded.");
+}
+
+async function loadGroupChat(groupId, { silent = false } = {}) {
+  const data = await socialRequest(`/api/social/groups/${encodeURIComponent(groupId)}/chat?userKey=${encodeURIComponent(getUserKey())}`);
+  renderChat(Array.isArray(data.messages) ? data.messages : []);
+  if (!silent) setSocialStatus("Chat updated.");
+}
+
+async function loadGroupChallenges(groupId, { silent = false } = {}) {
+  const data = await socialRequest(`/api/social/groups/${encodeURIComponent(groupId)}/challenges?userKey=${encodeURIComponent(getUserKey())}`);
+  socialState.challenges = Array.isArray(data.challenges) ? data.challenges : [];
+  renderChallenges(socialState.challenges);
+
+  const select = document.getElementById("challengeSelectInput");
+  if (select && select.value) {
+    await loadChallengeResults(groupId, select.value, { silent: true });
+  } else if (socialState.challenges[0]) {
+    await loadChallengeResults(groupId, socialState.challenges[0].id, { silent: true });
+  } else {
+    renderChallengeResults({ results: [] });
+  }
+
+  if (!silent) setSocialStatus("Challenges loaded.");
+}
+
+async function loadChallengeResults(groupId, challengeId, { silent = false } = {}) {
+  if (!challengeId) {
+    renderChallengeResults({ results: [] });
+    return;
+  }
+  const data = await socialRequest(`/api/social/groups/${encodeURIComponent(groupId)}/challenges/${encodeURIComponent(challengeId)}/results?userKey=${encodeURIComponent(getUserKey())}`);
+  renderChallengeResults(data);
+  if (!silent) setSocialStatus("Results loaded.");
+}
+
+async function openGroupById(groupId, { silent = false } = {}) {
+  if (!groupId) return;
+  socialState.activeGroupId = groupId;
+  renderMyGroups();
+
+  const activeGroup = socialState.myGroups.find((item) => item.id === groupId) || socialState.discoverGroups.find((item) => item.id === groupId);
+  const title = document.getElementById("activeGroupTitle");
+  if (title) {
+    title.textContent = activeGroup ? `${activeGroup.name} Chat` : "Group Chat";
+  }
+
+  await Promise.all([
+    loadGroupMembers(groupId, { silent: true }),
+    loadGroupChat(groupId, { silent: true }),
+    loadGroupChallenges(groupId, { silent: true })
+  ]);
+
+  if (!silent) setSocialStatus("Group opened.");
+
+  if (socialChatPollTimer) clearInterval(socialChatPollTimer);
+  socialChatPollTimer = setInterval(() => {
+    if (!socialState.activeGroupId) return;
+    loadGroupChat(socialState.activeGroupId, { silent: true }).catch(() => {});
+    loadGroupChallenges(socialState.activeGroupId, { silent: true }).catch(() => {});
+  }, SOCIAL_POLL_MS);
+}
+
+async function createGroup() {
+  const name = String(document.getElementById("groupNameInput")?.value || "").trim();
+  const visibility = String(document.getElementById("groupVisibilityInput")?.value || "private").trim();
+  const memberLimit = Number(document.getElementById("groupLimitInput")?.value || 20);
+
+  if (!name) {
+    setSocialStatus("Enter group name first.", true);
+    return;
+  }
+
+  try {
+    setSocialStatus("Creating group...");
+    await socialRequest("/api/social/groups/create", "POST", {
+      userKey: getUserKey(),
+      displayName: getSocialDisplayName(),
+      name,
+      visibility,
+      memberLimit
+    });
+    document.getElementById("groupNameInput").value = "";
+    await loadMyGroups({ silent: true });
+    await loadDiscoverGroups({ silent: true });
+    setSocialStatus("Group created.");
+  } catch (err) {
+    console.error("createGroup error:", err);
+    setSocialStatus(err.message || "Could not create group", true);
+  }
+}
+
+async function joinGroupByInvite(inviteCode) {
+  const code = String(inviteCode || "").trim().toUpperCase();
+  if (!code) {
+    setSocialStatus("Enter invite code first.", true);
+    return;
+  }
+
+  try {
+    setSocialStatus("Joining group...");
+    const data = await socialRequest("/api/social/groups/join", "POST", {
+      userKey: getUserKey(),
+      displayName: getSocialDisplayName(),
+      inviteCode: code
+    });
+    const joinInput = document.getElementById("joinInviteInput");
+    if (joinInput) joinInput.value = "";
+    await loadMyGroups({ silent: true });
+    await loadDiscoverGroups({ silent: true });
+    await openGroupById(data.group?.id, { silent: true });
+    setSocialStatus("Joined successfully.");
+  } catch (err) {
+    console.error("joinGroupByInvite error:", err);
+    setSocialStatus(err.message || "Could not join group", true);
+  }
+}
+
+async function sendChatMessage() {
+  const groupId = socialState.activeGroupId;
+  const input = document.getElementById("groupChatInput");
+  const text = String(input?.value || "").trim();
+
+  if (!groupId) {
+    setSocialStatus("Open a group first.", true);
+    return;
+  }
+  if (!text) return;
+
+  try {
+    await socialRequest(`/api/social/groups/${encodeURIComponent(groupId)}/chat`, "POST", {
+      userKey: getUserKey(),
+      displayName: getSocialDisplayName(),
+      text
+    });
+    if (input) input.value = "";
+    await loadGroupChat(groupId, { silent: true });
+  } catch (err) {
+    console.error("sendChatMessage error:", err);
+    setSocialStatus(err.message || "Could not send message", true);
+  }
+}
+
+async function createChallenge() {
+  const groupId = socialState.activeGroupId;
+  if (!groupId) {
+    setSocialStatus("Open a group first.", true);
+    return;
+  }
+
+  const title = String(document.getElementById("challengeTitleInput")?.value || "").trim();
+  const questionCount = Number(document.getElementById("challengeQInput")?.value || 5);
+  const timeLimitMin = Number(document.getElementById("challengeTimeInput")?.value || 15);
+
+  if (!title) {
+    setSocialStatus("Enter challenge title.", true);
+    return;
+  }
+
+  try {
+    await socialRequest(`/api/social/groups/${encodeURIComponent(groupId)}/challenges`, "POST", {
+      userKey: getUserKey(),
+      displayName: getSocialDisplayName(),
+      title,
+      questionCount,
+      timeLimitMin
+    });
+
+    const titleInput = document.getElementById("challengeTitleInput");
+    if (titleInput) titleInput.value = "";
+
+    await loadGroupChallenges(groupId, { silent: true });
+    await loadGroupChat(groupId, { silent: true });
+    setSocialStatus("Challenge posted.");
+  } catch (err) {
+    console.error("createChallenge error:", err);
+    setSocialStatus(err.message || "Could not create challenge", true);
+  }
+}
+
+async function submitChallengeAttempt() {
+  const groupId = socialState.activeGroupId;
+  const challengeId = String(document.getElementById("challengeSelectInput")?.value || "").trim();
+  const score = Number(document.getElementById("challengeScoreInput")?.value || 0);
+  const total = Number(document.getElementById("challengeTotalInput")?.value || 100);
+  const timeTakenSec = Number(document.getElementById("challengeTimeTakenInput")?.value || 0);
+
+  if (!groupId || !challengeId) {
+    setSocialStatus("Select group and challenge first.", true);
+    return;
+  }
+
+  try {
+    await socialRequest(`/api/social/groups/${encodeURIComponent(groupId)}/challenges/${encodeURIComponent(challengeId)}/attempt`, "POST", {
+      userKey: getUserKey(),
+      displayName: getSocialDisplayName(),
+      score,
+      total,
+      timeTakenSec
+    });
+    await loadChallengeResults(groupId, challengeId, { silent: true });
+    await loadGroupChallenges(groupId, { silent: true });
+    setSocialStatus("Attempt submitted.");
+  } catch (err) {
+    console.error("submitChallengeAttempt error:", err);
+    setSocialStatus(err.message || "Could not submit attempt", true);
+  }
+}
+
+async function loadNotifications({ silent = false } = {}) {
+  try {
+    const data = await socialRequest(`/api/social/notifications/${encodeURIComponent(getUserKey())}`);
+    renderNotifications(Array.isArray(data.notifications) ? data.notifications : []);
+    if (!silent) setSocialStatus("Notifications synced.");
+  } catch (err) {
+    console.error("loadNotifications error:", err);
+    if (!silent) setSocialStatus(err.message || "Could not load notifications", true);
+  }
+}
+
+async function markAllNotificationsRead() {
+  try {
+    await socialRequest(`/api/social/notifications/${encodeURIComponent(getUserKey())}/read-all`, "POST", {});
+    await loadNotifications({ silent: true });
+    setSocialStatus("All notifications marked as read.");
+  } catch (err) {
+    console.error("markAllNotificationsRead error:", err);
+    setSocialStatus(err.message || "Could not mark notifications", true);
+  }
+}
+
+function initSocialFeatures() {
+  const myGroups = document.getElementById("myGroupsList");
+  if (!myGroups) return;
+
+  const createBtn = document.getElementById("createGroupBtn");
+  if (createBtn) {
+    createBtn.addEventListener("click", function () {
+      createGroup();
+    });
+  }
+
+  const joinBtn = document.getElementById("joinGroupBtn");
+  if (joinBtn) {
+    joinBtn.addEventListener("click", function () {
+      const code = document.getElementById("joinInviteInput")?.value;
+      joinGroupByInvite(code);
+    });
+  }
+
+  const chatBtn = document.getElementById("sendGroupMsgBtn");
+  if (chatBtn) {
+    chatBtn.addEventListener("click", function () {
+      sendChatMessage();
+    });
+  }
+
+  const chatInput = document.getElementById("groupChatInput");
+  if (chatInput) {
+    chatInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sendChatMessage();
+      }
+    });
+  }
+
+  const challengeBtn = document.getElementById("createChallengeBtn");
+  if (challengeBtn) {
+    challengeBtn.addEventListener("click", function () {
+      createChallenge();
+    });
+  }
+
+  const submitAttemptBtn = document.getElementById("submitChallengeAttemptBtn");
+  if (submitAttemptBtn) {
+    submitAttemptBtn.addEventListener("click", function () {
+      submitChallengeAttempt();
+    });
+  }
+
+  const challengeSelect = document.getElementById("challengeSelectInput");
+  if (challengeSelect) {
+    challengeSelect.addEventListener("change", function () {
+      if (!socialState.activeGroupId) return;
+      loadChallengeResults(socialState.activeGroupId, challengeSelect.value, { silent: true }).catch(() => {});
+    });
+  }
+
+  const markReadBtn = document.getElementById("markAllNotifsReadBtn");
+  if (markReadBtn) {
+    markReadBtn.addEventListener("click", function () {
+      markAllNotificationsRead();
+    });
+  }
+
+  myGroups.addEventListener("click", async function (event) {
+    const button = event.target.closest("button[data-action][data-group-id],button[data-action][data-code]");
+    if (!button) return;
+
+    const action = String(button.dataset.action || "");
+    if (action === "open") {
+      await openGroupById(String(button.dataset.groupId || ""));
+      return;
+    }
+
+    if (action === "copy") {
+      const code = String(button.dataset.code || "");
+      if (!code) return;
+      try {
+        await navigator.clipboard.writeText(code);
+        setSocialStatus(`Invite copied: ${code}`);
+      } catch {
+        setSocialStatus(`Invite code: ${code}`);
+      }
+    }
+  });
+
+  const discoverList = document.getElementById("discoverGroupsList");
+  if (discoverList) {
+    discoverList.addEventListener("click", async function (event) {
+      const button = event.target.closest("button[data-action][data-group-id],button[data-action][data-code]");
+      if (!button) return;
+
+      const action = String(button.dataset.action || "");
+      if (action === "open") {
+        await openGroupById(String(button.dataset.groupId || ""));
+      } else if (action === "join-code") {
+        await joinGroupByInvite(String(button.dataset.code || ""));
+      }
+    });
+  }
+
+  const challengeList = document.getElementById("challengeList");
+  if (challengeList) {
+    challengeList.addEventListener("click", async function (event) {
+      const button = event.target.closest("button[data-action='view-results'][data-challenge-id]");
+      if (!button || !socialState.activeGroupId) return;
+      const challengeId = String(button.dataset.challengeId || "");
+      const select = document.getElementById("challengeSelectInput");
+      if (select && challengeId) select.value = challengeId;
+      await loadChallengeResults(socialState.activeGroupId, challengeId);
+    });
+  }
+
+  loadMyGroups({ silent: true });
+  loadDiscoverGroups({ silent: true });
+  loadNotifications({ silent: true });
+
+  if (socialNotifPollTimer) clearInterval(socialNotifPollTimer);
+  socialNotifPollTimer = setInterval(function () {
+    loadNotifications({ silent: true }).catch(() => {});
+  }, SOCIAL_POLL_MS);
 }

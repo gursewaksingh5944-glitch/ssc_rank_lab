@@ -11,6 +11,7 @@ const userRoute = require("./routes/user");
 const testRoute = require("./routes/test");
 const questionsRoute = require("./routes/questions");
 const goalsRoute = require("./routes/goals");
+const socialRoute = require("./routes/social");
 
 const app = express();
 app.set("trust proxy", true);
@@ -109,12 +110,19 @@ app.use("/api/user", userRoute);
 app.use("/api/test", testRoute);
 app.use("/api/questions", questionsRoute);
 app.use("/api/goals", goalsRoute);
+app.use("/api/social", socialRoute);
+
+// Force legacy index paths to the main app preview homepage.
+app.get(["/index", "/index.html"], (req, res) => {
+  return res.redirect(302, "/");
+});
 
 
 // ===============================
 // STATIC FILES
 // ===============================
 app.use(express.static(publicPath, {
+  index: false,
   setHeaders: (res, filePath) => {
     const lower = String(filePath || "").toLowerCase();
 
@@ -135,12 +143,12 @@ app.get("/", (req, res) => {
   res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   res.setHeader("Pragma", "no-cache");
   res.setHeader("Expires", "0");
-  return res.sendFile(path.join(publicPath, "index.html"));
+  return res.sendFile(path.join(publicPath, "app-preview.html"));
 });
 
 // Legacy premium CTA links used /predict. Redirect to the pricing section.
 app.get("/predict", (req, res) => {
-  return res.redirect(302, "/index.html#pricing");
+  return res.redirect(302, "/");
 });
 
 

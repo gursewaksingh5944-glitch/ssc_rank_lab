@@ -1,0 +1,2145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SSCRankLab App Preview</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --ink: #0f172a;
+      --muted: #5b6475;
+      --panel: #ffffff;
+      --line: #d6dde8;
+      --brand: #0f766e;
+      --brand-2: #0e7490;
+      --accent: #1d4ed8;
+      --warn: #b45309;
+      --ok: #047857;
+      --shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(14, 116, 144, 0.16), transparent 38%),
+        radial-gradient(circle at 90% 2%, rgba(29, 78, 216, 0.13), transparent 32%),
+        var(--bg);
+      color: var(--ink);
+      font-family: "Plus Jakarta Sans", sans-serif;
+      min-height: 100vh;
+    }
+
+    .app-shell {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 16px;
+    }
+
+    .sidebar {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 36px);
+      position: sticky;
+      top: 18px;
+    }
+
+    .brand {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 30px;
+      line-height: 1;
+      margin-bottom: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(120deg, #0f766e 0%, #0e7490 45%, #1d4ed8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 12px 34px rgba(15, 118, 110, 0.18);
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0f766e, #1d4ed8);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: 0 12px 26px rgba(15, 118, 110, 0.28);
+    }
+
+    .brand-text {
+      letter-spacing: 0.01em;
+    }
+
+    .identity {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      background: linear-gradient(135deg, #f0fdfa, #eef2ff);
+      margin-bottom: 14px;
+    }
+
+    .identity h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .identity p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .identity .private-note {
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 10px;
+      background: #fffbeb;
+      color: #92400e;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid #fcd34d;
+    }
+
+    .nav {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .nav button {
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: transparent;
+      color: #1e293b;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 10px 12px;
+      cursor: pointer;
+    }
+
+    .nav button.active {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1d4ed8;
+    }
+
+    .side-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #f8fafc;
+      margin-top: auto;
+    }
+
+    .side-card .k {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: .04em;
+    }
+
+    .side-card .v {
+      margin-top: 4px;
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .main {
+      display: grid;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .topbar {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .top-left h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .top-left p {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid #bfdbfe;
+      padding: 7px 11px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .panel {
+      display: none;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-height: 560px;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .grid {
+      margin-top: 16px;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: linear-gradient(150deg, #ffffff, #f8fafc);
+    }
+
+    .stat .k {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: .05em;
+      color: var(--muted);
+    }
+
+    .stat .v {
+      margin-top: 5px;
+      font-size: 23px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .stat .s {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #0f766e;
+      font-weight: 700;
+    }
+
+    .hero-insight {
+      margin-top: 16px;
+      border: 1px solid #99f6e4;
+      border-radius: 16px;
+      padding: 14px;
+      background: linear-gradient(120deg, #ecfeff, #f0fdfa 45%, #eff6ff);
+      box-shadow: 0 16px 30px rgba(15, 118, 110, 0.12);
+    }
+
+    .hero-insight .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #99f6e4;
+      border-radius: 999px;
+      background: #ccfbf1;
+      color: #115e59;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+    }
+
+    .hero-insight h3 {
+      margin: 10px 0 0;
+      font-size: 24px;
+      line-height: 1.25;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .hero-insight p {
+      margin: 7px 0 0;
+      font-size: 13px;
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    .hero-insight .mini-grid {
+      margin-top: 10px;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .hero-insight .mini-item {
+      border: 1px solid #bae6fd;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 9px;
+    }
+
+    .hero-insight .mini-item .k {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #64748b;
+      font-weight: 800;
+    }
+
+    .hero-insight .mini-item .v {
+      margin-top: 4px;
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .home-layout {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .feed {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .feed-item {
+      border: 1px solid #dbeafe;
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 8px;
+      font-size: 13px;
+      color: #1e3a8a;
+      font-weight: 600;
+    }
+
+    .group-layout {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 250px 1fr 280px;
+      gap: 10px;
+    }
+
+    .group-col {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px;
+      min-height: 420px;
+    }
+
+    .group-list {
+      display: grid;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .group-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px;
+      background: #f8fafc;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .group-item.active {
+      border-color: #a5b4fc;
+      background: #eef2ff;
+      color: #3730a3;
+    }
+
+    .join-box {
+      margin-top: 10px;
+      border: 1px dashed #94a3b8;
+      border-radius: 10px;
+      padding: 8px;
+    }
+
+    .join-box input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      margin-top: 6px;
+      font-size: 13px;
+    }
+
+    .join-box button {
+      margin-top: 8px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      padding: 8px;
+      background: var(--brand);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .chat {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+      max-height: 300px;
+      overflow: auto;
+      padding-right: 3px;
+    }
+
+    .msg {
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      padding: 8px;
+      background: #f8fafc;
+      font-size: 13px;
+    }
+
+    .msg b {
+      color: #1e3a8a;
+    }
+
+    .msg.challenge {
+      border-color: #fcd34d;
+      background: #fffbeb;
+    }
+
+    .chat-compose {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    .chat-compose input {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 9px;
+      font-size: 13px;
+    }
+
+    .chat-compose button {
+      border: none;
+      border-radius: 9px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      padding: 0 12px;
+      cursor: pointer;
+    }
+
+    .members {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .member {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px;
+      background: #fff;
+    }
+
+    .member .name {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .member .meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .member .meta strong {
+      color: #0f172a;
+    }
+
+    .plans-grid {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .plan {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .plan .name {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--brand-2);
+    }
+
+    .plan .price {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .plan ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #334155;
+      font-size: 13px;
+      display: grid;
+      gap: 5px;
+    }
+
+    .plan button {
+      border: none;
+      border-radius: 10px;
+      padding: 9px;
+      background: var(--brand);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tools-grid {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .progress-chart-shell {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(145deg, #ffffff, #f8fafc);
+      padding: 12px;
+    }
+
+    .progress-chart-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .progress-chart-head h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .chart-toggle-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .chart-toggle {
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      padding: 5px 10px;
+      background: #fff;
+      color: #334155;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .chart-toggle.active {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: #1d4ed8;
+    }
+
+    .chart-canvas-wrap {
+      margin-top: 12px;
+      height: 290px;
+      position: relative;
+    }
+
+    .progress-mini-grid {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+    }
+
+    .mini-metric {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 8px;
+    }
+
+    .mini-metric .k {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 800;
+      letter-spacing: .05em;
+    }
+
+    .mini-metric .v {
+      margin-top: 4px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .tool {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+      min-height: 160px;
+      display: grid;
+      align-content: space-between;
+    }
+
+    .tool h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .tool p {
+      margin: 8px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .tool button {
+      margin-top: 12px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      border-radius: 9px;
+      padding: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .admin-shell {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .admin-grid {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 8px;
+    }
+
+    .admin-field {
+      display: grid;
+      gap: 4px;
+    }
+
+    .admin-field label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .admin-field input,
+    .admin-field select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 13px;
+    }
+
+    .admin-actions {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .admin-actions button {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    .admin-actions button.primary {
+      background: #1d4ed8;
+      color: #fff;
+    }
+
+    .admin-actions button.warn {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .admin-status {
+      margin-top: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      min-height: 18px;
+    }
+
+    .review-list {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+      max-height: 300px;
+      overflow: auto;
+    }
+
+    .review-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px;
+      background: #f8fafc;
+      display: grid;
+      gap: 6px;
+    }
+
+    .review-item-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .review-meta {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .review-q {
+      font-size: 13px;
+      color: #0f172a;
+      font-weight: 600;
+    }
+
+    .review-item-actions {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .review-item-actions button {
+      border: none;
+      border-radius: 8px;
+      padding: 6px 9px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .review-item-actions .approve {
+      background: #16a34a;
+      color: #fff;
+    }
+
+    .review-item-actions .reject {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .admin-stats {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 6px;
+    }
+
+    .admin-stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .notif-drawer {
+      display: none;
+      position: fixed;
+      top: 78px;
+      right: 18px;
+      width: min(390px, calc(100vw - 32px));
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      z-index: 70;
+      padding: 10px;
+    }
+
+    .notif-drawer.open {
+      display: block;
+    }
+
+    .notif-drawer h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .notif-list {
+      margin-top: 10px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .notif-item {
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      border-radius: 9px;
+      padding: 8px;
+      font-size: 12px;
+      color: #1e3a8a;
+      font-weight: 600;
+    }
+
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      z-index: 60;
+      padding: 6px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+    }
+
+    .mobile-nav button {
+      border: none;
+      background: transparent;
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      padding: 7px 4px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .mobile-nav button.active {
+      background: #ecfeff;
+      color: #0e7490;
+    }
+
+    @media (max-width: 1120px) {
+      .group-layout {
+        grid-template-columns: 220px 1fr;
+      }
+
+      .group-layout .group-col:last-child {
+        grid-column: span 2;
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 930px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+        padding-bottom: 74px;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .mobile-nav {
+        display: grid;
+      }
+
+      .home-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .group-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .group-layout .group-col:last-child {
+        grid-column: auto;
+      }
+    }
+
+    /* ==============================
+       SHARED UTILITY CLASSES
+       ============================== */
+    .hidden{display:none !important;}
+
+    /* Goal Modal */
+    .goal-modal-overlay{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);}
+    .goal-modal-inner{background:#fff;border-radius:24px;box-shadow:0 32px 80px rgba(0,0,0,.2);padding:32px;max-width:520px;width:100%;margin:0 16px;max-height:90vh;overflow-y:auto;}
+    .goal-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px;}
+    .goal-form-grid label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:4px;text-transform:uppercase;letter-spacing:.02em;}
+    .goal-form-grid select,.goal-form-grid input{width:100%;border:1px solid #d1d5db;border-radius:12px;padding:10px 12px;font-size:14px;outline:none;}
+    .goal-form-grid select:focus,.goal-form-grid input:focus{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(59,130,246,.15);}
+
+    /* Upgrade Modal */
+    .upgrade-modal-overlay{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);}
+    .upgrade-modal-inner{background:#fff;border-radius:24px;box-shadow:0 32px 80px rgba(0,0,0,.25);padding:28px;max-width:480px;width:100%;margin:0 16px;max-height:90vh;overflow-y:auto;}
+    .upgrade-feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0;}
+    .upgrade-feature-item{border:1px solid #e0e7ff;background:#eef2ff;border-radius:12px;padding:10px;font-size:12px;font-weight:700;color:#3730a3;}
+
+    /* Today Action Shell */
+    .today-action-shell{margin-top:11px;border:1px solid #a7f3d0;border-radius:16px;background:linear-gradient(120deg,#ecfdf5,#ffffff 58%,#eff6ff);padding:12px;}
+    .today-action-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+    .today-action-title{font-size:12px;text-transform:uppercase;letter-spacing:.04em;font-weight:900;color:#065f46;}
+    .today-action-gain{font-size:12px;font-weight:800;color:#1d4ed8;border:1px solid #bfdbfe;background:#eff6ff;border-radius:999px;padding:4px 10px;}
+    .today-action-list{margin:8px 0 0;padding-left:18px;color:#0f172a;font-size:13px;line-height:1.65;font-weight:700;}
+
+    /* Goal Reminder */
+    .goal-reminder-shell{margin-top:11px;}
+    .goal-reminder-badge{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;border-radius:16px;border:1px solid #fcd34d;background:linear-gradient(120deg,#fef3c7,#fffbeb);}
+    .goal-reminder-left{display:flex;align-items:center;gap:10px;min-width:0;}
+    .goal-reminder-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:#f59e0b;color:#fff;font-size:16px;}
+    .goal-reminder-text{min-width:0;}
+    .goal-reminder-title{font-size:11px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#92400e;}
+    .goal-reminder-meta{margin-top:2px;font-size:14px;font-weight:900;color:#7c2d12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .goal-reminder-sub{margin-top:2px;font-size:12px;font-weight:700;color:#b45309;overflow:hidden;text-overflow:ellipsis;}
+    .goal-reminder-btn{border:none;border-radius:999px;background:#1d4ed8;color:#fff;font-size:12px;font-weight:800;padding:8px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+
+    /* Daily Target Frame */
+    .daily-target-frame{margin-top:10px;border:1px solid #bfdbfe;background:linear-gradient(140deg,#eff6ff,#ffffff);border-radius:14px;padding:12px;}
+    .daily-target-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px;}
+    .daily-target-item{border:1px solid #dbeafe;background:#ffffffd9;border-radius:12px;padding:10px;}
+    .daily-target-item .k{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:#475569;}
+    .daily-target-item .v{margin-top:4px;font-size:16px;font-weight:900;color:#0f172a;}
+
+    /* Marks Entry Form */
+    .marks-form{border:1px solid #a7f3d0;background:linear-gradient(135deg,#ecfdf5,#ffffff);border-radius:16px;padding:14px;margin-bottom:14px;}
+    .marks-form h3{margin:0 0 10px;font-size:16px;font-weight:900;color:#065f46;}
+    .marks-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;}
+    .marks-form input[type=date],.marks-form-grid input{border:1px solid #cbd5e1;background:#fff;padding:10px 12px;border-radius:12px;font-size:14px;outline:none;width:100%;}
+    .marks-form input[type=date]:focus,.marks-form-grid input:focus{border-color:#34d399;box-shadow:0 0 0 3px rgba(52,211,153,.15);}
+    .marks-form input[type=date]{margin-bottom:9px;grid-column:span 3;}
+    .save-marks-btn{width:100%;margin-top:10px;border:none;border-radius:12px;background:#059669;color:#fff;font-size:14px;font-weight:800;padding:11px;cursor:pointer;}
+    .save-marks-btn:hover{background:#047857;}
+
+    /* Benchmark Shell */
+    .benchmark-shell{border:1px solid #bfdbfe;background:#eff6ff;border-radius:16px;padding:14px;margin-bottom:14px;}
+    .benchmark-shell h3{margin:0 0 10px;font-size:15px;font-weight:900;color:#1e3a8a;}
+    .benchmark-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px;}
+    .benchmark-grid input,.benchmark-grid select{width:100%;border:1px solid #cbd5e1;background:#fff;padding:9px 12px;border-radius:12px;outline:none;font-size:13px;}
+    .review-grid{margin-top:10px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+    .review-card{border:1px solid #bfdbfe;background:#ffffffcc;border-radius:12px;padding:10px;}
+    .review-card .k{color:#475569;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;}
+    .review-card .v{margin-top:4px;color:#0f172a;font-size:18px;font-weight:900;}
+
+    /* Quick Stats Row */
+    .quick-stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+    .quick-stat-box{border:1px solid #dbeafe;background:#ffffffcc;border-radius:12px;padding:10px;}
+    .quick-stat-box .k{font-size:11px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:.02em;}
+    .quick-stat-box .v{margin-top:4px;font-size:20px;color:#0f172a;font-weight:900;}
+    .streak-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:linear-gradient(90deg,#f59e0b,#f97316);color:#fff;font-weight:800;font-size:12px;}
+
+    /* Chart Box */
+    .chart-box{border:1px solid #dbeafe;border-radius:14px;background:#ffffffcc;padding:12px;margin-top:10px;}
+    .chart-box canvas{width:100% !important;height:220px !important;}
+    .chart-box h4{margin:0 0 8px;font-size:14px;font-weight:800;color:#0f172a;}
+
+    /* Weekly Report */
+    .report-shell{border:1px solid #dbeafe;border-radius:16px;background:#ffffffcc;padding:14px;margin-bottom:14px;}
+    .report-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-top:10px;}
+    .report-stat .k{font-size:11px;text-transform:uppercase;letter-spacing:.02em;color:#64748b;font-weight:700;}
+    .report-stat .v{font-size:18px;font-weight:900;color:#0f172a;margin-top:4px;}
+
+    /* QLA / Question Lab */
+    .qlab-shell{border-radius:16px;border:1px solid #c7d2fe;background:linear-gradient(130deg,#eef2ff 0%,#ffffff 45%,#f8fafc 100%);padding:16px;}
+    .qlab-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+    .qlab-controls select,.qlab-controls input{width:100%;border:1px solid #cbd5e1;border-radius:12px;background:#fff;padding:9px 12px;outline:none;font-size:13px;}
+    .qlab-actions{margin-top:9px;display:flex;gap:9px;flex-wrap:wrap;}
+    .qlab-list{margin-top:12px;display:grid;gap:10px;}
+    .qlab-item{border:1px solid #dbeafe;border-radius:14px;padding:12px;background:#ffffffd9;}
+    .qlab-chip{display:inline-flex;align-items:center;font-size:11px;font-weight:700;color:#3730a3;background:#e0e7ff;padding:3px 7px;border-radius:999px;margin-right:5px;}
+
+    /* Rank Predictor */
+    .predictor-box{border:1px solid #c7d2fe;background:#ffffffd9;border-radius:16px;padding:14px;margin-bottom:14px;}
+    .predictor-inputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:10px;}
+    .predictor-inputs input,.predictor-inputs select{border:1px solid #cbd5e1;background:#fff;padding:9px 12px;border-radius:12px;font-size:13px;outline:none;}
+
+    /* Payment Status Toast */
+    #paymentStatus{position:fixed;top:80px;right:16px;z-index:60;max-width:340px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 8px 32px rgba(0,0,0,.15);border-radius:16px;padding:12px 16px;}
+
+    /* ==============================
+       HOOK ZONE — dark outcome panel
+       ============================== */
+    .hz-zone{background:#0f172a;margin:-18px -18px 16px -18px;border-radius:16px 16px 0 0;padding:16px 18px 14px;}
+    .hz-headline-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:11px;}
+    .hz-headline-text{font-size:16px;font-weight:900;color:#f1f5f9;line-height:1.3;}
+    .hz-setup-btn{margin-left:auto;padding:5px 14px;border-radius:999px;background:#3b82f6;color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+    .hz-setup-btn:hover{background:#2563eb;}
+    .hz-cards{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:11px;margin-bottom:10px;}
+    .hz-card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:14px 16px;}
+    .hz-card-eyebrow{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px;}
+    .hz-gap-hero{font-family:"Space Grotesk",sans-serif;font-size:66px;font-weight:900;line-height:1;background:linear-gradient(135deg,#fbbf24 0%,#f87171 60%,#ef4444 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block;}
+    .hz-gap-hero.hz-no-gap{background:linear-gradient(135deg,#34d399 0%,#4ade80 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hz-gap-unit{font-size:18px;font-weight:800;color:#94a3b8;vertical-align:super;margin-left:3px;-webkit-text-fill-color:#94a3b8;}
+    .hz-big-num{font-family:"Space Grotesk",sans-serif;font-size:48px;font-weight:900;line-height:1;}
+    .hz-big-num.hz-chance-high{color:#4ade80;}.hz-big-num.hz-chance-mid{color:#fbbf24;}.hz-big-num.hz-chance-low{color:#f87171;}
+    .hz-big-gain{color:#a78bfa;font-size:38px;font-family:"Space Grotesk",sans-serif;font-weight:900;line-height:1;}
+    .hz-card-meta{font-size:12px;color:#94a3b8;margin-top:8px;}
+    .hz-card-sub{font-size:12px;color:#64748b;margin-top:3px;}
+    .hz-card-zone{font-size:13px;font-weight:800;margin-top:8px;}
+    .hz-pace{font-size:11px;color:#64748b;margin-top:3px;}
+    .hz-confidence{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.03em;border:1px solid;}
+    .hz-confidence.high{background:#052e16;border-color:#16a34a;color:#4ade80;}
+    .hz-confidence.medium{background:#1c1917;border-color:#d97706;color:#fbbf24;}
+    .hz-confidence.low{background:#1a0a0a;border-color:#7f1d1d;color:#fca5a5;}
+    .hz-urgency{background:#1e293b;border:1px solid #475569;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .hz-urgency-icon{font-size:15px;flex-shrink:0;}
+    .hz-urgency-text{font-size:13px;font-weight:700;color:#f1f5f9;line-height:1.5;}
+    .hz-urgency-text.good{color:#4ade80;}.hz-urgency-text.warn{color:#fbbf24;}.hz-urgency-text.danger{color:#f87171;}
+    .hz-whatif{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:11px 14px;margin-bottom:10px;}
+    .hz-whatif-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:7px;}
+    .hz-whatif-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+    .hz-whatif-input{background:#0f172a;border:1px solid #475569;border-radius:9px;color:#f1f5f9;font-size:14px;font-weight:700;padding:7px 11px;width:90px;outline:none;font-family:"Space Grotesk",sans-serif;}
+    .hz-whatif-input:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.2);}
+    .hz-whatif-btn{background:#3b82f6;color:#fff;border:none;border-radius:9px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer;}
+    .hz-whatif-btn:hover{background:#2563eb;}
+    .hz-whatif-result{font-size:13px;font-weight:700;color:#a78bfa;min-height:18px;}
+    .hz-subjects{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px;}
+    .hz-subject{background:#1e293b;border:1px solid #334155;border-radius:11px;padding:9px 7px;text-align:center;}
+    .hz-subject.weak{border-color:#f87171;background:#1a0808;}
+    .hz-subject.strong{border-color:#4ade80;background:#081a08;}
+    .hz-subject-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#64748b;}
+    .hz-subject.weak .hz-subject-label{color:#fca5a5;}.hz-subject.strong .hz-subject-label{color:#86efac;}
+    .hz-subject-score{font-size:20px;font-weight:900;font-family:"Space Grotesk",sans-serif;color:#f1f5f9;margin-top:2px;}
+    .hz-subject-impact{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-top:3px;color:#94a3b8;}
+    .hz-subject.weak .hz-subject-impact{color:#f87171;}.hz-subject.strong .hz-subject-impact{color:#4ade80;}
+    #hzNotifToast{position:fixed;top:70px;right:14px;z-index:200;max-width:310px;background:#1e293b;border:1px solid #6366f1;border-radius:14px;padding:11px 14px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:none;animation:hzSlideIn .3s ease;}
+    @keyframes hzSlideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+    .hz-notif-icon{font-size:17px;flex-shrink:0;}
+    .hz-notif-msg{font-size:13px;font-weight:700;color:#f1f5f9;line-height:1.4;}
+    .hz-notif-close{background:none;border:none;color:#64748b;cursor:pointer;font-size:15px;padding:0;margin-left:auto;flex-shrink:0;}
+    @media(max-width:768px){
+      .hz-cards{grid-template-columns:1fr;}
+      .hz-subjects{grid-template-columns:repeat(3,1fr);}
+      .hz-gap-hero{font-size:48px;}
+      .hz-big-num{font-size:38px;}
+      .marks-form-grid{grid-template-columns:1fr 1fr;}
+      .benchmark-grid{grid-template-columns:1fr;}
+      .predictor-inputs{grid-template-columns:1fr;}
+      .quick-stats-row{grid-template-columns:1fr 1fr;}
+      .daily-target-grid{grid-template-columns:1fr;}
+      .review-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Smart notification toast -->
+  <div id="hzNotifToast" role="alert" aria-live="polite">
+    <div style="display:flex;align-items:flex-start;gap:10px;">
+      <span class="hz-notif-icon" id="hzNotifIcon">🔥</span>
+      <span class="hz-notif-msg" id="hzNotifMsg"></span>
+      <button class="hz-notif-close" id="hzNotifClose" aria-label="Close">&times;</button>
+    </div>
+  </div>
+
+  <!-- Payment Status Toast -->
+  <div id="paymentStatus" style="display:none;"></div>
+
+  <!-- Upgrade Modal -->
+  <div id="upgradeModal" class="upgrade-modal-overlay hidden" style="display:none;">
+    <div class="upgrade-modal-inner">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div>
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#6d28d9;">Premium Monthly Plan</div>
+          <h3 style="margin:4px 0 0;font-size:20px;font-weight:900;color:#111827;">Unlock Everything for ₹99/month</h3>
+        </div>
+        <button id="closeUpgradeModal" style="width:34px;height:34px;border-radius:50%;background:#f3f4f6;border:none;font-size:18px;cursor:pointer;font-weight:700;color:#374151;">&times;</button>
+      </div>
+      <div style="font-size:13px;color:#6b7280;margin-bottom:14px;">Daily tracker + full rank intelligence. Start with 2 days free.</div>
+      <div style="border:1px solid #fcd34d;background:#fffbeb;border-radius:16px;padding:14px;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:800;color:#92400e;">🎁 Try 2 Days FREE — No Card Needed</div>
+        <div style="font-size:12px;color:#b45309;margin-top:4px;">Full access instantly. ₹99/month after trial.</div>
+        <button id="upgradeModalTrialBtn" style="margin-top:10px;width:100%;padding:10px;border-radius:12px;background:#f59e0b;border:none;color:#fff;font-weight:800;font-size:14px;cursor:pointer;">Start Free 2-Day Trial →</button>
+      </div>
+      <div class="upgrade-feature-grid">
+        <div class="upgrade-feature-item">📊 Daily Marks Tracker</div>
+        <div class="upgrade-feature-item">🎯 Auto Cutoff by Post</div>
+        <div class="upgrade-feature-item">🔥 Streaks &amp; Benchmarks</div>
+        <div class="upgrade-feature-item">📅 Weekly Report Card</div>
+        <div class="upgrade-feature-item">📈 Full Rank Prediction</div>
+        <div class="upgrade-feature-item">🏅 Category Rank</div>
+        <div class="upgrade-feature-item">💯 Percentile Analysis</div>
+        <div class="upgrade-feature-item">🧠 What-if Rank Jumps</div>
+      </div>
+      <button id="upgradeModalPayBtn" style="width:100%;padding:14px;border-radius:16px;background:#6d28d9;border:none;color:#fff;font-weight:900;font-size:15px;cursor:pointer;margin-top:4px;">Subscribe ₹99/month via Razorpay →</button>
+      <div style="margin-top:8px;text-align:center;font-size:11px;color:#9ca3af;">Secure payment via Razorpay • Cancel anytime</div>
+    </div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">SR</span><span class="brand-text">SSCRankLab</span></div>
+      <div class="identity">
+        <h3>Rahul Singh</h3>
+        <p>SSC#4821 | 14 day streak</p>
+        <div class="private-note">Target post is private and visible only to you by default.</div>
+      </div>
+
+      <div class="nav">
+        <button class="active" data-panel="home">Home</button>
+        <button data-panel="progress">My Progress</button>
+        <button data-panel="groups">Groups</button>
+        <button data-panel="tools">Tools</button>
+        <button data-panel="plans">Plans</button>
+      </div>
+
+      <div class="side-card">
+        <div class="k">Current Goal</div>
+        <div class="v">Inspector (CGL)</div>
+        <div class="k" style="margin-top:8px;">Daily target</div>
+        <div class="v">146 marks</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="top-left">
+          <h1>Individual + Group Dashboard</h1>
+          <p>Cleaner layout. Fewer blocks. Strong focus on progress and group competition.</p>
+        </div>
+        <div class="top-actions">
+          <button id="notifToggle" class="pill">Notifications (4)</button>
+          <button class="pill" style="background:#ecfdf5;border-color:#a7f3d0;color:#047857;">Premium Active</button>
+        </div>
+      </header>
+
+      <section id="home" class="panel active">
+        <!-- Selection Intelligence: Hook Zone (dark) -->
+        <div class="hz-zone">
+          <div class="hz-headline-row">
+            <span id="hookHeadlineIcon">🎯</span>
+            <span class="hz-headline-text" id="hookHeadlineText">Loading your selection forecast...</span>
+            <button class="hz-setup-btn hidden" id="hookSetupGoalBtn">Setup Goal →</button>
+          </div>
+          <div class="hz-urgency" id="hzUrgencyBar">
+            <span class="hz-urgency-icon" id="hzUrgencyIcon">⏳</span>
+            <span class="hz-urgency-text" id="hzUrgencyText">Set your goal post to see urgency status.</span>
+          </div>
+          <div class="hz-cards">
+            <div class="hz-card" id="hzGapCard">
+              <div class="hz-card-eyebrow">⚠️ &nbsp;Marks to Safe Zone</div>
+              <div style="display:flex;align-items:flex-end;gap:4px;">
+                <span class="hz-gap-hero" id="hzMarksAway">--</span>
+                <span class="hz-gap-unit" id="hzMarksUnit">marks</span>
+              </div>
+              <div class="hz-card-meta" style="margin-top:10px;">Safe Score &nbsp;<strong style="color:#f1f5f9;"><span id="hzSafeScore">--</span></strong>&nbsp;·&nbsp;Cutoff &nbsp;<strong style="color:#94a3b8;"><span id="hzCutoffVal">--</span></strong></div>
+              <div class="hz-card-sub">Your avg: <span id="hzYourAvg">--</span></div>
+            </div>
+            <div class="hz-card">
+              <div class="hz-card-eyebrow">🎯 &nbsp;Selection Chance</div>
+              <div class="hz-big-num hz-chance-mid" id="hzSelChance">--</div>
+              <div class="hz-card-zone" id="hzZoneLabel" style="color:#94a3b8;"></div>
+              <div id="hzConfidenceChip" class="hz-confidence low" style="display:none;"></div>
+              <div class="hz-pace" id="hzDaysLabel">at current pace</div>
+            </div>
+            <div class="hz-card">
+              <div class="hz-card-eyebrow">📈 &nbsp;Daily Gain</div>
+              <div class="hz-big-gain" id="hzDailyGain">--</div>
+              <div class="hz-card-meta">marks / day</div>
+              <div class="hz-card-sub" id="hzDaysToGoal">-- days to safe zone</div>
+            </div>
+          </div>
+          <div class="hz-whatif" id="hzWhatifBox">
+            <div class="hz-whatif-label">🔮 &nbsp;What-If — if I score X today?</div>
+            <div class="hz-whatif-row">
+              <input type="number" class="hz-whatif-input" id="hzWhatifInput" placeholder="Try: 145" min="0" max="250" />
+              <button class="hz-whatif-btn" id="hzWhatifBtn">Simulate →</button>
+              <span class="hz-whatif-result" id="hzWhatifResult"></span>
+            </div>
+          </div>
+          <div class="hz-subjects" id="hzSubjectGrid"></div>
+        </div>
+
+        <!-- Goal Reminder + Quick Stats -->
+        <div id="goalReminderWrap" class="goal-reminder-shell hidden">
+          <div class="goal-reminder-badge">
+            <div class="goal-reminder-left">
+              <span class="goal-reminder-icon">🎯</span>
+              <div class="goal-reminder-text">
+                <div class="goal-reminder-title">Goal Reminder</div>
+                <div id="goalReminderMain" class="goal-reminder-meta">Set your dream post</div>
+                <div id="goalReminderSub" class="goal-reminder-sub">Target post and cutoff appear here.</div>
+              </div>
+            </div>
+            <button id="goalReminderBtn" type="button" class="goal-reminder-btn">Update Goal</button>
+          </div>
+        </div>
+
+        <div class="daily-target-frame">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:#1d4ed8;">Daily Target Score</div>
+            <button id="topOpenGoalBtn" style="padding:7px 14px;border-radius:12px;background:#2563eb;border:none;color:#fff;font-size:12px;font-weight:800;cursor:pointer;">Update Goal</button>
+          </div>
+          <div class="daily-target-grid">
+            <div class="daily-target-item"><div class="k">Target Post</div><div class="v" id="topGoalPost">Not set</div></div>
+            <div class="daily-target-item"><div class="k">Auto Cutoff</div><div class="v" id="topGoalAutoCutoff">--</div></div>
+            <div class="daily-target-item"><div class="k">Target Score</div><div class="v" id="topGoalTargetScore">--</div></div>
+          </div>
+        </div>
+
+        <!-- Quick Stats Row -->
+        <div class="quick-stats-row" style="margin-top:11px;">
+          <div class="quick-stat-box"><div class="k">Latest Total</div><div class="v" id="latestTotalStat">--</div></div>
+          <div class="quick-stat-box"><div class="k">7-Day Average</div><div class="v" id="avg7Stat">--</div></div>
+          <div class="quick-stat-box"><div class="k">Streak</div><div id="streakDisplay" style="margin-top:5px;"></div></div>
+        </div>
+
+        <!-- Today's Action Plan -->
+        <div class="today-action-shell">
+          <div class="today-action-head">
+            <div class="today-action-title" id="todayActionTitle">Today's Focus Plan</div>
+            <div class="today-action-gain" id="todayActionGain">Expected gain: --</div>
+          </div>
+          <ul class="today-action-list" id="todayActionList">
+            <li>Add today's marks to generate your action plan.</li>
+          </ul>
+        </div>
+
+        <!-- Group Signals -->
+        <div class="card" style="margin-top:11px;">
+          <h3>Group Signals</h3>
+          <div class="feed">
+            <div class="feed-item">Top score today: <span id="groupTopScore">—</span></div>
+            <div class="feed-item">Your rank this week: <span id="groupYourRank">—</span></div>
+            <div class="feed-item">Gap to group median: <span id="groupMedianGap">—</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="progress" class="panel">
+        <h2>My Progress</h2>
+        <p class="subtitle">Track daily marks, review benchmark gap, and build weekly clarity.</p>
+
+        <!-- Add Daily Marks -->
+        <div class="marks-form">
+          <h3>📝 Add Today's Marks</h3>
+          <input type="date" id="testDate" style="width:100%;border:1px solid #cbd5e1;background:#fff;padding:10px 12px;border-radius:12px;font-size:14px;outline:none;margin-bottom:9px;box-sizing:border-box;" />
+          <div class="marks-form-grid">
+            <input type="number" id="quantMarks"     placeholder="Quant (0–50)"     min="0" max="50" />
+            <input type="number" id="englishMarks"   placeholder="English (0–50)"   min="0" max="50" />
+            <input type="number" id="reasoningMarks" placeholder="Reasoning (0–50)" min="0" max="50" />
+            <input type="number" id="gkMarks"        placeholder="GK (0–50)"        min="0" max="50" />
+            <input type="number" id="computerMarks"  placeholder="Computer (0–50)"  min="0" max="50" />
+          </div>
+          <button id="saveMarksBtn" class="save-marks-btn">Save Marks</button>
+          <div id="progressStatus" style="margin-top:7px;font-size:13px;font-weight:700;color:#1e40af;min-height:18px;"></div>
+        </div>
+
+        <!-- Benchmark Control -->
+        <div class="benchmark-shell">
+          <h3>Benchmark Control</h3>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <span style="font-size:12px;color:#3b82f6;font-weight:700;">Set your daily score goal against cutoff</span>
+            <span id="benchmarkStatusText" style="font-size:12px;font-weight:700;color:#0f766e;"></span>
+          </div>
+          <div class="benchmark-grid">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:4px;text-transform:uppercase;">Mode</label>
+              <select id="benchmarkMode">
+                <option value="manual_overall">Manual Overall Target</option>
+                <option value="manual_subject">Manual Subject-wise</option>
+                <option value="cutoff_plus_5">Previous Cutoff +5</option>
+                <option value="cutoff_plus_7">Previous Cutoff +7</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:4px;text-transform:uppercase;">Previous Cutoff</label>
+              <input id="previousCutoffInput" type="number" min="0" max="250" placeholder="e.g. 128" />
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;color:#475569;margin-bottom:4px;text-transform:uppercase;">Overall Target</label>
+              <input id="overallTargetInput" type="number" min="0" max="250" placeholder="e.g. 140" />
+            </div>
+            <div id="subjectTargetsBox" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+              <input id="quantTargetInput"     type="number" min="0" max="50" placeholder="Quant" />
+              <input id="englishTargetInput"   type="number" min="0" max="50" placeholder="English" />
+              <input id="reasoningTargetInput" type="number" min="0" max="50" placeholder="Reasoning" />
+              <input id="gkTargetInput"        type="number" min="0" max="50" placeholder="GK" />
+              <input id="computerTargetInput"  type="number" min="0" max="50" placeholder="Computer" />
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <button id="saveBenchmarkBtn" style="padding:9px 18px;border-radius:12px;background:#0891b2;border:none;color:#fff;font-size:13px;font-weight:800;cursor:pointer;">Save Benchmark</button>
+          </div>
+          <div class="review-grid" style="margin-top:10px;">
+            <div class="review-card"><div class="k">Today Status</div><div class="v" id="todayStatusValue">--</div></div>
+            <div class="review-card"><div class="k">Overall Gap</div><div class="v" id="overallGapValue">--</div></div>
+            <div class="review-card"><div class="k">Priority Subject</div><div class="v" id="prioritySubjectValue">--</div></div>
+          </div>
+        </div>
+
+        <!-- Progress Charts -->
+        <div class="progress-chart-shell">
+          <div class="progress-chart-head">
+            <h3>Overall + Subject Trend</h3>
+            <div class="chart-toggle-wrap" id="progressChartToggles">
+              <button type="button" class="chart-toggle active" data-dataset="overall">Overall</button>
+              <button type="button" class="chart-toggle active" data-dataset="quant">Quant</button>
+              <button type="button" class="chart-toggle active" data-dataset="english">English</button>
+              <button type="button" class="chart-toggle active" data-dataset="reasoning">Reasoning</button>
+              <button type="button" class="chart-toggle active" data-dataset="gk">GK</button>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="progressChart"></canvas>
+          </div>
+          <div class="progress-mini-grid">
+            <div class="mini-metric"><div class="k">Latest Total</div><div class="v" id="latestTotalStat2">--</div></div>
+            <div class="mini-metric"><div class="k">7-Day Avg</div><div class="v">--</div></div>
+            <div class="mini-metric"><div class="k">Weakest Subject</div><div class="v">--</div></div>
+          </div>
+        </div>
+
+        <!-- Subject Chart -->
+        <div class="chart-box" style="margin-top:12px;">
+          <h4>Subject-wise Trends</h4>
+          <canvas id="subjectChart"></canvas>
+        </div>
+
+        <!-- Weekly Report -->
+        <div id="weeklyReportCard" style="margin-top:12px;"></div>
+
+        <!-- Marks History -->
+        <div id="marksHistory" style="margin-top:12px;display:grid;gap:8px;"></div>
+      </section>
+
+      <section id="groups" class="panel">
+        <h2>Groups</h2>
+        <p class="subtitle">Create, join, discover, chat, and run group challenges live.</p>
+        <div id="socialStatus" style="min-height:18px;font-size:12px;font-weight:700;color:#334155;margin:8px 0;"></div>
+
+        <div class="group-layout">
+          <div class="group-col">
+            <h3 style="margin:0;font-size:14px;">Create Group</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+              <input id="groupNameInput" placeholder="Group name" style="grid-column:1/-1;padding:10px;border-radius:12px;border:1px solid #dbe2ef;" />
+              <select id="groupVisibilityInput" style="padding:10px;border-radius:12px;border:1px solid #dbe2ef;">
+                <option value="private">Private</option>
+                <option value="public">Public</option>
+              </select>
+              <input id="groupLimitInput" type="number" min="2" max="100" value="20" placeholder="Member limit" style="padding:10px;border-radius:12px;border:1px solid #dbe2ef;" />
+              <button id="createGroupBtn" style="grid-column:1/-1;padding:10px;border:none;border-radius:12px;background:#1d4ed8;color:#fff;font-weight:800;cursor:pointer;">Create Group</button>
+            </div>
+
+            <h3 style="margin:14px 0 0;font-size:14px;">My Groups</h3>
+            <div id="myGroupsList" class="group-list" style="margin-top:8px;"></div>
+
+            <div class="join-box">
+              <strong style="font-size:12px;">Join with invite code</strong>
+              <input id="joinInviteInput" placeholder="Example: GRP-6A21BF" />
+              <button id="joinGroupBtn">Join Group</button>
+            </div>
+
+            <h3 style="margin:14px 0 0;font-size:14px;">Discover Public Groups</h3>
+            <div id="discoverGroupsList" class="group-list" style="margin-top:8px;"></div>
+          </div>
+
+          <div class="group-col">
+            <h3 id="activeGroupTitle" style="margin:0;font-size:14px;">Select a group to open chat</h3>
+            <div id="groupChatList" class="chat"></div>
+            <div class="chat-compose">
+              <input id="groupChatInput" placeholder="Share progress or drop a challenge" />
+              <button id="sendGroupMsgBtn">Send</button>
+            </div>
+
+            <div style="margin-top:10px;border:1px dashed #cbd5e1;border-radius:12px;padding:10px;background:#f8fafc;">
+              <div style="font-size:12px;font-weight:800;color:#334155;">Create Challenge</div>
+              <div style="display:grid;grid-template-columns:1.2fr .8fr .8fr auto;gap:8px;margin-top:8px;">
+                <input id="challengeTitleInput" placeholder="Challenge title" style="padding:8px;border-radius:10px;border:1px solid #dbe2ef;" />
+                <input id="challengeQInput" type="number" min="1" max="100" value="5" placeholder="Questions" style="padding:8px;border-radius:10px;border:1px solid #dbe2ef;" />
+                <input id="challengeTimeInput" type="number" min="1" max="180" value="15" placeholder="Minutes" style="padding:8px;border-radius:10px;border:1px solid #dbe2ef;" />
+                <button id="createChallengeBtn" style="padding:8px 12px;border:none;border-radius:10px;background:#0f172a;color:#fff;font-weight:800;cursor:pointer;">Post</button>
+              </div>
+            </div>
+
+            <div style="margin-top:10px;">
+              <div style="font-size:12px;font-weight:800;color:#334155;margin-bottom:6px;">Recent Challenges</div>
+              <div id="challengeList" class="group-list"></div>
+            </div>
+          </div>
+
+          <div class="group-col">
+            <h3 style="margin:0;font-size:14px;">Members</h3>
+            <div id="groupMembersList" class="members"></div>
+
+            <div style="margin-top:10px;border:1px solid #e2e8f0;border-radius:12px;padding:10px;background:#fff;">
+              <div style="font-size:12px;font-weight:800;color:#334155;margin-bottom:6px;">Submit Challenge Attempt</div>
+              <select id="challengeSelectInput" style="width:100%;margin-bottom:8px;padding:8px;border-radius:10px;border:1px solid #dbe2ef;"></select>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                <input id="challengeScoreInput" type="number" min="0" placeholder="Score" style="padding:8px;border-radius:10px;border:1px solid #dbe2ef;" />
+                <input id="challengeTotalInput" type="number" min="1" value="100" placeholder="Total" style="padding:8px;border-radius:10px;border:1px solid #dbe2ef;" />
+                <input id="challengeTimeTakenInput" type="number" min="0" placeholder="Seconds" style="padding:8px;border-radius:10px;border:1px solid #dbe2ef;" />
+              </div>
+              <button id="submitChallengeAttemptBtn" style="width:100%;margin-top:8px;padding:9px;border:none;border-radius:10px;background:#16a34a;color:#fff;font-weight:800;cursor:pointer;">Submit Attempt</button>
+            </div>
+
+            <div style="margin-top:10px;">
+              <div style="font-size:12px;font-weight:800;color:#334155;margin-bottom:6px;">Leaderboard</div>
+              <div id="challengeResultsList" class="members"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tools" class="panel">
+        <h2>Tools</h2>
+        <p class="subtitle">Rank prediction, question practice, and mock generation in one place.</p>
+
+        <!-- Rank Predictor -->
+        <div class="predictor-box">
+          <h3 style="margin:0 0 10px;font-size:16px;font-weight:900;">🎯 Rank Predictor</h3>
+          <div class="predictor-inputs">
+            <input type="number" id="marksInput" placeholder="Enter marks (0–250)" min="0" max="250" />
+            <select id="categoryInput">
+              <option value="UR">General (UR)</option>
+              <option value="OBC">OBC</option>
+              <option value="SC">SC</option>
+              <option value="ST">ST</option>
+              <option value="EWS">EWS</option>
+            </select>
+            <select id="premiumInput">
+              <option value="0">Free</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <button id="btnRankPredictor" style="padding:10px 20px;border-radius:12px;background:#2563eb;border:none;color:#fff;font-weight:800;font-size:14px;cursor:pointer;">Predict Rank</button>
+            <span id="planStatusText" style="font-size:12px;color:#64748b;">Start 2-day trial for full rank intelligence.</span>
+          </div>
+          <div id="rankResult" style="margin-top:12px;min-height:60px;"></div>
+        </div>
+
+        <!-- Question Lab -->
+        <div class="qlab-shell" style="margin-top:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+            <div>
+              <h3 style="margin:0;font-size:16px;font-weight:900;color:#1e293b;">🧪 Question &amp; Mock Lab</h3>
+              <p style="margin:4px 0 0;font-size:13px;color:#64748b;">Filter by subject, difficulty, and topic — then practice or generate a mock.</p>
+            </div>
+          </div>
+          <div class="qlab-controls">
+            <select id="qlabSubject">
+              <option value="">All Subjects</option>
+              <option value="quant">Quant</option>
+              <option value="english">English</option>
+              <option value="reasoning">Reasoning</option>
+              <option value="gk">GK</option>
+              <option value="computer">Computer</option>
+            </select>
+            <select id="qlabDifficulty">
+              <option value="">All Difficulty</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+            <input id="qlabTopic" type="text" placeholder="Filter by topic" />
+            <input id="qlabCount" type="number" min="5" max="50" value="10" placeholder="Count" />
+          </div>
+          <div class="qlab-actions">
+            <button id="btnLoadQuestions" style="padding:9px 18px;border-radius:12px;background:#4f46e5;border:none;color:#fff;font-size:13px;font-weight:800;cursor:pointer;">Load Questions</button>
+            <button id="btnGenerateMock" style="padding:9px 18px;border-radius:12px;background:#0f172a;border:none;color:#fff;font-size:13px;font-weight:800;cursor:pointer;">Generate Mock</button>
+          </div>
+          <div id="questionLabStatus" style="margin-top:8px;font-size:13px;font-weight:700;color:#4338ca;min-height:18px;"></div>
+          <div id="questionLabList" class="qlab-list"></div>
+        </div>
+
+        <!-- Admin Moderation (Tools section) -->
+        <div class="admin-shell" style="margin-top:14px;">
+          <h3>Admin Question Moderation</h3>
+          <p class="subtitle">Review queued questions, approve/reject, and run bulk actions.</p>
+
+          <div class="admin-grid">
+            <div class="admin-field">
+              <label for="moderationAdminKey">Admin Key</label>
+              <input id="moderationAdminKey" type="password" placeholder="x-admin-key" />
+            </div>
+            <div class="admin-field">
+              <label for="moderationStatus">Status</label>
+              <select id="moderationStatus">
+                <option value="needs_review">needs_review</option>
+                <option value="all">all</option>
+                <option value="approved">approved</option>
+                <option value="rejected">rejected</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="moderationMaxConfidence">Max Confidence</label>
+              <input id="moderationMaxConfidence" type="number" min="0" max="1" step="0.01" value="0.7" />
+            </div>
+            <div class="admin-field">
+              <label for="moderationLimit">Limit</label>
+              <input id="moderationLimit" type="number" min="1" max="200" step="1" value="25" />
+            </div>
+            <div class="admin-field">
+              <label for="moderationOffset">Offset</label>
+              <input id="moderationOffset" type="number" min="0" step="1" value="0" />
+            </div>
+            <div class="admin-field">
+              <label for="moderationReviewedBy">Reviewed By</label>
+              <input id="moderationReviewedBy" type="text" value="preview_admin" />
+            </div>
+            <div class="admin-field">
+              <label for="moderationRejectReason">Reject Reason</label>
+              <input id="moderationRejectReason" type="text" placeholder="Required for reject" />
+            </div>
+            <div class="admin-field">
+              <label for="moderationBulkDecision">Bulk Decision</label>
+              <select id="moderationBulkDecision">
+                <option value="approve">approve</option>
+                <option value="reject">reject</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="subscriberGoalInput">Subscriber Goal</label>
+              <input id="subscriberGoalInput" type="number" min="1" step="1" value="100000" />
+            </div>
+          </div>
+
+          <div class="admin-actions">
+            <button id="moderationLoadBtn" class="primary">Load Queue</button>
+            <button id="moderationStatsBtn">Load Stats</button>
+            <button id="subscriberMetricsBtn">Load Subscriber Goal Metrics</button>
+            <button id="subscriberGoalSaveBtn">Save Subscriber Goal</button>
+            <button id="moderationBulkBtn" class="warn">Apply Bulk To Selected</button>
+            <label style="font-size:12px;font-weight:700;color:#334155;display:inline-flex;align-items:center;gap:6px;">
+              <input id="moderationForce" type="checkbox" />
+              Force
+            </label>
+          </div>
+
+          <div id="moderationStatusLine" class="admin-status"></div>
+          <div id="subscriberMetricsGrid" class="admin-stats"></div>
+          <div id="moderationStatsGrid" class="admin-stats"></div>
+          <div id="moderationReviewList" class="review-list"></div>
+        </div>
+      </section>
+
+      <section id="plans" class="panel">
+        <h2>Plans</h2>
+        <p class="subtitle">Start free, upgrade when you need deeper rank clarity.</p>
+
+        <!-- Premium Plan -->
+        <div style="border:2px solid #a78bfa;border-radius:20px;background:linear-gradient(135deg,#f5f3ff,#fff);padding:20px;margin-bottom:14px;">
+          <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#6d28d9;">Monthly Plan</div>
+          <div style="font-size:32px;font-weight:900;color:#0f172a;margin-top:6px;">₹99 <span style="font-size:14px;color:#6d28d9;font-weight:700;">/month</span></div>
+          <p style="margin:6px 0 14px;font-size:13px;color:#475569;">Daily tracker + complete rank intelligence in one subscription.</p>
+          <ul style="margin:0 0 14px;padding-left:18px;color:#334155;font-size:13px;line-height:1.8;">
+            <li>Daily marks tracker with subject splits</li>
+            <li>Streak tracking &amp; benchmark gap alerts</li>
+            <li>Auto cutoff mapped to your target post</li>
+            <li>Full Rank Prediction + Category Rank + Percentile</li>
+            <li>Post chances · What-if jumps · Weekly report card</li>
+          </ul>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button id="startTrialBtn" style="padding:11px 20px;border-radius:14px;background:#f59e0b;border:none;color:#fff;font-weight:800;font-size:14px;cursor:pointer;">Start 2-Day Free Trial →</button>
+            <button id="pricingBuyBtn" style="padding:11px 20px;border-radius:14px;background:#6d28d9;border:none;color:#fff;font-weight:800;font-size:14px;cursor:pointer;">Subscribe ₹99/month</button>
+          </div>
+        </div>
+
+        <!-- Admin Growth Panel (hidden, script.js shows for admins) -->
+        <div id="liveAdminGrowthPanel" class="hidden" style="border:1px solid #cbd5e1;background:#f8fafc;border-radius:16px;padding:14px;margin-top:10px;">
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;color:#64748b;">Admin Only — Subscriber Growth Control</div>
+          <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:9px;flex-wrap:wrap;">
+            <input id="liveAdminKey" type="password" placeholder="Admin key" style="border:1px solid #cbd5e1;border-radius:10px;padding:8px 10px;font-size:13px;outline:none;" />
+            <input id="liveGoalInput" type="number" min="1" step="1" value="100000" style="border:1px solid #cbd5e1;border-radius:10px;padding:8px 10px;font-size:13px;outline:none;" />
+            <button id="liveLoadMetricsBtn" type="button" style="border-radius:10px;background:#0f172a;color:#fff;font-weight:800;border:none;padding:8px 12px;font-size:12px;cursor:pointer;">Load Metrics</button>
+            <button id="liveSaveGoalBtn" type="button" style="border-radius:10px;background:#1d4ed8;color:#fff;font-weight:800;border:none;padding:8px 12px;font-size:12px;cursor:pointer;">Save Goal</button>
+          </div>
+          <div id="liveAdminStatus" style="margin-top:8px;font-size:13px;font-weight:700;color:#334155;min-height:18px;"></div>
+          <div id="liveAdminMetrics" style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="notif-drawer" id="notifDrawer">
+    <h3>Notifications</h3>
+    <div id="notifList" class="notif-list"></div>
+    <button id="markAllNotifsReadBtn" style="margin-top:8px;width:100%;padding:10px;border:none;border-radius:10px;background:#1e293b;color:#fff;font-size:12px;font-weight:800;cursor:pointer;">Mark All Read</button>
+  </div>
+
+  <nav class="mobile-nav" id="mobileNav">
+    <button class="active" data-panel="home">Home</button>
+    <button data-panel="progress">Progress</button>
+    <button data-panel="groups">Groups</button>
+    <button data-panel="tools">Tools</button>
+    <button data-panel="plans">Plans</button>
+  </nav>
+
+  <!-- Goal Onboarding Modal -->
+  <div id="goalModal" class="goal-modal-overlay hidden">
+    <div class="goal-modal-inner">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div>
+          <h2 style="margin:0;font-size:20px;font-weight:900;color:#111827;">🎯 Set Your Goal Pipeline</h2>
+          <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">Auto-link your target post with cutoff baseline from data.</p>
+        </div>
+        <button id="closeGoalModal" style="width:34px;height:34px;border-radius:50%;background:#f3f4f6;border:none;font-size:18px;cursor:pointer;font-weight:700;color:#374151;">&times;</button>
+      </div>
+      <div class="goal-form-grid">
+        <div>
+          <label for="goalExamFamily">Exam</label>
+          <select id="goalExamFamily">
+            <option value="ssc_cgl">SSC CGL</option>
+            <option value="ssc_chsl">SSC CHSL</option>
+            <option value="ssc_mts">SSC MTS</option>
+            <option value="ssc_cpo">SSC CPO</option>
+          </select>
+        </div>
+        <div>
+          <label for="goalTier">Target Tier</label>
+          <select id="goalTier">
+            <option value="tier1">Tier 1</option>
+            <option value="tier2">Tier 2</option>
+            <option value="smart">Smart (Auto Blend)</option>
+          </select>
+        </div>
+        <div>
+          <label for="goalCategory">Category</label>
+          <select id="goalCategory">
+            <option value="UR">General (UR)</option>
+            <option value="OBC">OBC</option>
+            <option value="SC">SC</option>
+            <option value="ST">ST</option>
+            <option value="EWS">EWS</option>
+          </select>
+        </div>
+        <div>
+          <label for="goalTargetPost">Dream Post</label>
+          <select id="goalTargetPost">
+            <option value="">— Select —</option>
+            <option value="Inspector Income Tax">Inspector Income Tax</option>
+            <option value="Sub-Inspector CBI">Sub-Inspector CBI</option>
+            <option value="Inspector Customs">Inspector Customs</option>
+            <option value="Assistant Section Officer">Assistant Section Officer</option>
+            <option value="JSO / Statistical Investigator">JSO / Statistical Investigator</option>
+            <option value="Tax Assistant">Tax Assistant</option>
+            <option value="Upper Division Clerk">Upper Division Clerk</option>
+            <option value="Other / Not Sure">Other / Not Sure</option>
+          </select>
+        </div>
+        <div>
+          <label for="goalExamDate">Exam Month</label>
+          <input type="month" id="goalExamDate" />
+        </div>
+        <div>
+          <label for="goalStudyHours">Daily Study Hours</label>
+          <input type="number" id="goalStudyHours" min="1" max="16" placeholder="e.g. 6" />
+        </div>
+        <div>
+          <label for="goalTargetScore">Target Score</label>
+          <input type="number" id="goalTargetScore" min="60" max="600" placeholder="e.g. 150" />
+        </div>
+        <div>
+          <label for="goalAutoCutoff">Auto Cutoff (From Data)</label>
+          <input type="number" id="goalAutoCutoff" readonly placeholder="Select post + category" />
+        </div>
+      </div>
+      <div id="goalModalStatus" style="min-height:18px;font-size:13px;font-weight:700;color:#1e40af;margin-top:10px;"></div>
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button id="saveGoalBtn" style="flex:1;padding:12px;border-radius:14px;background:#2563eb;border:none;color:#fff;font-size:15px;font-weight:800;cursor:pointer;">Save Goal</button>
+        <button id="skipGoalBtn" style="padding:12px 18px;border-radius:14px;background:#f3f4f6;border:none;color:#374151;font-size:14px;font-weight:700;cursor:pointer;">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="script.js?v=20260327"></script>
+
+  <script>
+    const panelButtons = document.querySelectorAll(".nav button, .mobile-nav button");
+    const panels = document.querySelectorAll(".panel");
+    const notifToggle = document.getElementById("notifToggle");
+    const notifDrawer = document.getElementById("notifDrawer");
+    const chartToggleButtons = document.querySelectorAll(".chart-toggle");
+    const moderation = {
+      key: document.getElementById("moderationAdminKey"),
+      status: document.getElementById("moderationStatus"),
+      maxConfidence: document.getElementById("moderationMaxConfidence"),
+      limit: document.getElementById("moderationLimit"),
+      offset: document.getElementById("moderationOffset"),
+      reviewedBy: document.getElementById("moderationReviewedBy"),
+      rejectReason: document.getElementById("moderationRejectReason"),
+      bulkDecision: document.getElementById("moderationBulkDecision"),
+      force: document.getElementById("moderationForce"),
+      loadBtn: document.getElementById("moderationLoadBtn"),
+      statsBtn: document.getElementById("moderationStatsBtn"),
+      subscriberMetricsBtn: document.getElementById("subscriberMetricsBtn"),
+      subscriberGoalInput: document.getElementById("subscriberGoalInput"),
+      subscriberGoalSaveBtn: document.getElementById("subscriberGoalSaveBtn"),
+      bulkBtn: document.getElementById("moderationBulkBtn"),
+      statusLine: document.getElementById("moderationStatusLine"),
+      subscriberMetricsGrid: document.getElementById("subscriberMetricsGrid"),
+      statsGrid: document.getElementById("moderationStatsGrid"),
+      reviewList: document.getElementById("moderationReviewList")
+    };
+    let moderationItems = [];
+
+    const trendLabels = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8"];
+    const trendDatasets = {
+      overall: [124, 127, 131, 133, 136, 139, 142, 144],
+      quant: [31, 32, 33, 34, 35, 35, 36, 37],
+      english: [29, 30, 31, 32, 33, 34, 35, 35],
+      reasoning: [34, 34, 35, 35, 36, 37, 37, 38],
+      gk: [30, 31, 32, 32, 32, 33, 34, 34]
+    };
+
+    const datasetStyles = {
+      overall: { label: "Overall", borderColor: "#1d4ed8", bg: "rgba(29,78,216,0.14)", width: 3 },
+      quant: { label: "Quant", borderColor: "#0f766e", bg: "rgba(15,118,110,0.12)", width: 2 },
+      english: { label: "English", borderColor: "#7c3aed", bg: "rgba(124,58,237,0.10)", width: 2 },
+      reasoning: { label: "Reasoning", borderColor: "#ea580c", bg: "rgba(234,88,12,0.10)", width: 2 },
+      gk: { label: "GK", borderColor: "#0891b2", bg: "rgba(8,145,178,0.10)", width: 2 }
+    };
+
+    const progressChartContext = null; // chart managed by script.js
+    let inlineProgressChart = null;
+
+    function buildChartDatasets() {
+      return Object.keys(trendDatasets).map((key) => {
+        const style = datasetStyles[key];
+        return {
+          key,
+          label: style.label,
+          data: trendDatasets[key],
+          borderColor: style.borderColor,
+          backgroundColor: style.bg,
+          borderWidth: style.width,
+          pointRadius: 2,
+          pointHoverRadius: 4,
+          pointBackgroundColor: style.borderColor,
+          tension: 0.35,
+          fill: false,
+          hidden: false
+        };
+      });
+    }
+
+    function initProgressChart() {
+      if (!progressChartContext || typeof window.Chart === "undefined") return;
+
+      progressChart = new window.Chart(progressChartContext, {
+        type: "line",
+        data: {
+          labels: trendLabels,
+          datasets: buildChartDatasets()
+        },
+        options: {
+          maintainAspectRatio: false,
+          interaction: {
+            mode: "index",
+            intersect: false
+          },
+          scales: {
+            x: {
+              grid: {
+                color: "rgba(148,163,184,0.2)"
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: "rgba(148,163,184,0.2)"
+              },
+              ticks: {
+                precision: 0
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+
+    function toggleDataset(key, forceVisible = null) {
+      if (!progressChart) return;
+      const datasetIndex = progressChart.data.datasets.findIndex((item) => item.key === key);
+      if (datasetIndex < 0) return;
+
+      const currentlyVisible = progressChart.isDatasetVisible(datasetIndex);
+      const nextVisible = forceVisible === null ? !currentlyVisible : Boolean(forceVisible);
+
+      progressChart.setDatasetVisibility(datasetIndex, nextVisible);
+      progressChart.update();
+
+      chartToggleButtons.forEach((button) => {
+        if (button.dataset.dataset === key) {
+          button.classList.toggle("active", nextVisible);
+        }
+      });
+    }
+
+    function setActivePanel(panelId) {
+      panels.forEach((panel) => {
+        panel.classList.toggle("active", panel.id === panelId);
+      });
+
+      panelButtons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.panel === panelId);
+      });
+    }
+
+    function setModerationStatus(message, isError = false) {
+      if (!moderation.statusLine) return;
+      moderation.statusLine.textContent = message || "";
+      moderation.statusLine.style.color = isError ? "#b91c1c" : "#334155";
+    }
+
+    async function requestAdmin(path, method = "GET", body = null) {
+      const adminKey = String(moderation.key?.value || "").trim();
+      if (!adminKey) {
+        throw new Error("Enter Admin Key first");
+      }
+
+      const options = {
+        method,
+        headers: {
+          "x-admin-key": adminKey
+        }
+      };
+
+      if (body && method !== "GET") {
+        options.headers["Content-Type"] = "application/json";
+        options.body = JSON.stringify(body);
+      }
+
+      const response = await fetch(path, options);
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Request failed");
+      }
+      return data;
+    }
+
+    function renderModerationList(items = []) {
+      moderationItems = items;
+      if (!moderation.reviewList) return;
+
+      if (items.length === 0) {
+        moderation.reviewList.innerHTML = '<div class="review-item"><div class="review-q">No matching questions found for this filter.</div></div>';
+        return;
+      }
+
+      moderation.reviewList.innerHTML = items.map((item) => {
+        const qId = String(item.id || "");
+        const qText = String(item.question || "").slice(0, 220);
+        const subject = String(item.subject || "na");
+        const confidence = Number(item.confidenceScore || 0).toFixed(2);
+        const status = String(item.reviewStatus || "approved");
+        return `
+          <div class="review-item" data-id="${qId}">
+            <div class="review-item-head">
+              <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#334155;">
+                <input type="checkbox" class="review-check" value="${qId}">
+                Select
+              </label>
+              <div class="review-meta">${subject} | confidence ${confidence} | ${status}</div>
+            </div>
+            <div class="review-q">${qText}</div>
+            <div class="review-item-actions">
+              <button class="approve" data-action="approve" data-id="${qId}">Approve</button>
+              <button class="reject" data-action="reject" data-id="${qId}">Reject</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function loadModerationList() {
+      try {
+        setModerationStatus("Loading moderation queue...");
+        const query = new URLSearchParams({
+          status: String(moderation.status?.value || "needs_review"),
+          maxConfidence: String(moderation.maxConfidence?.value || "0.7"),
+          limit: String(moderation.limit?.value || "25"),
+          offset: String(moderation.offset?.value || "0")
+        });
+        const data = await requestAdmin(`/api/questions/admin/review/list?${query.toString()}`, "GET");
+        renderModerationList(data.items || []);
+        setModerationStatus(`Loaded ${data.count}/${data.totalMatched} questions.`);
+      } catch (error) {
+        setModerationStatus(error.message || "Failed to load queue", true);
+      }
+    }
+
+    async function loadModerationStats() {
+      try {
+        setModerationStatus("Loading moderation stats...");
+        const data = await requestAdmin("/api/questions/admin/review/stats", "GET");
+        const summary = data.summary || {};
+        moderation.statsGrid.innerHTML = `
+          <div class="admin-stat">Total: ${Number(data.total || 0)}</div>
+          <div class="admin-stat">Approved: ${Number(summary.approved || 0)}</div>
+          <div class="admin-stat">Needs Review: ${Number(summary.needs_review || 0)}</div>
+          <div class="admin-stat">Rejected: ${Number(summary.rejected || 0)}</div>
+          <div class="admin-stat">Unknown: ${Number(summary.unknown || 0)}</div>
+        `;
+        setModerationStatus("Stats loaded.");
+      } catch (error) {
+        setModerationStatus(error.message || "Failed to load stats", true);
+      }
+    }
+
+    async function loadSubscriberMetrics() {
+      try {
+        setModerationStatus("Loading subscriber goal metrics (admin-only)...");
+        const data = await requestAdmin("/api/payment/metrics/subscribers", "GET");
+        const metrics = data.metrics || {};
+
+        moderation.subscriberMetricsGrid.innerHTML = `
+          <div class="admin-stat">Goal Subscribers: ${Number(metrics.goalSubscribers || 0).toLocaleString("en-IN")}</div>
+          <div class="admin-stat">Paid Subscribers: ${Number(metrics.paidSubscribers || 0).toLocaleString("en-IN")}</div>
+          <div class="admin-stat">Remaining: ${Number(metrics.remainingToGoal || 0).toLocaleString("en-IN")}</div>
+          <div class="admin-stat">Progress: ${Number(metrics.goalProgressPct || 0).toFixed(2)}%</div>
+          <div class="admin-stat">Active Trials: ${Number(metrics.activeTrials || 0).toLocaleString("en-IN")}</div>
+          <div class="admin-stat">Trial-to-Paid Gap: ${Number(metrics.trialToPaidGap || 0).toLocaleString("en-IN")}</div>
+          <div class="admin-stat">Month Adds: ${Number(metrics.currentMonthPaidAdds || 0).toLocaleString("en-IN")}</div>
+          <div class="admin-stat">Daily Run-Rate: ${Number(metrics.dailyRunRateThisMonth || 0).toFixed(2)}</div>
+          <div class="admin-stat">Projected Month Adds: ${Number(metrics.projectedMonthPaidAdds || 0).toLocaleString("en-IN")}</div>
+          <div class="admin-stat">Days To Goal: ${metrics.estimatedDaysToGoal == null ? "N/A" : Number(metrics.estimatedDaysToGoal).toLocaleString("en-IN")}</div>
+          <div class="admin-stat">MRR (Rs): ${Number(metrics.monthlyRecurringRevenueRs || 0).toLocaleString("en-IN")}</div>
+          <div class="admin-stat">ARR (Rs): ${Number(metrics.annualRunRateRs || 0).toLocaleString("en-IN")}</div>
+        `;
+        if (moderation.subscriberGoalInput) {
+          moderation.subscriberGoalInput.value = String(Number(metrics.goalSubscribers || 100000));
+        }
+        setModerationStatus("Subscriber goal metrics loaded.");
+      } catch (error) {
+        setModerationStatus(error.message || "Failed to load subscriber metrics", true);
+      }
+    }
+
+    async function saveSubscriberGoal() {
+      try {
+        const goalSubscribers = Number(moderation.subscriberGoalInput?.value || 0);
+        if (!Number.isFinite(goalSubscribers) || goalSubscribers <= 0) {
+          setModerationStatus("Enter a valid positive subscriber goal.", true);
+          return;
+        }
+
+        setModerationStatus("Saving subscriber goal...");
+        await requestAdmin("/api/payment/metrics/subscribers/goal", "POST", { goalSubscribers });
+        setModerationStatus("Subscriber goal saved successfully.");
+        await loadSubscriberMetrics();
+      } catch (error) {
+        setModerationStatus(error.message || "Failed to save subscriber goal", true);
+      }
+    }
+
+    function getSelectedReviewIds() {
+      return Array.from(document.querySelectorAll(".review-check:checked")).map((node) => String(node.value || "").trim()).filter(Boolean);
+    }
+
+    async function handleSingleDecision(id, decision) {
+      try {
+        setModerationStatus(`Applying ${decision} for ${id}...`);
+        await requestAdmin("/api/questions/admin/review/decision", "POST", {
+          id,
+          decision,
+          reviewedBy: String(moderation.reviewedBy?.value || "preview_admin").trim(),
+          rejectReason: String(moderation.rejectReason?.value || "").trim(),
+          force: Boolean(moderation.force?.checked)
+        });
+        await loadModerationList();
+      } catch (error) {
+        setModerationStatus(error.message || `Failed to ${decision} question`, true);
+      }
+    }
+
+    async function handleBulkDecision() {
+      try {
+        const ids = getSelectedReviewIds();
+        if (ids.length === 0) {
+          setModerationStatus("Select at least one question for bulk action.", true);
+          return;
+        }
+        const decision = String(moderation.bulkDecision?.value || "approve");
+        setModerationStatus(`Running bulk ${decision} for ${ids.length} items...`);
+        const data = await requestAdmin("/api/questions/admin/review/bulk-decision", "POST", {
+          ids,
+          decision,
+          reviewedBy: String(moderation.reviewedBy?.value || "preview_admin").trim(),
+          rejectReason: String(moderation.rejectReason?.value || "").trim(),
+          force: Boolean(moderation.force?.checked)
+        });
+        setModerationStatus(`Bulk done. Updated ${data.updated}, skipped ${data.skipped}, not found ${data.notFoundCount}.`);
+        await loadModerationList();
+      } catch (error) {
+        setModerationStatus(error.message || "Bulk action failed", true);
+      }
+    }
+
+    panelButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setActivePanel(button.dataset.panel);
+      });
+    });
+
+    chartToggleButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        toggleDataset(button.dataset.dataset);
+      });
+    });
+
+    if (moderation.loadBtn) {
+      moderation.loadBtn.addEventListener("click", () => {
+        loadModerationList();
+      });
+    }
+
+    if (moderation.statsBtn) {
+      moderation.statsBtn.addEventListener("click", () => {
+        loadModerationStats();
+      });
+    }
+
+    if (moderation.subscriberMetricsBtn) {
+      moderation.subscriberMetricsBtn.addEventListener("click", () => {
+        loadSubscriberMetrics();
+      });
+    }
+
+    if (moderation.subscriberGoalSaveBtn) {
+      moderation.subscriberGoalSaveBtn.addEventListener("click", () => {
+        saveSubscriberGoal();
+      });
+    }
+
+    if (moderation.bulkBtn) {
+      moderation.bulkBtn.addEventListener("click", () => {
+        handleBulkDecision();
+      });
+    }
+
+    if (moderation.reviewList) {
+      moderation.reviewList.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action][data-id]");
+        if (!button) return;
+        const action = String(button.dataset.action || "");
+        const id = String(button.dataset.id || "");
+        if (!id || !["approve", "reject"].includes(action)) return;
+        handleSingleDecision(id, action);
+      });
+    }
+
+    notifToggle.addEventListener("click", () => {
+      notifDrawer.classList.toggle("open");
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!notifDrawer.contains(event.target) && event.target !== notifToggle) {
+        notifDrawer.classList.remove("open");
+      }
+    });
+
+    // chart now handled by script.js (canvas id: progressChart)
+  </script>
+</body>
+</html>

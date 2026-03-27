@@ -344,6 +344,44 @@
       font-size:18px;
       font-weight:900;
     }
+    .today-action-shell{
+      margin-top:12px;
+      border:1px solid #a7f3d0;
+      border-radius:16px;
+      background:linear-gradient(120deg,#ecfdf5,#ffffff 58%,#eff6ff);
+      padding:12px;
+    }
+    .today-action-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .today-action-title{
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      font-weight:900;
+      color:#065f46;
+    }
+    .today-action-gain{
+      font-size:12px;
+      font-weight:800;
+      color:#1d4ed8;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      border-radius:999px;
+      padding:4px 10px;
+    }
+    .today-action-list{
+      margin:8px 0 0;
+      padding-left:18px;
+      color:#0f172a;
+      font-size:13px;
+      line-height:1.65;
+      font-weight:700;
+    }
     .qlab-shell{
       border-radius:28px;
       border:1px solid #c7d2fe;
@@ -438,6 +476,14 @@
     .goal-reminder-sub{margin-top:2px;font-size:12px;font-weight:700;color:#b45309;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .goal-reminder-btn{border:none;border-radius:999px;background:#1d4ed8;color:#fff;font-size:12px;font-weight:800;padding:9px 12px;cursor:pointer;white-space:nowrap;box-shadow:0 8px 14px rgba(29,78,216,.24);}
     .goal-reminder-btn:hover{background:#1e40af;}
+    .goal-gap-banner{margin-top:12px;border:1px solid #bfdbfe;background:linear-gradient(125deg,#ecfeff,#eff6ff 55%,#ffffff);border-radius:18px;padding:12px 14px;box-shadow:0 10px 22px rgba(14,116,144,.12);}
+    .goal-gap-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+    .goal-gap-title{font-size:11px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#0f766e;}
+    .goal-gap-chip{font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;border:1px solid #99f6e4;background:#ccfbf1;color:#115e59;}
+    .goal-gap-main{margin-top:6px;font-size:15px;font-weight:900;color:#0f172a;}
+    .goal-gap-sub{margin-top:2px;font-size:12px;font-weight:700;color:#334155;}
+    .goal-gap-progress{margin-top:10px;height:8px;border-radius:999px;background:#dbeafe;overflow:hidden;}
+    .goal-gap-progress-fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#06b6d4,#2563eb);transition:width .35s ease;}
     .daily-target-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px;}
     .daily-target-item{border:1px solid #dbeafe;background:#ffffffd9;border-radius:12px;padding:10px;}
     .daily-target-item .k{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:#475569;}
@@ -540,6 +586,107 @@
       .seo-links h2{
         font-size:22px;
       }
+    }
+
+    /* =====================================================
+       HOOK ZONE — Selection Intelligence Panel (dark)
+       ===================================================== */
+    #hook-zone{background:#0f172a;border-bottom:1px solid #1e293b;}
+    .hz-inner{max-width:1140px;margin:0 auto;padding:22px 16px 18px;}
+    .hz-headline{font-size:20px;font-weight:900;color:#f1f5f9;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;line-height:1.3;}
+    .hz-setup-btn{margin-left:auto;padding:6px 16px;border-radius:999px;background:#3b82f6;color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:background .2s;white-space:nowrap;flex-shrink:0;}
+    .hz-setup-btn:hover{background:#2563eb;}
+
+    /* Cards row */
+    .hz-cards{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px;margin-bottom:10px;}
+    .hz-card{background:#1e293b;border:1px solid #334155;border-radius:18px;padding:16px 18px;transition:box-shadow .2s,border-color .2s;}
+    .hz-card:hover{box-shadow:0 0 28px rgba(99,102,241,.18);}
+    .hz-card-eyebrow{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px;}
+
+    /* The flagship number: ENORMOUS, gradient */
+    .hz-gap-hero{
+      font-family:"Space Grotesk",sans-serif;
+      font-size:76px;font-weight:900;line-height:1;
+      background:linear-gradient(135deg,#fbbf24 0%,#f87171 60%,#ef4444 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      transition:filter .3s;
+      display:inline-block;
+    }
+    .hz-gap-hero.hz-no-gap{
+      background:linear-gradient(135deg,#34d399 0%,#4ade80 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .hz-gap-unit{font-size:22px;font-weight:800;color:#94a3b8;vertical-align:super;margin-left:3px;-webkit-text-fill-color:#94a3b8;}
+
+    /* Selection chance number */
+    .hz-big-num{font-family:"Space Grotesk",sans-serif;font-size:52px;font-weight:900;line-height:1;transition:color .3s;}
+    .hz-big-num.hz-chance-high{color:#4ade80;}
+    .hz-big-num.hz-chance-mid{color:#fbbf24;}
+    .hz-big-num.hz-chance-low{color:#f87171;}
+
+    .hz-big-gain{color:#a78bfa;font-size:42px;font-family:"Space Grotesk",sans-serif;font-weight:900;line-height:1;}
+    .hz-card-meta{font-size:12px;color:#94a3b8;margin-top:8px;}
+    .hz-card-sub{font-size:12px;color:#64748b;margin-top:3px;}
+    .hz-card-zone{font-size:14px;font-weight:800;margin-top:8px;}
+    .hz-pace{font-size:11px;color:#64748b;margin-top:3px;}
+
+    /* Confidence chip */
+    .hz-confidence{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.03em;border:1px solid;}
+    .hz-confidence.high{background:#052e16;border-color:#16a34a;color:#4ade80;}
+    .hz-confidence.medium{background:#1c1917;border-color:#d97706;color:#fbbf24;}
+    .hz-confidence.low{background:#1a0a0a;border-color:#7f1d1d;color:#fca5a5;}
+
+    /* Urgency bar */
+    .hz-urgency{background:#1e293b;border:1px solid #475569;border-radius:14px;padding:11px 16px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .hz-urgency-icon{font-size:16px;flex-shrink:0;}
+    .hz-urgency-text{font-size:13px;font-weight:700;color:#f1f5f9;line-height:1.5;}
+    .hz-urgency-text.good{color:#4ade80;}
+    .hz-urgency-text.warn{color:#fbbf24;}
+    .hz-urgency-text.danger{color:#f87171;}
+
+    /* What-If Simulator */
+    .hz-whatif{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:12px 16px;margin-bottom:10px;}
+    .hz-whatif-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:8px;}
+    .hz-whatif-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .hz-whatif-input{background:#0f172a;border:1px solid #475569;border-radius:10px;color:#f1f5f9;font-size:15px;font-weight:700;padding:8px 12px;width:100px;outline:none;font-family:"Space Grotesk",sans-serif;}
+    .hz-whatif-input:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.2);}
+    .hz-whatif-btn{background:#3b82f6;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:800;cursor:pointer;transition:background .2s;}
+    .hz-whatif-btn:hover{background:#2563eb;}
+    .hz-whatif-result{font-size:13px;font-weight:700;color:#a78bfa;min-height:20px;}
+
+    /* Subject grid */
+    .hz-subjects{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px;}
+    .hz-subject{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:10px 8px;text-align:center;transition:border-color .3s,background .3s;}
+    .hz-subject.weak{border-color:#f87171;background:#1a0808;}
+    .hz-subject.strong{border-color:#4ade80;background:#081a08;}
+    .hz-subject-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#64748b;}
+    .hz-subject.weak .hz-subject-label{color:#fca5a5;}
+    .hz-subject.strong .hz-subject-label{color:#86efac;}
+    .hz-subject-score{font-size:22px;font-weight:900;font-family:"Space Grotesk",sans-serif;color:#f1f5f9;margin-top:3px;}
+    .hz-subject-impact{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-top:4px;color:#94a3b8;}
+    .hz-subject.weak .hz-subject-impact{color:#f87171;}
+    .hz-subject.strong .hz-subject-impact{color:#4ade80;}
+
+    /* Smart notification toast */
+    #hzNotifToast{position:fixed;top:74px;right:16px;z-index:200;max-width:320px;background:#1e293b;border:1px solid #6366f1;border-radius:16px;padding:12px 16px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:none;animation:hzSlideIn .3s ease;}
+    @keyframes hzSlideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+    .hz-notif-icon{font-size:18px;flex-shrink:0;}
+    .hz-notif-msg{font-size:13px;font-weight:700;color:#f1f5f9;line-height:1.4;}
+    .hz-notif-close{background:none;border:none;color:#64748b;cursor:pointer;font-size:16px;padding:0;margin-left:auto;flex-shrink:0;}
+    .hz-notif-close:hover{color:#f1f5f9;}
+
+    @media(max-width:768px){
+      .hz-cards{grid-template-columns:1fr;}
+      .hz-subjects{grid-template-columns:repeat(3,1fr);}
+      .hz-gap-hero{font-size:56px;}
+      .hz-big-num{font-size:40px;}
+      .hz-big-gain{font-size:32px;}
+      .hz-headline{font-size:17px;}
+      .hz-whatif-row{flex-direction:column;align-items:flex-start;}
+    }
+    @media(max-width:480px){
+      .hz-subjects{grid-template-columns:repeat(2,1fr);}
+      .hz-gap-hero{font-size:48px;}
     }
   </style>
 </head>
@@ -680,11 +827,83 @@
     </div>
   </section>
 
+  <!-- Smart notification toast -->
+  <div id="hzNotifToast" role="alert" aria-live="polite">
+    <div style="display:flex;align-items:flex-start;gap:10px;">
+      <span class="hz-notif-icon" id="hzNotifIcon">🔥</span>
+      <span class="hz-notif-msg" id="hzNotifMsg"></span>
+      <button class="hz-notif-close" id="hzNotifClose" aria-label="Close">&times;</button>
+    </div>
+  </div>
+
+  <!-- HOOK ZONE: Selection Intelligence — dark, outcome-first -->
+  <section id="hook-zone" aria-label="Selection forecast">
+    <div class="hz-inner">
+      <!-- Headline -->
+      <div class="hz-headline">
+        <span id="hookHeadlineIcon">🎯</span>
+        <span id="hookHeadlineText">Loading your selection forecast...</span>
+        <button class="hz-setup-btn hidden" id="hookSetupGoalBtn">Setup Goal →</button>
+      </div>
+
+      <!-- Urgency Bar -->
+      <div class="hz-urgency" id="hzUrgencyBar">
+        <span class="hz-urgency-icon" id="hzUrgencyIcon">⏳</span>
+        <span class="hz-urgency-text" id="hzUrgencyText">Set your goal post to see your urgency status.</span>
+      </div>
+
+      <!-- 3 Core Cards -->
+      <div class="hz-cards">
+        <!-- Gap Card — flagship, ENORMOUS gradient number -->
+        <div class="hz-card" id="hzGapCard">
+          <div class="hz-card-eyebrow">⚠️ &nbsp;Marks to Safe Zone</div>
+          <div style="display:flex;align-items:flex-end;gap:4px;">
+            <span class="hz-gap-hero" id="hzMarksAway">--</span>
+            <span class="hz-gap-unit" id="hzMarksUnit">marks</span>
+          </div>
+          <div class="hz-card-meta" style="margin-top:12px;">
+            Safe Score &nbsp;<strong style="color:#f1f5f9;"><span id="hzSafeScore">--</span></strong>
+            &nbsp;·&nbsp;
+            Cutoff &nbsp;<strong style="color:#94a3b8;"><span id="hzCutoffVal">--</span></strong>
+          </div>
+          <div class="hz-card-sub">Your overall avg: <span id="hzYourAvg">--</span></div>
+        </div>
+
+        <!-- Selection Chance Card -->
+        <div class="hz-card">
+          <div class="hz-card-eyebrow">🎯 &nbsp;Selection Chance</div>
+          <div class="hz-big-num hz-chance-mid" id="hzSelChance">--</div>
+          <div class="hz-card-zone" id="hzZoneLabel" style="color:#94a3b8;"></div>
+          <div id="hzConfidenceChip" class="hz-confidence low" style="display:none;"></div>
+          <div class="hz-pace" id="hzDaysLabel" style="margin-top:6px;">at current pace</div>
+        </div>
+
+        <!-- Daily Gain Card -->
+        <div class="hz-card">
+          <div class="hz-card-eyebrow">📈 &nbsp;Daily Gain Trend</div>
+          <div class="hz-big-gain" id="hzDailyGain">--</div>
+          <div class="hz-card-meta">marks / day</div>
+          <div class="hz-card-sub" id="hzDaysToGoal">-- days to safe zone</div>
+        </div>
+      </div>
+
+      <!-- What-If Simulator -->
+      <div class="hz-whatif" id="hzWhatifBox">
+        <div class="hz-whatif-label">🔮 &nbsp;What-If Simulator — if I score X today, what happens?</div>
+        <div class="hz-whatif-row">
+          <input type="number" class="hz-whatif-input" id="hzWhatifInput" placeholder="Try: 145" min="0" max="250" aria-label="Simulate score" />
+          <button class="hz-whatif-btn" id="hzWhatifBtn">Simulate →</button>
+          <span class="hz-whatif-result" id="hzWhatifResult"></span>
+        </div>
+      </div>
+
+      <!-- Section Weakness: all 5 subjects color-coded with impact score -->
+      <div class="hz-subjects" id="hzSubjectGrid"></div>
+    </div>
+  </section>
+
   <section class="max-w-7xl mx-auto px-6 pt-6 pb-2">
     <div class="bg-white border border-amber-200 rounded-3xl p-5 shadow-lg">
-      <div class="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <div class="text-xs font-bold uppercase tracking-wide text-amber-700">Primary Workflow</div>
           <h2 class="text-2xl md:text-3xl font-black text-gray-900 mt-1">Daily Progress Tracker + Monthly Premium Intelligence</h2>
           <p class="text-gray-600 mt-2 max-w-3xl">Start with your daily tracker, activate a 2-day trial, and continue with one clear monthly plan (₹99) that includes full rank prediction and post-level insights.</p>
         </div>
@@ -808,6 +1027,16 @@
             <div class="k">Priority Subject</div>
             <div class="v" id="prioritySubjectValue">--</div>
           </div>
+        </div>
+
+        <div class="today-action-shell" aria-live="polite">
+          <div class="today-action-head">
+            <div class="today-action-title" id="todayActionTitle">Today's Focus Plan</div>
+            <div class="today-action-gain" id="todayActionGain">Expected gain: --</div>
+          </div>
+          <ul class="today-action-list" id="todayActionList">
+            <li>Add today's marks to generate your action plan.</li>
+          </ul>
         </div>
       </div>
 
@@ -1424,6 +1653,26 @@
         <div class="text-sm font-extrabold text-purple-800">Want instant access without waiting?</div>
         <div class="text-sm text-purple-700 mt-1">Direct premium checkout is enabled below. One click, secure Razorpay, full unlock.</div>
         <button id="instantBuyBtn" type="button" class="js-direct-buy-now mt-3 w-full sm:w-auto px-5 py-3 rounded-2xl bg-purple-700 text-white font-black shadow hover:bg-purple-800 transition">Buy Premium Instantly ₹99</button>
+      </div>
+
+      <div id="liveAdminGrowthPanel" class="hidden mt-6 rounded-2xl border border-slate-300 bg-slate-50 p-4">
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wide text-slate-700">Admin Only</div>
+            <div class="text-lg font-black text-slate-900">Subscriber Growth Control</div>
+            <div class="text-sm text-slate-600 mt-1">Hidden by default. Opens only in admin mode and requires admin key for data access.</div>
+          </div>
+        </div>
+
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <input id="liveAdminKey" type="password" placeholder="Admin key" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          <input id="liveGoalInput" type="number" min="1" step="1" value="100000" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+          <button id="liveLoadMetricsBtn" type="button" class="rounded-xl bg-slate-900 text-white font-bold px-4 py-2 text-sm hover:bg-black transition">Load Metrics</button>
+          <button id="liveSaveGoalBtn" type="button" class="rounded-xl bg-blue-700 text-white font-bold px-4 py-2 text-sm hover:bg-blue-800 transition">Save Goal</button>
+        </div>
+
+        <div id="liveAdminStatus" class="mt-3 text-sm font-semibold text-slate-700"></div>
+        <div id="liveAdminMetrics" class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
       </div>
     </div>
   </section>

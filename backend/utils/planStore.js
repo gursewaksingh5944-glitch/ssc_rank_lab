@@ -3,6 +3,10 @@ const path = require("path");
 const crypto = require("crypto");
 
 const TRIAL_DURATION_MS = 2 * 24 * 60 * 60 * 1000;
+const DEFAULT_SUBSCRIBER_GOAL = 100000;
+const PLAN_MRR_RUPEES = {
+  99: 99
+};
 
 const dataDir = path.join(__dirname, "..", "data");
 const filePath = path.join(dataDir, "user-plans.json");
@@ -15,10 +19,18 @@ function ensureStoreFile() {
   if (!fs.existsSync(filePath)) {
     fs.writeFileSync(
       filePath,
-      JSON.stringify({ users: {}, payments: [], referrals: [] }, null, 2),
+      JSON.stringify({ users: {}, payments: [], referrals: [], settings: { subscriberGoal: DEFAULT_SUBSCRIBER_GOAL } }, null, 2),
       "utf8"
     );
   }
+}
+
+function normalizeSubscriberGoal(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return DEFAULT_SUBSCRIBER_GOAL;
+  }
+  return Math.round(Math.min(parsed, 100000000));
 }
 
 function readStore() {
@@ -31,12 +43,54 @@ function readStore() {
     return {
       users: parsed.users && typeof parsed.users === "object" ? parsed.users : {},
       payments: Array.isArray(parsed.payments) ? parsed.payments : [],
-      referrals: Array.isArray(parsed.referrals) ? parsed.referrals : []
+      referrals: Array.isArray(parsed.referrals) ? parsed.referrals : [],
+      settings: parsed.settings && typeof parsed.settings === "object"
+        ? parsed.settings
+        : { subscriberGoal: DEFAULT_SUBSCRIBER_GOAL }
     };
   } catch (err) {
     console.error("planStore read error:", err);
-    return { users: {}, payments: [], referrals: [] };
+    return {
+      users: {},
+      payments: [],
+      referrals: [],
+      settings: { subscriberGoal: DEFAULT_SUBSCRIBER_GOAL }
+    };
   }
+}
+
+function getSubscriberGoal() {
+  const store = readStore();
+  const fromStore = normalizeSubscriberGoal(store.settings?.subscriberGoal || 0);
+  const fromEnv = normalizeSubscriberGoal(process.env.SUBSCRIBER_GOAL || 0);
+  if (fromStore > 0) return fromStore;
+  if (fromEnv > 0) return fromEnv;
+  return DEFAULT_SUBSCRIBER_GOAL;
+}
+
+function setSubscriberGoal(goal) {
+  const normalizedGoal = normalizeSubscriberGoal(goal);
+  const store = readStore();
+  const nextSettings = {
+    ...(store.settings && typeof store.settings === "object" ? store.settings : {}),
+    subscriberGoal: normalizedGoal,
+    updatedAt: new Date().toISOString()
+  };
+
+  writeStore({
+    ...store,
+    settings: nextSettings
+  });
+
+  return {
+    subscriberGoal: normalizedGoal,
+    updatedAt: nextSettings.updatedAt
+  };
+}
+
+function computePlanMrr(profile = {}) {
+  const plan = Number(profile.unlockedPlan || 0);
+  return Number(PLAN_MRR_RUPEES[plan] || 0);
 }
 
 function writeStore(data) {
@@ -306,6 +360,77 @@ function getUserProfile(userKey) {
   return store.users[userKey] || null;
 }
 
+function getSubscriberStats() {
+  const store = readStore();
+  const users = Object.values(store.users || {});
+  const goal = normalizeSubscriberGoal(store.settings?.subscriberGoal || process.env.SUBSCRIBER_GOAL || DEFAULT_SUBSCRIBER_GOAL);
+  const now = Date.now();
+  const nowDate = new Date(now);
+  const monthStart = new Date(nowDate.getFullYear(), nowDate.getMonth(), 1);
+  const monthEnd = new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 1);
+  const daysInMonth = new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 0).getDate();
+  const daysElapsedInMonth = Math.max(1, nowDate.getDate());
+
+  let paidSubscribers = 0;
+  let activeTrials = 0;
+  let totalMrr = 0;
+
+  for (const profile of users) {
+    const unlockedPlan = Number(profile?.unlockedPlan || 0);
+    if (unlockedPlan >= 99) {
+      paidSubscribers += 1;
+      totalMrr += computePlanMrr(profile);
+    }
+
+    const trialEndsAtMs = new Date(profile?.trialEndsAt || "").getTime();
+    if (Number.isFinite(trialEndsAtMs) && trialEndsAtMs > now) {
+      activeTrials += 1;
+    }
+  }
+
+  const remainingToGoal = Math.max(0, goal - paidSubscribers);
+  const goalProgressPct = Number(((paidSubscribers / goal) * 100).toFixed(2));
+  const trialToPaidGap = Math.max(0, goal - (paidSubscribers + activeTrials));
+  const monthPaidAddsSet = new Set();
+
+  for (const payment of store.payments || []) {
+    const plan = Number(payment?.plan || 0);
+    if (plan < 99) continue;
+
+    const userKey = String(payment?.userKey || "").trim().toLowerCase();
+    if (!userKey) continue;
+
+    const paidAtMs = new Date(payment?.at || "").getTime();
+    if (!Number.isFinite(paidAtMs)) continue;
+    if (paidAtMs >= monthStart.getTime() && paidAtMs < monthEnd.getTime()) {
+      monthPaidAddsSet.add(userKey);
+    }
+  }
+
+  const currentMonthPaidAdds = monthPaidAddsSet.size;
+  const dailyRunRateThisMonth = Number((currentMonthPaidAdds / daysElapsedInMonth).toFixed(2));
+  const projectedMonthPaidAdds = Math.round(dailyRunRateThisMonth * daysInMonth);
+  const estimatedDaysToGoal = dailyRunRateThisMonth > 0
+    ? Math.ceil(remainingToGoal / dailyRunRateThisMonth)
+    : null;
+
+  return {
+    goalSubscribers: goal,
+    paidSubscribers,
+    activeTrials,
+    trialToPaidGap,
+    remainingToGoal,
+    goalProgressPct,
+    currentMonthPaidAdds,
+    dailyRunRateThisMonth,
+    projectedMonthPaidAdds,
+    estimatedDaysToGoal,
+    monthlyRecurringRevenueRs: totalMrr,
+    annualRunRateRs: totalMrr * 12,
+    generatedAt: new Date().toISOString()
+  };
+}
+
 function setUserProfile(userKey, profile = {}) {
   if (!userKey || typeof profile !== "object") return null;
 
@@ -339,6 +464,9 @@ module.exports = {
   getUnlockedPlan,
   getEffectiveAccessPlan,
   getTrialInfo,
+  getSubscriberGoal,
+  setSubscriberGoal,
+  getSubscriberStats,
   startTrial,
   setUnlockedPlan,
   hasPaymentId,
