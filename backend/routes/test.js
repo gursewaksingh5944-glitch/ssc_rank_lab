@@ -20,6 +20,11 @@ function normalizeUserKey(value) {
   return String(value || "").trim().toLowerCase();
 }
 
+function normalizeTier(value) {
+  const tier = String(value || "tier1").trim().toLowerCase();
+  return tier === "tier2" ? "tier2" : "tier1";
+}
+
 function readStore() {
   ensureStoreFile();
 
@@ -50,26 +55,54 @@ function normalizeDate(value) {
   return d.toISOString().split("T")[0];
 }
 
+function getTierLimits(tier) {
+  if (normalizeTier(tier) === "tier2") {
+    // Tier 2 Paper 1 merit subjects: Math(90) + Reasoning(90) + English(135) + GK(75) = 390
+    // Computer Knowledge (60) is qualifying-only — not counted in merit total
+    return {
+      quant: 90,
+      english: 135,
+      reasoning: 90,
+      gk: 75,
+      computer: 60,   // validated and stored, but NOT included in total (qualifying only)
+      total: 390      // merit total only
+    };
+  }
+
+  // Tier 1: 4 subjects × 50 marks = 200 total (qualifying for Tier 2 shortlisting)
+  return {
+    quant: 50,
+    english: 50,
+    reasoning: 50,
+    gk: 50,
+    computer: 0,
+    total: 200
+  };
+}
+
 // POST /api/test - Save daily test marks
 router.post("/", (req, res) => {
   try {
-    const { userKey, testDate, quant, english, reasoning, gk, computer } = req.body;
+    const { userKey, testDate, quant, english, reasoning, gk, computer, tier } = req.body;
 
     if (!userKey || !testDate) {
       return res.status(400).json({ success: false, error: "userKey and testDate required" });
     }
 
     const normalizedUserKey = normalizeUserKey(userKey);
+    const normalizedTier = normalizeTier(tier);
     const date = normalizeDate(testDate);
     if (!date) {
       return res.status(400).json({ success: false, error: "Invalid testDate" });
     }
 
-    const quantMarks = toMarks(quant, 50);
-    const englishMarks = toMarks(english, 50);
-    const reasoningMarks = toMarks(reasoning, 50);
-    const gkMarks = toMarks(gk, 50);
-    const computerMarks = toMarks(computer, 50);
+    const limits = getTierLimits(normalizedTier);
+
+    const quantMarks = toMarks(quant, limits.quant);
+    const englishMarks = toMarks(english, limits.english);
+    const reasoningMarks = toMarks(reasoning, limits.reasoning);
+    const gkMarks = toMarks(gk, limits.gk);
+    const computerMarks = toMarks(computer, limits.computer);
 
     if (
       quantMarks === null ||
@@ -80,13 +113,14 @@ router.post("/", (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        error: "Each subject mark must be between 0 and 50"
+        error: `Marks out of range for ${normalizedTier}. Limits: Quant ${limits.quant}, English ${limits.english}, Reasoning ${limits.reasoning}, GK ${limits.gk}, Computer ${limits.computer}`
       });
     }
 
-    const totalMarks = quantMarks + englishMarks + reasoningMarks + gkMarks + computerMarks;
-    if (totalMarks > 250) {
-      return res.status(400).json({ success: false, error: "Total marks cannot exceed 250" });
+    // Merit total excludes computer (qualifying-only for Tier 2)
+    const totalMarks = quantMarks + englishMarks + reasoningMarks + gkMarks;
+    if (totalMarks > limits.total) {
+      return res.status(400).json({ success: false, error: `Total merit marks cannot exceed ${limits.total} for ${normalizedTier}` });
     }
 
     const store = readStore();
@@ -95,7 +129,8 @@ router.post("/", (req, res) => {
       : [];
 
     const nextEntry = {
-      id: `${normalizedUserKey}_${date}`,
+      id: `${normalizedUserKey}_${normalizedTier}_${date}`,
+      tier: normalizedTier,
       test_date: date,
       quant_marks: quantMarks,
       english_marks: englishMarks,
@@ -106,7 +141,10 @@ router.post("/", (req, res) => {
       updated_at: new Date().toISOString()
     };
 
-    const existingIndex = userEntries.findIndex((item) => item.test_date === date);
+    const existingIndex = userEntries.findIndex((item) => {
+      const entryTier = normalizeTier(item?.tier || "tier1");
+      return item.test_date === date && entryTier === normalizedTier;
+    });
     if (existingIndex >= 0) {
       userEntries[existingIndex] = { ...userEntries[existingIndex], ...nextEntry };
     } else {
@@ -117,7 +155,7 @@ router.post("/", (req, res) => {
     store.users[normalizedUserKey] = userEntries.slice(0, 120);
     writeStore(store);
 
-    return res.json({ success: true, id: nextEntry.id, entry: nextEntry });
+    return res.json({ success: true, id: nextEntry.id, entry: nextEntry, tier: normalizedTier });
 
   } catch (error) {
     console.error("/api/test POST error:", error);
@@ -129,14 +167,16 @@ router.post("/", (req, res) => {
 router.get("/:userKey", (req, res) => {
   try {
     const userKey = normalizeUserKey(req.params.userKey);
+    const tier = normalizeTier(req.query.tier || "tier1");
     if (!userKey) {
       return res.status(400).json({ success: false, error: "userKey required" });
     }
 
     const store = readStore();
-    const entries = Array.isArray(store.users[userKey]) ? store.users[userKey] : [];
+    const entriesRaw = Array.isArray(store.users[userKey]) ? store.users[userKey] : [];
+    const entries = entriesRaw.filter((item) => normalizeTier(item?.tier || "tier1") === tier);
     const sorted = [...entries].sort((a, b) => String(b.test_date).localeCompare(String(a.test_date)));
-    return res.json({ success: true, entries: sorted.slice(0, 30) });
+    return res.json({ success: true, tier, entries: sorted.slice(0, 30) });
 
   } catch (error) {
     console.error("/api/test GET error:", error);

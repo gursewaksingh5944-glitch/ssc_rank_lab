@@ -1,4 +1,26 @@
 document.addEventListener("DOMContentLoaded", function () {
+  bindPredictRankButton();
+  bindUnlockButtons();
+  bindDirectBuyButtons();
+
+  activeTierMode = getStoredTierMode();
+  applyTierModeButtons();
+
+  const tierModeBtnTier1 = document.getElementById("tierModeBtnTier1");
+  if (tierModeBtnTier1) {
+    tierModeBtnTier1.addEventListener("click", function () {
+      switchTierMode("tier1");
+    });
+  }
+
+  const tierModeBtnTier2 = document.getElementById("tierModeBtnTier2");
+  if (tierModeBtnTier2) {
+    tierModeBtnTier2.addEventListener("click", function () {
+      switchTierMode("tier2");
+    });
+  }
+
+
   ensureUserKey();
   captureReferralCodeFromUrl();
   restoreUnlockedPlan();
@@ -7,11 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const testDateInput = document.getElementById("testDate");
   if (testDateInput && !testDateInput.value) {
     testDateInput.value = new Date().toISOString().split("T")[0];
-  }
-
-  const predictBtn = document.getElementById("btnRankPredictor");
-  if (predictBtn) {
-    predictBtn.addEventListener("click", predictRank);
   }
 
   const saveMarksBtn = document.getElementById("saveMarksBtn");
@@ -53,116 +70,52 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  bindUnlockButtons();
-  loadBenchmarkProfile();
-  loadMarksHistory();
-
-  const hookSetupGoalBtn = document.getElementById("hookSetupGoalBtn");
-  if (hookSetupGoalBtn) {
-    hookSetupGoalBtn.addEventListener("click", function () { showGoalModal(); });
-  }
-
-  const hzWhatifBtn = document.getElementById("hzWhatifBtn");
-  if (hzWhatifBtn) {
-    hzWhatifBtn.addEventListener("click", runWhatIfSimulator);
-  }
-
-  const hzWhatifInput = document.getElementById("hzWhatifInput");
-  if (hzWhatifInput) {
-    hzWhatifInput.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") runWhatIfSimulator();
-    });
-  }
-
-  const hzNotifClose = document.getElementById("hzNotifClose");
-  if (hzNotifClose) {
-    hzNotifClose.addEventListener("click", function () {
-      const toast = document.getElementById("hzNotifToast");
-      if (toast) toast.style.display = "none";
-    });
-  }
-  loadQuestionLabItems({ interactive: false });
-  syncPaymentStatus();
-  setInterval(syncPaymentStatus, 60000);
-
-  const navOpenGoalBtn = document.getElementById("navOpenGoal");
-  if (navOpenGoalBtn) {
-    navOpenGoalBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      showGoalModal();
-    });
-  }
-
-  const topOpenGoalBtn = document.getElementById("topOpenGoalBtn");
-  if (topOpenGoalBtn) {
-    topOpenGoalBtn.addEventListener("click", function () {
-      showGoalModal();
-    });
-  }
-
-  const goalReminderBtn = document.getElementById("goalReminderBtn");
-  if (goalReminderBtn) {
-    goalReminderBtn.addEventListener("click", function () {
-      showGoalModal();
-    });
-  }
-
-  // Upgrade modal wiring
-  const closeUpgradeModalBtn = document.getElementById("closeUpgradeModal");
-  if (closeUpgradeModalBtn) closeUpgradeModalBtn.addEventListener("click", closeUpgradeModal);
-
-  const upgradeModalPayBtn = document.getElementById("upgradeModalPayBtn");
-  if (upgradeModalPayBtn) {
-    upgradeModalPayBtn.addEventListener("click", async function () {
-      closeUpgradeModal();
-      await startRazorpayUnlock(99, upgradeModalPayBtn);
-    });
-  }
-
-  const upgradeModalTrialBtn = document.getElementById("upgradeModalTrialBtn");
-  if (upgradeModalTrialBtn) {
-    upgradeModalTrialBtn.addEventListener("click", function () {
-      closeUpgradeModal();
-      const startTrialBtn = document.getElementById("startTrialBtn");
-      startFreeTrial(startTrialBtn);
-    });
-  }
-
-  // Close upgrade modal on backdrop click
-  document.getElementById("upgradeModal")?.addEventListener("click", function (e) {
-    if (e.target === this) closeUpgradeModal();
-  });
-
-  // Pricing section trial button
-  const pricingTrialBtn = document.getElementById("pricingTrialBtn");
-  if (pricingTrialBtn) {
-    pricingTrialBtn.addEventListener("click", function () {
-      startFreeTrial(pricingTrialBtn);
-    });
-  }
-
-  bindDirectBuyButtons();
-
-  const openTrialBuyButtons = document.querySelectorAll(".js-open-trial-buy");
-  openTrialBuyButtons.forEach((button) => {
-    if (button.dataset.bound === "true") return;
-
-    button.dataset.bound = "true";
-    button.addEventListener("click", function () {
-      openTrialBuyWindow();
-    });
-  });
-
-  initLiveAdminGrowthPanel();
-
-  const closeGoalModalBtn = document.getElementById("closeGoalModal");
-  if (closeGoalModalBtn) {
-    closeGoalModalBtn.addEventListener("click", closeGoalModal);
-  }
-
   const saveGoalBtnEl = document.getElementById("saveGoalBtn");
   if (saveGoalBtnEl) {
     saveGoalBtnEl.addEventListener("click", saveGoalProfile);
+  }
+
+  const saveSelfReviewBtnEl = document.getElementById("saveSelfReviewBtn");
+  if (saveSelfReviewBtnEl) {
+    saveSelfReviewBtnEl.addEventListener("click", saveSelfDeclaredReview);
+  }
+
+  const topicDrillBtnEl = document.getElementById("topicDrillBtn");
+  if (topicDrillBtnEl) {
+    topicDrillBtnEl.addEventListener("click", function () {
+      openTopicDrillModal(document.getElementById("testDate")?.value || "");
+    });
+  }
+
+  const topicDrillCloseBtnEl = document.getElementById("topicDrillCloseBtn");
+  if (topicDrillCloseBtnEl) {
+    topicDrillCloseBtnEl.addEventListener("click", closeTopicDrillModal);
+  }
+
+  const topicDrillModalEl = document.getElementById("topicDrillModal");
+  if (topicDrillModalEl) {
+    topicDrillModalEl.addEventListener("click", function (e) {
+      if (e.target === topicDrillModalEl) closeTopicDrillModal();
+    });
+  }
+
+  const topicDrillTabsEl = document.getElementById("topicDrillTabs");
+  if (topicDrillTabsEl) {
+    topicDrillTabsEl.addEventListener("click", function (e) {
+      const tab = e.target.closest(".topic-modal-tab");
+      if (!tab) return;
+      const subject = tab.dataset.subject;
+      if (subject && subject !== _topicDrillActiveSubject) {
+        _topicDrillActiveSubject = subject;
+        applyTopicTabsUI();
+        renderTopicRows(subject);
+      }
+    });
+  }
+
+  const topicDrillSaveBtnEl = document.getElementById("topicDrillSaveBtn");
+  if (topicDrillSaveBtnEl) {
+    topicDrillSaveBtnEl.addEventListener("click", saveTopicDrill);
   }
 
   const goalTargetPostEl = document.getElementById("goalTargetPost");
@@ -196,6 +149,11 @@ document.addEventListener("DOMContentLoaded", function () {
     skipGoalBtnEl.addEventListener("click", closeGoalModal);
   }
 
+  const closeGoalModalBtn = document.getElementById("closeGoalModal");
+  if (closeGoalModalBtn) {
+    closeGoalModalBtn.addEventListener("click", closeGoalModal);
+  }
+
   const goalModalEl = document.getElementById("goalModal");
   if (goalModalEl) {
     goalModalEl.addEventListener("click", function (e) {
@@ -203,11 +161,103 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  const hookSetupGoalBtn = document.getElementById("hookSetupGoalBtn");
+  if (hookSetupGoalBtn) {
+    hookSetupGoalBtn.addEventListener("click", function () {
+      showGoalModal();
+    });
+  }
+
+  const navOpenGoalBtn = document.getElementById("navOpenGoal");
+  if (navOpenGoalBtn) {
+    navOpenGoalBtn.addEventListener("click", function (event) {
+      event.preventDefault();
+      showGoalModal();
+    });
+  }
+
+  const goalReminderBtn = document.getElementById("goalReminderBtn");
+  if (goalReminderBtn) {
+    goalReminderBtn.addEventListener("click", function () {
+      showGoalModal();
+    });
+  }
+
+  const hzWhatifBtn = document.getElementById("hzWhatifBtn");
+  if (hzWhatifBtn) {
+    hzWhatifBtn.addEventListener("click", runWhatIfSimulator);
+  }
+
+  const hzWhatifInput = document.getElementById("hzWhatifInput");
+  if (hzWhatifInput) {
+    hzWhatifInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        runWhatIfSimulator();
+      }
+    });
+  }
+
+  const hzNotifClose = document.getElementById("hzNotifClose");
+  if (hzNotifClose) {
+    hzNotifClose.addEventListener("click", function () {
+      const toast = document.getElementById("hzNotifToast");
+      if (toast) toast.style.display = "none";
+    });
+  }
+
+  const closeUpgradeModalBtn = document.getElementById("closeUpgradeModal");
+  if (closeUpgradeModalBtn) {
+    closeUpgradeModalBtn.addEventListener("click", closeUpgradeModal);
+  }
+
+  const upgradeModalPayBtn = document.getElementById("upgradeModalPayBtn");
+  if (upgradeModalPayBtn) {
+    upgradeModalPayBtn.addEventListener("click", async function () {
+      closeUpgradeModal();
+      await startRazorpayUnlock(99, upgradeModalPayBtn);
+    });
+  }
+
+  const upgradeModalTrialBtn = document.getElementById("upgradeModalTrialBtn");
+  if (upgradeModalTrialBtn) {
+    upgradeModalTrialBtn.addEventListener("click", function () {
+      closeUpgradeModal();
+      startFreeTrial(startTrialBtn || upgradeModalTrialBtn);
+    });
+  }
+
+  const upgradeModal = document.getElementById("upgradeModal");
+  if (upgradeModal) {
+    upgradeModal.addEventListener("click", function (event) {
+      if (event.target === upgradeModal) closeUpgradeModal();
+    });
+  }
+
   initSocialFeatures();
+  initLiveAdminGrowthPanel();
+
+  loadBenchmarkProfile();
+  loadMarksHistory();
+  loadQuestionLabItems({ interactive: false });
+  syncPaymentStatus();
+  setInterval(syncPaymentStatus, 60000);
 
   loadGoalCutoffCatalog();
   setTimeout(checkGoalOnboarding, 900);
 });
+
+function bindPredictRankButton() {
+  const predictBtn = document.getElementById("btnRankPredictor");
+  if (!predictBtn || predictBtn.dataset.predictBound === "1") return;
+
+  predictBtn.dataset.predictBound = "1";
+  predictBtn.type = "button";
+  predictBtn.addEventListener("click", function (event) {
+    event.preventDefault();
+    predictRank();
+  });
+}
 
 let rankChartInstance = null;
 let sectionChartInstance = null;
@@ -239,6 +289,195 @@ let socialState = {
 };
 let socialChatPollTimer = null;
 let socialNotifPollTimer = null;
+const ACTIVE_TIER_STORAGE_KEY = "sscranklab_active_tier_mode";
+const LOCAL_BACKEND_PORTS = new Set(["3000", "10000", "3100"]);
+let activeTierMode = "tier1";
+let goalsByTierCache = {};
+let benchmarksByTierCache = {};
+let selfReviewByTierCache = {};
+let topicDrillByTierCache = {};
+let _topicDrillModalTestDate = "";
+let _topicDrillActiveSubject = "Quant";
+
+function getConfiguredApiBase() {
+  try {
+    const localOverride = String(localStorage.getItem("sscranklab_api_base") || "").trim();
+    if (localOverride) return localOverride.replace(/\/+$/, "");
+
+    const metaValue = String(document.querySelector('meta[name="sscranklab-api-base"]')?.content || "").trim();
+    if (metaValue) return metaValue.replace(/\/+$/, "");
+  } catch (err) {
+    console.error("getConfiguredApiBase error:", err);
+  }
+  return "";
+}
+
+function getApiBaseUrl() {
+  try {
+    const configured = getConfiguredApiBase();
+    if (configured) return configured;
+
+    const protocol = String(window.location.protocol || "").toLowerCase();
+    const hostname = String(window.location.hostname || "").toLowerCase();
+    const port = String(window.location.port || "").trim();
+    const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1";
+
+    if (protocol === "file:") {
+      return "http://localhost:3000";
+    }
+
+    if (isLocalHost && port && !LOCAL_BACKEND_PORTS.has(port)) {
+      return "http://localhost:3000";
+    }
+  } catch (err) {
+    console.error("getApiBaseUrl error:", err);
+  }
+
+  return "";
+}
+
+function apiUrl(path) {
+  const normalizedPath = String(path || "").trim();
+  if (!normalizedPath) return "";
+  if (/^https?:\/\//i.test(normalizedPath)) return normalizedPath;
+
+  const prefixedPath = normalizedPath.startsWith("/") ? normalizedPath : `/${normalizedPath}`;
+  const base = getApiBaseUrl();
+  return base ? `${base}${prefixedPath}` : prefixedPath;
+}
+
+/* Full SSC CGL Tier 1 + Tier 2 syllabus, organised by subject */
+const SSC_TOPICS = {
+  Quant: [
+    "Number System", "Percentage", "Profit & Loss", "Ratio & Proportion",
+    "Time & Work", "Time, Speed & Distance", "Simple & Compound Interest",
+    "Averages & Mixtures", "Algebra", "Geometry", "Mensuration",
+    "Trigonometry", "Data Interpretation"
+  ],
+  English: [
+    "Reading Comprehension", "Cloze Test", "Error Spotting",
+    "Fill in the Blanks", "Synonyms / Antonyms", "Idioms & Phrases",
+    "One Word Substitution", "Sentence Improvement", "Para Jumbles",
+    "Active / Passive Voice", "Direct / Indirect Speech"
+  ],
+  Reasoning: [
+    "Analogies", "Number / Letter Series", "Coding - Decoding",
+    "Blood Relations", "Direction & Distance", "Classification",
+    "Syllogism", "Matrix & Missing Number", "Venn Diagrams",
+    "Non-Verbal Reasoning", "Seating Arrangement", "Statement & Conclusion"
+  ],
+  GK: [
+    "History", "Geography", "Indian Polity", "Economy",
+    "Physics", "Chemistry", "Biology", "Current Affairs",
+    "Static GK", "Sports & Awards"
+  ],
+  Computer: [
+    "Computer Basics & Hardware", "MS Office - Word & Excel",
+    "Internet & Networking", "Operating System",
+    "MS Excel Functions", "Database Basics", "Shortcut Keys & Tricks"
+  ]
+};
+
+const TIER_FORM_CONFIG = {
+  tier1: {
+    subjects: [
+      { key: "quant", id: "quantMarks", label: "Quant", dbKey: "quant_marks", max: 50, color: "rgb(239,68,68)", bg: "rgba(239,68,68,.1)" },
+      { key: "english", id: "englishMarks", label: "English", dbKey: "english_marks", max: 50, color: "rgb(34,197,94)", bg: "rgba(34,197,94,.1)" },
+      { key: "reasoning", id: "reasoningMarks", label: "Reasoning", dbKey: "reasoning_marks", max: 50, color: "rgb(168,85,247)", bg: "rgba(168,85,247,.1)" },
+      { key: "gk", id: "gkMarks", label: "GK", dbKey: "gk_marks", max: 50, color: "rgb(251,191,36)", bg: "rgba(251,191,36,.1)" }
+    ],
+    totalMax: 200
+  },
+  tier2: {
+    subjects: [
+      { key: "quant", id: "quantMarks", label: "Quant", dbKey: "quant_marks", max: 90, color: "rgb(239,68,68)", bg: "rgba(239,68,68,.1)" },
+      { key: "english", id: "englishMarks", label: "English", dbKey: "english_marks", max: 135, color: "rgb(34,197,94)", bg: "rgba(34,197,94,.1)" },
+      { key: "reasoning", id: "reasoningMarks", label: "Reasoning", dbKey: "reasoning_marks", max: 90, color: "rgb(168,85,247)", bg: "rgba(168,85,247,.1)" },
+      { key: "gk", id: "gkMarks", label: "GK", dbKey: "gk_marks", max: 75, color: "rgb(251,191,36)", bg: "rgba(251,191,36,.1)" },
+      { key: "computer", id: "computerMarks", label: "Computer", dbKey: "computer_marks", max: 60, color: "rgb(6,182,212)", bg: "rgba(6,182,212,.1)", qualifying: true }
+    ],
+    totalMax: 390  // merit only: Quant(90)+English(135)+Reasoning(90)+GK(75); Computer(60) qualifying
+  }
+};
+
+function getTierCfg() {
+  return TIER_FORM_CONFIG[normalizeTierMode(activeTierMode)] || TIER_FORM_CONFIG.tier1;
+}
+
+let pendingSelfReviewDate = "";
+
+function normalizeTierMode(value) {
+  const tier = String(value || "tier1").trim().toLowerCase();
+  return tier === "tier2" ? "tier2" : "tier1";
+}
+
+function getStoredTierMode() {
+  try {
+    return normalizeTierMode(localStorage.getItem(ACTIVE_TIER_STORAGE_KEY) || "tier1");
+  } catch (err) {
+    console.error("getStoredTierMode error:", err);
+    return "tier1";
+  }
+}
+
+function setStoredTierMode(tier) {
+  try {
+    localStorage.setItem(ACTIVE_TIER_STORAGE_KEY, normalizeTierMode(tier));
+  } catch (err) {
+    console.error("setStoredTierMode error:", err);
+  }
+}
+
+function applyTierModeButtons() {
+  const tier1Btn = document.getElementById("tierModeBtnTier1");
+  const tier2Btn = document.getElementById("tierModeBtnTier2");
+  if (tier1Btn) tier1Btn.classList.toggle("active", activeTierMode === "tier1");
+  if (tier2Btn) tier2Btn.classList.toggle("active", activeTierMode === "tier2");
+  applyMarksFormForTier(activeTierMode);
+}
+
+function applyMarksFormForTier(tier) {
+  const cfg = TIER_FORM_CONFIG[normalizeTierMode(tier)] || TIER_FORM_CONFIG.tier1;
+  const hasComputer = cfg.subjects.some(function (s) { return s.key === "computer"; });
+
+  const wrap = document.getElementById("computerMarksWrap");
+  if (wrap) wrap.style.display = hasComputer ? "contents" : "none";
+
+  cfg.subjects.forEach(function (sub) {
+    const el = document.getElementById(sub.id);
+    if (!el) return;
+    el.max = sub.max;
+    el.min = 0;
+    el.placeholder = sub.label + " (0-" + sub.max + ")";
+
+    const targetEl = document.getElementById(sub.key + "TargetInput");
+    if (targetEl) {
+      targetEl.max = sub.max;
+      targetEl.min = 0;
+      targetEl.placeholder = sub.label + " <= " + sub.max;
+    }
+  });
+
+  const computerTargetWrap = document.getElementById("computerTargetWrap");
+  if (computerTargetWrap) computerTargetWrap.style.display = hasComputer ? "contents" : "none";
+
+  const overallTargetInput = document.getElementById("overallTargetInput");
+  const previousCutoffInput = document.getElementById("previousCutoffInput");
+  if (overallTargetInput) overallTargetInput.max = cfg.totalMax;
+  if (previousCutoffInput) previousCutoffInput.max = cfg.totalMax;
+
+  const grid = document.querySelector(".marks-form-grid");
+  if (grid) grid.style.gridTemplateColumns = cfg.subjects.length <= 4 ? "repeat(2,minmax(0,1fr))" : "repeat(3,minmax(0,1fr))";
+}
+
+function switchTierMode(nextTier) {
+  activeTierMode = normalizeTierMode(nextTier);
+  setStoredTierMode(activeTierMode);
+  applyTierModeButtons();
+  loadBenchmarkProfile();
+  loadMarksHistory();
+  loadUserOutcome();
+}
 
 function bindUnlockButtons() {
   const unlockButtons = document.querySelectorAll(".js-unlock-plan");
@@ -259,7 +498,8 @@ function bindSingleDirectBuyButton(button) {
 
   button.dataset.buyBound = "true";
   button.addEventListener("click", async function () {
-    await startRazorpayUnlock(99, button);
+    const targetPlan = Number(button.dataset.plan || 99);
+    await startRazorpayUnlock(targetPlan, button);
   });
 }
 
@@ -296,9 +536,17 @@ function openTrialBuyWindow() {
   showPaymentStatus("Choose Start 2-Day Free Trial or Buy Premium ₹99.", "info");
 }
 
+async function runSyncPaymentStatusSafe() {
+  if (typeof syncPaymentStatus === "function") {
+    await syncPaymentStatus();
+    return;
+  }
+  console.warn("syncPaymentStatus missing; continuing with local access state");
+}
+
 async function ensurePremiumAccess(actionLabel = "This action") {
   try {
-    await syncPaymentStatus();
+    await runSyncPaymentStatusSafe();
   } catch (err) {
     console.error("ensurePremiumAccess sync error:", err);
   }
@@ -428,12 +676,12 @@ function updatePremiumOptions(unlockedPlan = 0) {
   const previousValue = Number(premiumInput.value || 0);
   const trialActive = Boolean(paymentAccessState?.trial?.active);
 
-  premiumInput.innerHTML = `<option value="0">Free</option>`;
+  premiumInput.innerHTML = `<option value="0">Free (Project Zero + ₹49 Lite)</option>`;
 
   if (unlockedPlan >= 99) {
     premiumInput.insertAdjacentHTML(
       "beforeend",
-      `<option value="99">Monthly Premium ₹99 (${trialActive ? "Trial Access" : "Unlocked"})</option>`
+      `<option value="99">Premium Pack ₹99 (${trialActive ? "Trial Access" : "Unlocked"})</option>`
     );
   }
 
@@ -448,6 +696,34 @@ function updatePremiumOptions(unlockedPlan = 0) {
   updatePlanStatusText(unlockedPlan);
 }
 
+function updatePredictorOfferStrip(unlockedPlan = 0) {
+  const premiumText = document.getElementById("predictorPremiumOfferText");
+  const cta = document.getElementById("predictorOfferCta");
+  if (!premiumText || !cta) return;
+
+  const trial = paymentAccessState?.trial;
+  if (trial && trial.active) {
+    const hours = Math.ceil(Number(trial.remainingMs || 0) / (60 * 60 * 1000));
+    premiumText.textContent = `Trial active: full ₹99 features unlocked (${Math.max(0, hours)}h left)`;
+    cta.textContent = "Premium Trial Active";
+    cta.classList.add("active");
+    cta.disabled = true;
+    return;
+  }
+
+  if (Number(unlockedPlan || 0) >= 99) {
+    premiumText.textContent = "Premium unlocked: full rank intelligence active";
+    cta.textContent = "Premium Active";
+    cta.classList.add("active");
+    cta.disabled = true;
+  } else {
+    premiumText.textContent = "Upgrade to ₹99 for full rank intelligence + post probability";
+    cta.textContent = "Unlock ₹99";
+    cta.classList.remove("active");
+    cta.disabled = false;
+  }
+}
+
 function restoreUnlockedPlan() {
   const paidPlan = Number(localStorage.getItem("sscranklab_unlocked_plan") || 0);
   setCurrentAccessPlan(paidPlan);
@@ -460,29 +736,67 @@ function restoreUnlockedPlan() {
 
 function updatePlanStatusText(unlockedPlan = 0) {
   const planStatusText = document.getElementById("planStatusText");
+  const topPlanBadge = document.getElementById("topPlanBadge");
+  
+  if (topPlanBadge) {
+    if (unlockedPlan >= 99) {
+      topPlanBadge.classList.remove("hidden");
+    } else {
+      topPlanBadge.classList.add("hidden");
+    }
+  }
+  
   if (!planStatusText) {
+    updatePredictorOfferStrip(unlockedPlan);
     updateSidePredictorBox(unlockedPlan);
     updatePremiumLockedCtas(unlockedPlan);
+    updatePlansPanelState(unlockedPlan);
     return;
   }
 
   const trial = paymentAccessState.trial;
   if (trial && trial.active) {
     const hours = Math.ceil(Number(trial.remainingMs || 0) / (60 * 60 * 1000));
-    planStatusText.textContent = `2-day trial active (${Math.max(0, hours)}h left). Monthly ₹99 service is fully unlocked right now.`;
+    planStatusText.textContent = `Trial active (${Math.max(0, hours)}h left): Project Zero + ₹49 Lite + full ₹99 premium are unlocked now.`;
+    updatePredictorOfferStrip(unlockedPlan);
     updateSidePredictorBox(unlockedPlan);
     updatePremiumLockedCtas(unlockedPlan);
+    updatePlansPanelState(unlockedPlan);
     return;
   }
 
   if (unlockedPlan >= 99) {
-    planStatusText.textContent = "Monthly ₹99 premium service unlocked.";
+    planStatusText.textContent = "Premium Pack ₹99 unlocked: full rank intelligence active.";
   } else {
-    planStatusText.textContent = "Start 2-day trial, then continue with ₹99/month for full service.";
+    planStatusText.textContent = "Free mode: Project Zero + ₹49 Lite. Upgrade to ₹99 for full rank intelligence.";
   }
 
+  updatePredictorOfferStrip(unlockedPlan);
   updateSidePredictorBox(unlockedPlan);
   updatePremiumLockedCtas(unlockedPlan);
+  updatePlansPanelState(unlockedPlan);
+}
+
+function updatePlansPanelState(unlockedPlan = 0) {
+  const plan99 = document.getElementById("planCard99");
+  const plan899 = document.getElementById("planCard899");
+  const buy99 = document.getElementById("pricingBuyBtn");
+  const buy899 = document.getElementById("pricingBuy899Btn");
+
+  if (plan99) plan99.classList.toggle("active", Number(unlockedPlan || 0) >= 99);
+  if (plan899) plan899.classList.toggle("active", Number(unlockedPlan || 0) >= 899);
+
+  if (buy99) {
+    buy99.textContent = Number(unlockedPlan || 0) >= 99 ? "₹99 Plan Active" : "Subscribe ₹99/month";
+    buy99.disabled = Number(unlockedPlan || 0) >= 99;
+    buy99.style.opacity = Number(unlockedPlan || 0) >= 99 ? "0.75" : "1";
+  }
+
+  if (buy899) {
+    buy899.textContent = Number(unlockedPlan || 0) >= 899 ? "₹899 Plan Active" : "Unlock ₹899/year";
+    buy899.disabled = Number(unlockedPlan || 0) >= 899;
+    buy899.style.opacity = Number(unlockedPlan || 0) >= 899 ? "0.75" : "1";
+  }
 }
 
 function updatePremiumLockedCtas(unlockedPlan = 0) {
@@ -533,18 +847,11 @@ function updateSidePredictorBox(unlockedPlan = 0) {
 }
 
 function updateTopGoalFrame() {
-  const postEl = document.getElementById("topGoalPost");
-  const cutoffEl = document.getElementById("topGoalAutoCutoff");
-  const targetEl = document.getElementById("topGoalTargetScore");
   const reminderWrap = document.getElementById("goalReminderWrap");
   const reminderMain = document.getElementById("goalReminderMain");
   const reminderSub = document.getElementById("goalReminderSub");
-  if (!postEl || !cutoffEl || !targetEl) return;
 
   if (!goalProfile) {
-    postEl.textContent = "Not set";
-    cutoffEl.textContent = "--";
-    targetEl.textContent = "--";
     if (reminderWrap) reminderWrap.classList.add("hidden");
     return;
   }
@@ -553,6 +860,7 @@ function updateTopGoalFrame() {
   const cutoff = goalProfile.autoCutoff ? String(Math.round(Number(goalProfile.autoCutoff || 0))) : "--";
   const target = goalProfile.targetScore ? String(Math.round(Number(goalProfile.targetScore || 0))) : "--";
   const category = String(goalProfile.category || "UR");
+  const tier = String(goalProfile.tier || "tier1").toUpperCase();
   const examDate = String(goalProfile.examDate || "").trim();
   let examText = "Upcoming exam";
 
@@ -563,14 +871,10 @@ function updateTopGoalFrame() {
     }
   }
 
-  postEl.textContent = post;
-  cutoffEl.textContent = cutoff;
-  targetEl.textContent = target;
-
   if (reminderWrap && reminderMain && reminderSub) {
     reminderWrap.classList.remove("hidden");
-    reminderMain.textContent = `${post} • ${category} • Target ${target}`;
-    reminderSub.textContent = `Auto cutoff ${cutoff} • ${examText}`;
+    reminderMain.textContent = `${post} • ${tier} • Target ${target}`;
+    reminderSub.textContent = `Auto cutoff ${cutoff} • ${category} • ${examText}`;
   }
 }
 
@@ -597,17 +901,18 @@ function updateTodayActionPlan(entries = []) {
   }
 
   const latest = [...entries].sort((a, b) => new Date(b.test_date) - new Date(a.test_date))[0] || {};
-  const subjects = [
-    { label: "Quant", value: Number(latest.quant_marks || 0) },
-    { label: "English", value: Number(latest.english_marks || 0) },
-    { label: "Reasoning", value: Number(latest.reasoning_marks || 0) },
-    { label: "GK", value: Number(latest.gk_marks || 0) },
-    { label: "Computer", value: Number(latest.computer_marks || 0) }
-  ];
+  const subjects = getTierCfg().subjects.map(function (s) {
+    return { label: s.label, value: Number(latest[s.dbKey] || 0) };
+  });
 
   const weakest = [...subjects].sort((a, b) => a.value - b.value).slice(0, 2);
   const overallAvg = computeOverallAverageScore(entries);
-  const goalScore = Number(goalProfile?.autoCutoff || 0) > 0 ? Math.min(250, Number(goalProfile.autoCutoff || 0) + 5) : 0;
+  const goalTier = String(goalProfile?.tier || "tier1").toLowerCase();
+  // Tier 2 merit is out of 390 (excluding qualifying Computer subject)
+  // Tier 1 is out of 200 (4 subjects × 50, qualifying for Tier 2 shortlisting)
+  const scoreCap = goalTier === "tier2" ? 390 : 200;
+  const buffer = goalTier === "tier2" ? 8 : 5;
+  const goalScore = Number(goalProfile?.autoCutoff || 0) > 0 ? Math.min(scoreCap, Number(goalProfile.autoCutoff || 0) + buffer) : 0;
   const marksAway = goalScore > 0 ? Math.max(0, Number((goalScore - overallAvg).toFixed(1))) : 0;
 
   let expectedGain = 1.0;
@@ -625,17 +930,28 @@ function updateTodayActionPlan(entries = []) {
 
   const first = weakest[0]?.label || "Quant";
   const second = weakest[1]?.label || "GK";
+
+  // Enrich with specific topic data from drill if available
+  const weakTopics = getWeakTopicsFromDrill().filter(function (t) { return t.totalMistakes > 0; });
+  const topTopic = weakTopics[0] ? weakTopics[0].topic + " (" + weakTopics[0].subject + ")" : null;
+  const secondTopic = weakTopics[1] ? weakTopics[1].topic + " (" + weakTopics[1].subject + ")" : null;
+
   listEl.innerHTML = [
-    `Solve 20 targeted ${escapeHtml(first)} questions and analyze mistakes.`,
-    `Run 2 timed mini-mocks focused on ${escapeHtml(second)} accuracy and speed.`,
+    topTopic
+      ? "Focus: " + escapeHtml(topTopic) + " \u2014 " + weakTopics[0].totalMistakes + " mistakes in " + weakTopics[0].sessions + " test" + (weakTopics[0].sessions !== 1 ? "s" : "") + ". Review concepts and redo similar questions."
+      : "Solve 20 targeted " + escapeHtml(first) + " questions and analyze mistakes.",
+    secondTopic
+      ? "Practice: " + escapeHtml(secondTopic) + " with timed questions to build accuracy and speed."
+      : "Run 2 timed mini-mocks focused on " + escapeHtml(second) + " accuracy and speed.",
     goalScore > 0
-      ? `Maintain revision so your overall average moves from ${overallAvg.toFixed(1)} toward goal ${Math.round(goalScore)}.`
+      ? "Maintain revision so your overall average moves from " + overallAvg.toFixed(1) + " toward goal " + Math.round(goalScore) + "."
       : "Set target post to activate cutoff + 5 safe-zone planning."
   ].map((item) => `<li>${item}</li>`).join("");
 }
 
 function getPlanName(plan) {
   if (Number(plan) === 99) return "Monthly Premium ₹99";
+  if (Number(plan) === 899) return "Premium Plus ₹899/year";
   return `Plan ₹${plan}`;
 }
 
@@ -665,7 +981,7 @@ async function loadUserOutcome() {
   const userKey = getUserKey();
   if (!userKey) return;
   try {
-    const res = await fetch(`/api/user/${encodeURIComponent(userKey)}/outcome`);
+    const res = await fetch(apiUrl(`/api/user/${encodeURIComponent(userKey)}/outcome?tier=${encodeURIComponent(activeTierMode)}`));
     if (!res.ok) return;
     const data = await res.json();
     if (data.success) updateHookZone(data);
@@ -701,12 +1017,16 @@ function updateHookZone(outcome) {
   const selChanceEl    = document.getElementById("hzSelChance");
   const zoneLabelEl    = document.getElementById("hzZoneLabel");
   const confidenceEl   = document.getElementById("hzConfidenceChip");
+  const confidenceWrapEl = document.getElementById("hzConfidenceWrap");
+  const confidenceFillEl = document.getElementById("hzConfidenceFill");
+  const confidenceCountEl = document.getElementById("hzConfidenceCount");
   const daysLabelEl    = document.getElementById("hzDaysLabel");
   const dailyGainEl    = document.getElementById("hzDailyGain");
   const daysToGoalEl   = document.getElementById("hzDaysToGoal");
   const urgencyIconEl  = document.getElementById("hzUrgencyIcon");
   const urgencyTextEl  = document.getElementById("hzUrgencyText");
   const subjectGridEl  = document.getElementById("hzSubjectGrid");
+  const driverNoteEl   = document.getElementById("hzDriverNote");
 
   if (!headlineText) return;
 
@@ -779,19 +1099,41 @@ function updateHookZone(outcome) {
       zoneLabel === "Moderate"      ? "#fbbf24" : "#f87171";
   }
   /* Confidence indicator */
-  if (confidenceEl) {
+  if (confidenceEl && confidenceWrapEl && confidenceFillEl && confidenceCountEl) {
     if (outcome.hasHistory) {
-      const confLabel =
-        confidence === "high"   ? "✓ High confidence (strong data)" :
-        confidence === "medium" ? "~ Medium confidence" :
-                                  "⚠ Low confidence (add more entries)";
+      const logged = Math.min(10, Number(sessionCount || 0));
+      const pct = Math.max(5, logged * 10);
+      const confLabel = confidence === "high" ? "Strong confidence from test history" : "Confidence improves with more tests";
       confidenceEl.textContent = confLabel;
-      confidenceEl.className = `hz-confidence ${escapeHtml(confidence)}`;
+      confidenceEl.className = "hz-confidence medium";
       confidenceEl.style.display = "inline-flex";
+      confidenceWrapEl.style.display = "block";
+      confidenceFillEl.style.width = `${pct}%`;
+      confidenceCountEl.textContent = `${logged}/10 tests logged`;
     } else {
       confidenceEl.style.display = "none";
+      confidenceWrapEl.style.display = "none";
     }
   }
+
+  if (driverNoteEl) {
+    if (outcome.hasHistory && safeScore != null && overallAvg != null && overallAvg > safeScore && subjectAvgs) {
+      const strongest = Object.entries(subjectAvgs)
+        .sort((a, b) => Number(b[1] || 0) - Number(a[1] || 0))
+        .slice(0, 2)
+        .map(([label]) => label);
+      const reason = strongest.length >= 2
+        ? `Driven by strong ${strongest[0]} + ${strongest[1]} performance.`
+        : "Driven by consistent subject strength.";
+      driverNoteEl.textContent = reason;
+      driverNoteEl.style.display = "block";
+    } else {
+      driverNoteEl.style.display = "none";
+      driverNoteEl.textContent = "";
+    }
+  }
+
+  updateWeakTopicNote();
 
   if (daysLabelEl) {
     daysLabelEl.textContent = (daysToGoal != null && daysToGoal > 0)
@@ -836,16 +1178,31 @@ function updateHookZone(outcome) {
       const rows = order.map(s => ({
         label: s,
         avg: subjectAvgs[s] || 0,
-        weight: weights[s] || 1.0
+        weight: weights[s] || 1.0,
+        qualifying: s === "Computer"
       }));
-      const maxAvg = Math.max(...rows.map(r => r.avg), 1);
-      subjectGridEl.innerHTML = rows.map(({ label, avg, weight }) => {
+      const maxAvg = Math.max(...rows.filter(r => !r.qualifying).map(r => r.avg), 1);
+      const sortedRows = [...rows].filter(r => !r.qualifying).sort((a, b) => Number(b.avg || 0) - Number(a.avg || 0));
+      subjectGridEl.innerHTML = rows.map(({ label, avg, weight, qualifying }) => {
+        if (qualifying) {
+          // Computer: show qualifying status, not merit score
+          const pct = Math.round((avg / 60) * 100);
+          const qualCls = pct >= 40 ? "strong" : pct >= 25 ? "neutral" : "weak";
+          return `<div class="hz-subject ${escapeHtml(qualCls)}">
+          <div class="hz-subject-label">${escapeHtml(label)} <span style="font-size:0.65em;opacity:0.7;">(qualifying)</span></div>
+          <div class="hz-subject-score">${avg.toFixed(1)}<span style="font-size:0.6em;opacity:0.6;">/60</span></div>
+          <div class="hz-subject-impact">${pct >= 40 ? "Qualifying ✓" : "Below cutoff"}</div>
+        </div>`;
+        }
         const relScore = avg / maxAvg;
-        const impact   = ((1 - relScore) * weight * 10).toFixed(0); // potential gain
+        const impact = Math.max(1, Math.round((1 - relScore) * weight * 10));
         const cls = relScore < 0.75 ? "weak" : relScore >= 0.92 ? "strong" : "neutral";
-        const statusTag =
-          cls === "weak"   ? `+${impact} pts potential` :
-          cls === "strong" ? "✓ GOOD"                   : "OK";
+        const rankPos = sortedRows.findIndex((row) => row.label === label);
+        let statusTag = "Building momentum";
+        if (cls === "strong" && rankPos <= 1) statusTag = "Strong zone";
+        else if (cls === "weak" && impact >= 4) statusTag = `+${impact} potential`;
+        else if (cls === "weak") statusTag = "Needs attention";
+        else if (impact >= 3) statusTag = `+${impact} potential`;
         return `<div class="hz-subject ${escapeHtml(cls)}">
           <div class="hz-subject-label">${escapeHtml(label)}</div>
           <div class="hz-subject-score">${avg.toFixed(1)}</div>
@@ -948,19 +1305,28 @@ function runWhatIfSimulator() {
   if (!inputEl || !resultEl) return;
 
   const score = Number(inputEl.value);
-  if (!Number.isFinite(score) || score < 0 || score > 250) {
-    resultEl.textContent = "Enter a score between 0 and 250.";
+  const goalTier = String(_lastOutcome?.goalProfile?.tier || "tier1").toLowerCase();
+  const scoreMax = goalTier === "tier2" ? 390 : 200;
+  if (!Number.isFinite(score) || score < 0 || score > scoreMax) {
+    resultEl.textContent = `Enter a merit score between 0 and ${scoreMax}.`;
     resultEl.style.color = "#f87171";
     return;
   }
 
   const outcome   = _lastOutcome;
+  // No cross-scale conversion: scores are stored in their actual scale
   const safeScore = outcome?.scores?.safeScore;
   const overallAvg = outcome?.scores?.overallAvg;
-  const sessionCount = outcome?.trend?.sessionCount || 1;
+  const sessionCount = Number(outcome?.trend?.sessionCount || 0);
 
-  if (!safeScore || !overallAvg) {
-    resultEl.textContent = "Set your goal first to run simulations.";
+  if (!safeScore) {
+    resultEl.textContent = "Set your goal post first, then run simulation.";
+    resultEl.style.color = "#fbbf24";
+    return;
+  }
+
+  if (!Number.isFinite(overallAvg) || sessionCount <= 0) {
+    resultEl.textContent = "Add daily scores in My Progress first. Simulation needs your score trend.";
     resultEl.style.color = "#fbbf24";
     return;
   }
@@ -1065,7 +1431,7 @@ async function startRazorpayUnlock(plan, triggerButton = null) {
       throw new Error("Razorpay SDK not loaded. Check app-preview.html script tag.");
     }
 
-    const createOrderResponse = await fetch("/api/payment/create-order", {
+    const createOrderResponse = await fetch(apiUrl("/api/payment/create-order"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -1103,7 +1469,7 @@ async function startRazorpayUnlock(plan, triggerButton = null) {
         try {
           showPaymentStatus("Verifying payment...", "info");
 
-          const verifyResponse = await fetch("/api/payment/verify", {
+          const verifyResponse = await fetch(apiUrl("/api/payment/verify"), {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
@@ -1231,61 +1597,61 @@ function showPaymentStatus(message, type = "info") {
 }
 
 async function predictRank() {
-  await syncPaymentStatus();
-  const marks = Number(document.getElementById("marksInput")?.value);
-  const category = document.getElementById("categoryInput")?.value;
-  const selectedPlan = Number(document.getElementById("premiumInput")?.value || 0);
-  const unlockedPlan = getUnlockedPlan();
-  const userKey = getUserKey();
-  const plan = selectedPlan > 0 ? Math.min(selectedPlan, unlockedPlan) : 0;
-
   const resultDiv = document.getElementById("rankResult");
   if (!resultDiv) return;
 
-  if (!Number.isFinite(marks) || marks < 0) {
-    resultDiv.innerHTML = `
-      <div class="bg-red-50 border border-red-200 text-red-700 font-semibold p-4 rounded-2xl shadow-sm">
-        Enter valid marks first.
-      </div>
-    `;
-    return;
-  }
+  try {
+    await runSyncPaymentStatusSafe();
+    const marks = Number(document.getElementById("marksInput")?.value);
+    const category = document.getElementById("categoryInput")?.value;
+    const selectedPlan = Number(document.getElementById("premiumInput")?.value || 0);
+    const unlockedPlan = getUnlockedPlan();
+    const userKey = getUserKey();
+    const plan = selectedPlan > 0 ? Math.min(selectedPlan, unlockedPlan) : 0;
 
-  if (!category) {
-    resultDiv.innerHTML = `
-      <div class="bg-red-50 border border-red-200 text-red-700 font-semibold p-4 rounded-2xl shadow-sm">
-        Select category.
-      </div>
-    `;
-    return;
-  }
+    if (!Number.isFinite(marks) || marks < 0) {
+      resultDiv.innerHTML = `
+        <div class="bg-red-50 border border-red-200 text-red-700 font-semibold p-4 rounded-2xl shadow-sm">
+          Enter valid marks first.
+        </div>
+      `;
+      return;
+    }
 
-  if (selectedPlan > unlockedPlan) {
-    updatePremiumOptions(unlockedPlan);
-    resultDiv.innerHTML = `
-      <div class="bg-red-50 border border-red-200 text-red-700 font-semibold p-4 rounded-2xl shadow-sm">
-        Premium plan not unlocked yet.
-      </div>
-    `;
-    return;
-  }
+    if (!category) {
+      resultDiv.innerHTML = `
+        <div class="bg-red-50 border border-red-200 text-red-700 font-semibold p-4 rounded-2xl shadow-sm">
+          Select category.
+        </div>
+      `;
+      return;
+    }
 
-  resultDiv.innerHTML = `
-    <div class="bg-white border border-gray-200 p-5 rounded-3xl shadow-lg">
-      <div class="flex items-center gap-3">
-        <div class="w-5 h-5 rounded-full border-2 border-gray-300 border-t-blue-600 animate-spin"></div>
-        <div>
-          <div class="font-semibold text-gray-800">Calculating from real data…</div>
-          <div class="text-sm text-gray-500">Analyzing score, category pool, and prediction model.</div>
+    if (selectedPlan > unlockedPlan) {
+      updatePremiumOptions(unlockedPlan);
+      resultDiv.innerHTML = `
+        <div class="bg-red-50 border border-red-200 text-red-700 font-semibold p-4 rounded-2xl shadow-sm">
+          Premium plan not unlocked yet.
+        </div>
+      `;
+      return;
+    }
+
+    resultDiv.innerHTML = `
+      <div class="bg-white border border-gray-200 p-5 rounded-3xl shadow-lg">
+        <div class="flex items-center gap-3">
+          <div class="w-5 h-5 rounded-full border-2 border-gray-300 border-t-blue-600 animate-spin"></div>
+          <div>
+            <div class="font-semibold text-gray-800">Calculating from real data…</div>
+            <div class="text-sm text-gray-500">Analyzing score, category pool, and prediction model.</div>
+          </div>
         </div>
       </div>
-    </div>
-  `;
+    `;
 
-  try {
-    const apiUrl = "/api/predict-v2";
+    const predictApiUrl = apiUrl("/api/predict-v2");
 
-    const response = await fetch(apiUrl, {
+    const response = await fetch(predictApiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -1339,11 +1705,12 @@ async function predictRank() {
     });
   } catch (e) {
     console.error("predictRank error:", e);
+    const apiTarget = escapeHtml(getApiBaseUrl() || window.location.origin || "this app origin");
     resultDiv.innerHTML = `
       <div class="bg-white border border-red-100 p-6 rounded-3xl shadow-lg">
         <div class="text-red-600 font-bold mb-2 text-lg">Server connection error</div>
         <div class="text-gray-600 text-sm">
-          Make sure backend is running on <span class="font-semibold">http://localhost:3000</span>
+          Make sure backend API is reachable at <span class="font-semibold">${apiTarget}</span>
         </div>
         <div class="text-xs text-gray-500 mt-2">${escapeHtml(e.message || "Unknown connection error")}</div>
       </div>
@@ -1392,15 +1759,15 @@ function renderResult(data) {
     "Percentile means the percentage of candidates you scored higher than.";
 
   resultDiv.innerHTML = `
-    <div class="bg-white/95 border border-gray-200 p-6 md:p-8 rounded-3xl shadow-2xl">
-      <div class="flex items-center justify-between flex-wrap gap-3">
-        <h3 class="text-3xl font-black text-gray-900">Your Result</h3>
-        <span class="text-sm px-4 py-2 rounded-full bg-blue-50 text-blue-700 font-semibold">
+    <div class="result-shell">
+      <div class="result-head">
+        <h3 class="result-title">Your Result</h3>
+        <span class="result-mode">
           ${escapeHtml(modeLabel)} • Plan ₹${escapeHtml(String(plan))}
         </span>
       </div>
 
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="result-metrics">
         ${renderMetricCard({
           title: "Estimated Rank",
           value: estRank,
@@ -1463,15 +1830,15 @@ function renderMetricCard({
   locked = false,
   tone = "blue"
 }) {
-  const toneClasses = getToneClasses(tone);
+  const toneClass = tone === "emerald" ? "green" : tone === "indigo" ? "indigo" : "blue";
 
   return `
-    <div class="p-5 rounded-3xl border ${toneClasses.card} shadow-sm">
-      <div class="text-sm ${toneClasses.label}">${escapeHtml(String(title))}</div>
-      <div class="text-2xl md:text-3xl font-black ${toneClasses.value} mt-2">
+    <div class="metric-card ${toneClass}">
+      <div class="k">${escapeHtml(String(title))}</div>
+      <div class="v">
         ${escapeHtml(String(value))}
       </div>
-      <div class="text-sm ${toneClasses.sub} mt-2 leading-relaxed">
+      <div class="s">
         ${escapeHtml(String(subtitle || ""))}
       </div>
     </div>
@@ -1486,25 +1853,19 @@ function renderLockedMetricCard({
   plan = 99
 }) {
   return `
-    <div class="relative p-5 rounded-3xl border bg-slate-50 shadow-sm overflow-hidden min-h-[150px]">
-      <div class="absolute inset-0 bg-white/78 backdrop-blur-[3px] flex items-center justify-center z-10 pointer-events-none">
-        <div class="text-center px-4">
-          <button
-            type="button"
-            class="js-unlock-plan pointer-events-auto inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow hover:opacity-90 transition"
-            data-plan="${plan}"
-          >
-            <span>🔒</span>
-            <span>${escapeHtml(lockText)}</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="text-sm text-gray-500">${escapeHtml(String(title))}</div>
-      <div class="text-2xl md:text-3xl font-black text-gray-400 mt-2">
+    <div class="metric-card locked">
+      <button
+        type="button"
+        class="js-unlock-plan lock-cta"
+        data-plan="${plan}"
+      >
+        🔒 ${escapeHtml(lockText)}
+      </button>
+      <div class="k">${escapeHtml(String(title))}</div>
+      <div class="v">
         ${escapeHtml(String(previewValue))}
       </div>
-      <div class="text-sm text-gray-400 mt-2 leading-relaxed">
+      <div class="s">
         ${escapeHtml(String(subtitle))}
       </div>
     </div>
@@ -1513,25 +1874,24 @@ function renderLockedMetricCard({
 
 function renderUpgradePanel99() {
   return `
-    <div class="mt-6 rounded-3xl border border-purple-200 bg-gradient-to-r from-purple-50 to-white p-6 shadow-sm">
-      <div class="flex items-start justify-between gap-4 flex-wrap">
+    <div class="ladder-shell" style="margin-top:14px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
         <div>
-          <div class="text-xl font-bold text-gray-900">Unlock complete rank service in Monthly ₹99</div>
-          <div class="text-gray-600 mt-2 max-w-2xl">
+          <div class="ladder-title">Unlock complete rank service in Monthly ₹99</div>
+          <div style="margin-top:6px;font-size:13px;color:#475569;font-weight:700;line-height:1.55;max-width:720px;">
             Get category rank, percentile, overall seat position, what-if jumps, competition density, and post chances in one monthly plan.
           </div>
-
-          <div class="grid sm:grid-cols-3 gap-3 mt-5">
-            <div class="rounded-2xl border bg-white p-4 text-sm text-gray-700">✅ Category rank + percentile</div>
-            <div class="rounded-2xl border bg-white p-4 text-sm text-gray-700">✅ Seat position + score zone</div>
-            <div class="rounded-2xl border bg-white p-4 text-sm text-gray-700">✅ What-if jumps + post chances</div>
+          <div class="ladder-list" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-top:10px;">
+            <div class="ladder-item"><span class="post">Category rank + percentile</span></div>
+            <div class="ladder-item"><span class="post">Seat position + score zone</span></div>
+            <div class="ladder-item"><span class="post">What-if jumps + post chances</span></div>
           </div>
         </div>
-
-        <div class="shrink-0">
+        <div>
           <button
             type="button"
-            class="js-unlock-plan px-5 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow hover:bg-purple-700 transition"
+            class="js-unlock-plan"
+            style="border:none;border-radius:12px;background:#6d28d9;color:#fff;padding:10px 14px;font-size:13px;font-weight:900;cursor:pointer;"
             data-plan="99"
           >
             Start Monthly ₹99
@@ -1567,31 +1927,26 @@ function renderInsightsBlock(insights = {}, postChances = {}) {
   const items = Array.isArray(postChances?.items) ? postChances.items : [];
 
   const selectionChanceCard = `
-    <div class="p-5 rounded-3xl border bg-white shadow-sm">
-      <div class="text-sm text-gray-500">Overall Seat Position</div>
+    <div class="insight-card">
+      <div class="k">Overall Seat Position</div>
       ${
         selectionChance
           ? `
-            <div class="text-2xl font-black text-gray-900 mt-2">
+            <div class="v">
               ${
                 Number(selectionChance.categoryRank) <= Number(selectionChance.categorySeats)
                   ? "Within Seat Range"
                   : "Outside Seat Range"
               }
             </div>
-            <div class="text-sm text-gray-700 mt-2">
+            <div class="s">
               Based on category rank vs total category vacancies
-            </div>
-            <div class="text-xs text-gray-500 mt-2 leading-relaxed">
-              Category Seats: ${escapeHtml(String(selectionChance.categorySeats ?? "—"))} |
-              Category Rank: ${escapeHtml(String(selectionChance.categoryRank ?? "—"))}
-            </div>
-            <div class="text-xs text-gray-500 mt-2 leading-relaxed">
-              Post-wise chances are shown below.
+              <br/>Category Seats: ${escapeHtml(String(selectionChance.categorySeats ?? "—"))}
+              <br/>Category Rank: ${escapeHtml(String(selectionChance.categoryRank ?? "—"))}
             </div>
           `
           : `
-            <div class="text-sm text-red-600 mt-3">Not available</div>
+            <div class="s" style="color:#b91c1c;">Not available</div>
           `
       }
     </div>
@@ -1600,10 +1955,10 @@ function renderInsightsBlock(insights = {}, postChances = {}) {
   const scoreZoneCard =
     insights?.scoreZone
       ? `
-        <div class="p-5 rounded-3xl border bg-white shadow-sm">
-          <div class="text-sm text-gray-500">Score Zone</div>
-          <div class="text-2xl font-black text-gray-900 mt-2">${escapeHtml(insights.scoreZone)}</div>
-          <div class="text-sm text-gray-500 mt-2 leading-relaxed">${escapeHtml(insights.note || "")}</div>
+        <div class="insight-card">
+          <div class="k">Score Zone</div>
+          <div class="v">${escapeHtml(insights.scoreZone)}</div>
+          <div class="s">${escapeHtml(insights.note || "")}</div>
         </div>
       `
       : "";
@@ -1611,9 +1966,9 @@ function renderInsightsBlock(insights = {}, postChances = {}) {
   const whatIfCard =
     insights?.whatIf
       ? `
-        <div class="p-5 rounded-3xl border bg-white shadow-sm">
-          <div class="text-sm text-gray-500">What-if Rank Jump</div>
-          <div class="text-gray-800 mt-3 text-sm leading-7">
+        <div class="insight-card">
+          <div class="k">What-if Rank Jump</div>
+          <div class="s" style="font-size:14px;line-height:1.7;">
             +2 marks → ~${escapeHtml(String(insights.whatIf.plus2Rank ?? "—"))} rank<br/>
             +5 marks → ~${escapeHtml(String(insights.whatIf.plus5Rank ?? "—"))} rank
           </div>
@@ -1624,9 +1979,9 @@ function renderInsightsBlock(insights = {}, postChances = {}) {
   const densityCard =
     insights?.density
       ? `
-        <div class="p-5 rounded-3xl border bg-white shadow-sm">
-          <div class="text-sm text-gray-500">Competition Density</div>
-          <div class="text-gray-800 mt-3 text-sm leading-relaxed">
+        <div class="insight-card">
+          <div class="k">Competition Density</div>
+          <div class="s" style="font-size:14px;">
             In your range (±5 marks): ~${escapeHtml(String(insights.density.candidatesInBand ?? "—"))} candidates
           </div>
         </div>
@@ -1638,23 +1993,23 @@ function renderInsightsBlock(insights = {}, postChances = {}) {
   const ladderBlock =
     ladderSourceItems.length > 0
       ? `
-        <div class="mt-6 p-5 rounded-3xl border bg-white shadow-sm">
-          <div class="font-bold text-xl text-gray-900 mb-4">Post Probability Ladder</div>
-          <div class="space-y-3">
+        <div class="ladder-shell">
+          <h4 class="ladder-title">Post Probability Ladder</h4>
+          <div class="ladder-list">
             ${ladderSourceItems.map((p) => `
-              <div class="flex justify-between items-center gap-4 border rounded-2xl p-4">
+              <div class="ladder-item">
                 <div>
-                  <div class="font-semibold text-gray-900">${escapeHtml(p.post || "—")}</div>
+                  <div class="post">${escapeHtml(p.post || "—")}</div>
                   ${
                     p.department
-                      ? `<div class="text-xs text-gray-500 mt-1">${escapeHtml(p.department)}</div>`
+                      ? `<div class="meta">${escapeHtml(p.department)}</div>`
                       : ""
                   }
-                  <div class="text-xs text-gray-500 mt-1">
+                  <div class="meta">
                     Score Gap: ${escapeHtml(String(p.scoreGap ?? "—"))}
                   </div>
                 </div>
-                <div class="font-semibold text-indigo-700 whitespace-nowrap">
+                <div class="band">
                   ${escapeHtml(p.ladderLevel || p.level || p.likelihoodBand || "—")}
                 </div>
               </div>
@@ -1667,36 +2022,32 @@ function renderInsightsBlock(insights = {}, postChances = {}) {
   const postBlock =
     items.length > 0
       ? `
-        <div class="mt-6 p-5 rounded-3xl border bg-white shadow-sm">
-          <div class="font-bold text-xl text-gray-900 mb-4">Best Possible Posts</div>
-          <div class="space-y-4">
+        <div class="ladder-shell">
+          <h4 class="ladder-title">Best Possible Posts</h4>
+          <div class="ladder-list">
             ${items.map((p) => `
-              <div class="border rounded-2xl p-4">
-                <div class="flex justify-between gap-4">
-                  <div>
-                    <div class="font-semibold text-gray-900">${escapeHtml(p.post || "—")}</div>
-                    ${p.department ? `<div class="text-xs text-gray-500 mt-1">${escapeHtml(p.department)}</div>` : ""}
-                  </div>
-                  <div class="font-semibold text-indigo-700 whitespace-nowrap">${escapeHtml(p.likelihoodBand || "—")}</div>
+              <div class="ladder-item">
+                <div>
+                  <div class="post">${escapeHtml(p.post || "—")}</div>
+                  ${p.department ? `<div class="meta">${escapeHtml(p.department)}</div>` : ""}
+                  <div class="meta">Cutoff: ${escapeHtml(String(p.cutoff ?? "—"))} | Score Gap: ${escapeHtml(String(p.scoreGap ?? "—"))}</div>
                 </div>
-                <div class="text-sm text-gray-600 mt-3">
-                  Cutoff: ${escapeHtml(String(p.cutoff ?? "—"))} | Score Gap: ${escapeHtml(String(p.scoreGap ?? "—"))}
-                </div>
+                <div class="band">${escapeHtml(p.likelihoodBand || "—")}</div>
               </div>
             `).join("")}
           </div>
         </div>
       `
       : `
-        <div class="mt-6 p-5 rounded-3xl border bg-white shadow-sm">
-          <div class="font-bold text-xl text-gray-900">Post Chances</div>
-          <div class="text-red-500 text-sm mt-3">Not available yet.</div>
+        <div class="ladder-shell">
+          <h4 class="ladder-title">Post Chances</h4>
+          <div style="margin-top:8px;font-size:13px;color:#b91c1c;font-weight:700;">Not available yet.</div>
         </div>
       `;
 
   return `
-    <div class="mt-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div>
+      <div class="insights-shell">
         ${selectionChanceCard}
         ${scoreZoneCard}
         ${whatIfCard}
@@ -1708,29 +2059,13 @@ function renderInsightsBlock(insights = {}, postChances = {}) {
   `;
 }
 
-function getToneClasses(tone) {
-  const map = {
-    blue: {
-      card: "bg-blue-50 border-blue-100",
-      label: "text-blue-700",
-      value: "text-gray-900",
-      sub: "text-gray-600"
-    },
-    emerald: {
-      card: "bg-emerald-50 border-emerald-100",
-      label: "text-emerald-700",
-      value: "text-gray-900",
-      sub: "text-gray-600"
-    },
-    indigo: {
-      card: "bg-indigo-50 border-indigo-100",
-      label: "text-indigo-700",
-      value: "text-gray-900",
-      sub: "text-gray-600"
-    }
+function getToneClasses(_tone) {
+  return {
+    card: "",
+    label: "",
+    value: "",
+    sub: ""
   };
-
-  return map[tone] || map.blue;
 }
 
 function initCharts() {
@@ -1866,6 +2201,7 @@ function handleBenchmarkModeChange() {
   const subjectBox = document.getElementById("subjectTargetsBox");
   const prevCutoff = document.getElementById("previousCutoffInput");
   const overallInput = document.getElementById("overallTargetInput");
+  const cfg = getTierCfg();
 
   if (subjectBox) {
     subjectBox.style.display = mode === "manual_subject" ? "grid" : "none";
@@ -1883,7 +2219,7 @@ function handleBenchmarkModeChange() {
     const cutoff = Number(prevCutoff.value || 0);
     const plus = mode === "cutoff_plus_7" ? 7 : 5;
     if (Number.isFinite(cutoff) && cutoff > 0) {
-      overallInput.value = String(Math.min(250, cutoff + plus));
+      overallInput.value = String(Math.min(cfg.totalMax, cutoff + plus));
     }
   }
 }
@@ -1891,30 +2227,26 @@ function handleBenchmarkModeChange() {
 function buildBenchmarkPayload() {
   const mode = String(document.getElementById("benchmarkMode")?.value || "manual_overall");
   const previousCutoff = numFromInput("previousCutoffInput", 0);
+  const cfg = getTierCfg();
 
   let overallTarget = numFromInput("overallTargetInput", 0);
-  if (mode === "cutoff_plus_5") overallTarget = Math.min(250, previousCutoff + 5);
-  if (mode === "cutoff_plus_7") overallTarget = Math.min(250, previousCutoff + 7);
+  if (mode === "cutoff_plus_5") overallTarget = Math.min(cfg.totalMax, previousCutoff + 5);
+  if (mode === "cutoff_plus_7") overallTarget = Math.min(cfg.totalMax, previousCutoff + 7);
 
-  const subjectTargets = {
-    quant: Math.min(50, numFromInput("quantTargetInput", 0)),
-    english: Math.min(50, numFromInput("englishTargetInput", 0)),
-    reasoning: Math.min(50, numFromInput("reasoningTargetInput", 0)),
-    gk: Math.min(50, numFromInput("gkTargetInput", 0)),
-    computer: Math.min(50, numFromInput("computerTargetInput", 0))
-  };
+  const subjectTargets = {};
+  cfg.subjects.forEach(function (sub) {
+    subjectTargets[sub.key] = Math.min(sub.max, numFromInput(sub.key + "TargetInput", 0));
+  });
 
   if (mode !== "manual_subject") {
-    const per = overallTarget > 0 ? Number((overallTarget / 5).toFixed(1)) : 0;
-    subjectTargets.quant = per;
-    subjectTargets.english = per;
-    subjectTargets.reasoning = per;
-    subjectTargets.gk = per;
-    subjectTargets.computer = per;
+    const per = overallTarget > 0 ? Number((overallTarget / cfg.subjects.length).toFixed(1)) : 0;
+    cfg.subjects.forEach(function (sub) {
+      subjectTargets[sub.key] = Math.min(sub.max, per);
+    });
   }
 
-  if (!Number.isFinite(overallTarget) || overallTarget <= 0 || overallTarget > 250) {
-    return { error: "Overall target must be between 1 and 250" };
+  if (!Number.isFinite(overallTarget) || overallTarget <= 0 || overallTarget > cfg.totalMax) {
+    return { error: "Overall target must be between 1 and " + cfg.totalMax };
   }
 
   return {
@@ -1943,30 +2275,33 @@ function applyBenchmarkToUI(benchmark) {
   if (overallEl) overallEl.value = Number(benchmark.overallTarget || 0) || "";
 
   const sub = benchmark.subjectTargets || {};
-  const setIf = (id, value) => {
+  const setIf = function (id, value) {
     const el = document.getElementById(id);
     if (el) el.value = Number(value || 0) || "";
   };
 
-  setIf("quantTargetInput", sub.quant);
-  setIf("englishTargetInput", sub.english);
-  setIf("reasoningTargetInput", sub.reasoning);
-  setIf("gkTargetInput", sub.gk);
-  setIf("computerTargetInput", sub.computer);
+  getTierCfg().subjects.forEach(function (s) {
+    setIf(s.key + "TargetInput", sub[s.key]);
+  });
+  if (activeTierMode === "tier1") {
+    setIf("computerTargetInput", "");
+  }
 
   handleBenchmarkModeChange();
 }
 
 async function loadBenchmarkProfile() {
   const userKey = getUserKey();
-  setBenchmarkStatus("Loading benchmark...", "info");
+  setBenchmarkStatus(`Loading ${activeTierMode.toUpperCase()} benchmark...`, "info");
 
   try {
-    const response = await fetch(`/api/user/${encodeURIComponent(userKey)}`);
+    const response = await fetch(apiUrl(`/api/user/${encodeURIComponent(userKey)}`));
 
     if (response.status === 404) {
       benchmarkProfile = null;
       goalProfile = null;
+      goalsByTierCache = {};
+      benchmarksByTierCache = {};
       applyBenchmarkToUI(null);
       updateTopGoalFrame();
       updateGoalGapBanner(lastMarksEntries);
@@ -1980,8 +2315,18 @@ async function loadBenchmarkProfile() {
       throw new Error(data.error || "Could not load profile");
     }
 
-    benchmarkProfile = data.profile?.benchmark || null;
-    goalProfile = data.profile?.goal || null;
+    const profile = data.profile || {};
+    goalsByTierCache = profile.goalsByTier && typeof profile.goalsByTier === "object" ? profile.goalsByTier : {};
+    benchmarksByTierCache = profile.benchmarksByTier && typeof profile.benchmarksByTier === "object" ? profile.benchmarksByTier : {};
+    selfReviewByTierCache = profile.selfReviewByTier && typeof profile.selfReviewByTier === "object" ? profile.selfReviewByTier : {};
+    topicDrillByTierCache = profile.topicDrillByTier && typeof profile.topicDrillByTier === "object" ? profile.topicDrillByTier : {};
+
+    const legacyGoal = profile.goal || null;    const legacyGoalTier = normalizeTierMode(legacyGoal?.tier || "tier1");
+    goalProfile = goalsByTierCache[activeTierMode] || (legacyGoal && legacyGoalTier === activeTierMode ? legacyGoal : null);
+
+    const legacyBenchmark = profile.benchmark || null;
+    benchmarkProfile = benchmarksByTierCache[activeTierMode] || (activeTierMode === "tier1" ? legacyBenchmark : null);
+
     applyBenchmarkToUI(benchmarkProfile);
     updateTopGoalFrame();
     updateGoalGapBanner(lastMarksEntries);
@@ -2013,10 +2358,22 @@ async function saveBenchmarkProfile() {
   setBenchmarkStatus("Saving benchmark...", "info");
 
   try {
-    const response = await fetch(`/api/user/${encodeURIComponent(userKey)}`, {
+    benchmarksByTierCache = {
+      ...(benchmarksByTierCache && typeof benchmarksByTierCache === "object" ? benchmarksByTierCache : {}),
+      [activeTierMode]: payload.benchmark
+    };
+
+    const profileUpdatePayload = {
+      benchmarksByTier: benchmarksByTierCache
+    };
+    if (activeTierMode === "tier1") {
+      profileUpdatePayload.benchmark = payload.benchmark;
+    }
+
+    const response = await fetch(apiUrl(`/api/user/${encodeURIComponent(userKey)}`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(profileUpdatePayload)
     });
 
     const data = await response.json();
@@ -2024,7 +2381,11 @@ async function saveBenchmarkProfile() {
       throw new Error(data.error || "Save failed");
     }
 
-    benchmarkProfile = data.profile?.benchmark || payload.benchmark;
+    const profile = data.profile || {};
+    benchmarksByTierCache = profile.benchmarksByTier && typeof profile.benchmarksByTier === "object"
+      ? profile.benchmarksByTier
+      : benchmarksByTierCache;
+    benchmarkProfile = benchmarksByTierCache[activeTierMode] || payload.benchmark;
     applyBenchmarkToUI(benchmarkProfile);
     setBenchmarkStatus("Benchmark saved successfully.", "success");
   } catch (err) {
@@ -2049,32 +2410,23 @@ function updateBenchmarkReview(entries) {
   else if (gap > 5) status = "Slightly Behind";
 
   const subjectTargets = benchmarkProfile.subjectTargets || {};
-  const subjectScores = {
-    quant: Number(latest.quant_marks || 0),
-    english: Number(latest.english_marks || 0),
-    reasoning: Number(latest.reasoning_marks || 0),
-    gk: Number(latest.gk_marks || 0),
-    computer: Number(latest.computer_marks || 0)
-  };
-
+  const tierSubjects = getTierCfg().subjects;
   let prioritySubject = "--";
   let maxGap = -Infinity;
-  Object.keys(subjectScores).forEach((key) => {
-    const target = Number(subjectTargets[key] || 0);
-    const g = target - subjectScores[key];
+  tierSubjects.forEach(function (sub) {
+    const score = Number(latest[sub.dbKey] || 0);
+    const target = Number(subjectTargets[sub.key] || 0);
+    const g = target - score;
     if (g > maxGap) {
       maxGap = g;
-      prioritySubject = key;
+      prioritySubject = sub.key;
     }
   });
 
-  const priorityMap = {
-    quant: "Quant",
-    english: "English",
-    reasoning: "Reasoning",
-    gk: "GK",
-    computer: "Computer"
-  };
+  const priorityMap = {};
+  tierSubjects.forEach(function (sub) {
+    priorityMap[sub.key] = sub.label;
+  });
 
   updateReviewCards({
     status,
@@ -2154,7 +2506,7 @@ async function loadQuestionLabItems(options = {}) {
   setQuestionLabStatus("Loading updated questions...", "info");
 
   try {
-    const response = await fetch(`/api/questions?${params.toString()}`);
+    const response = await fetch(apiUrl(`/api/questions?${params.toString()}`));
     const data = await response.json();
 
     if (!response.ok || !data.success) {
@@ -2179,7 +2531,7 @@ async function generateMockFromLab() {
   setQuestionLabStatus("Generating mock set...", "info");
 
   try {
-    const response = await fetch("/api/questions/mocks/generate", {
+    const response = await fetch(apiUrl("/api/questions/mocks/generate"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ subject, difficulty, count })
@@ -2211,28 +2563,34 @@ async function saveMarks() {
   const english = Number(document.getElementById("englishMarks")?.value || 0);
   const reasoning = Number(document.getElementById("reasoningMarks")?.value || 0);
   const gk = Number(document.getElementById("gkMarks")?.value || 0);
-  const computer = Number(document.getElementById("computerMarks")?.value || 0);
+  const _smTierCfg = getTierCfg();
+  const _smHasComputer = _smTierCfg.subjects.some(function (s) { return s.key === "computer"; });
+  const computer = _smHasComputer ? Number(document.getElementById("computerMarks")?.value || 0) : 0;
 
   if (!testDate) {
     showProgressStatus("Please select a date first.", "error");
     return;
   }
 
-  const marks = [quant, english, reasoning, gk, computer];
-  const hasInvalid = marks.some((m) => !Number.isFinite(m) || m < 0 || m > 50);
+  const hasInvalid = _smTierCfg.subjects.some(function (sub) {
+    const val = Number(document.getElementById(sub.id)?.value || 0);
+    return !Number.isFinite(val) || val < 0 || val > sub.max;
+  });
   if (hasInvalid) {
-    showProgressStatus("Each subject mark must be between 0 and 50.", "error");
+    const maxNote = _smTierCfg.subjects.map(function (s) { return s.label + " max " + s.max; }).join(", ");
+    showProgressStatus("Marks out of range. Limits: " + maxNote + ".", "error");
     return;
   }
 
   showProgressStatus("Saving your marks...", "info");
 
   try {
-    const response = await fetch("/api/test", {
+    const response = await fetch(apiUrl("/api/test"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userKey,
+        tier: activeTierMode,
         testDate,
         quant,
         english,
@@ -2246,6 +2604,7 @@ async function saveMarks() {
     if (data.success) {
       showProgressStatus("Saved successfully. Great consistency.", "success");
       await loadMarksHistory();
+      showSelfReviewPrompt(data.entry?.test_date || testDate);
       // Clear form
       document.getElementById("quantMarks").value = "";
       document.getElementById("englishMarks").value = "";
@@ -2261,11 +2620,226 @@ async function saveMarks() {
   }
 }
 
+/* ============================================================
+   TOPIC-WISE DRILL MODAL
+   ============================================================ */
+
+function openTopicDrillModal(testDate) {
+  const modal = document.getElementById("topicDrillModal");
+  const dateLabel = document.getElementById("topicDrillDateLabel");
+  const badge = document.getElementById("topicDrillSavedBadge");
+  const status = document.getElementById("topicDrillStatus");
+  if (!modal) return;
+  _topicDrillModalTestDate = testDate || new Date().toISOString().split("T")[0];
+  _topicDrillActiveSubject = "Quant";
+  if (dateLabel) dateLabel.textContent = `Test date: ${_topicDrillModalTestDate} \u00b7 ${activeTierMode.toUpperCase()}`;
+  if (badge) badge.style.display = "none";
+  if (status) status.textContent = "";
+  renderTopicRows(_topicDrillActiveSubject);
+  applyTopicTabsUI();
+  modal.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeTopicDrillModal() {
+  const modal = document.getElementById("topicDrillModal");
+  if (modal) modal.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function applyTopicTabsUI() {
+  const tabs = document.querySelectorAll("#topicDrillTabs .topic-modal-tab");
+  tabs.forEach(function (tab) {
+    tab.classList.toggle("active", tab.dataset.subject === _topicDrillActiveSubject);
+  });
+}
+
+function renderTopicRows(subject) {
+  const body = document.getElementById("topicDrillBody");
+  if (!body) return;
+  const topics = SSC_TOPICS[subject] || [];
+  const existing = (topicDrillByTierCache[activeTierMode] || {})[_topicDrillModalTestDate]?.[subject] || {};
+  body.innerHTML = topics.map(function (topic) {
+    const safeId = "tdr_" + topic.replace(/[^a-zA-Z0-9]/g, "_");
+    const ex = existing[topic] || {};
+    const mVal = ex.marks != null ? ex.marks : "";
+    const eVal = ex.mistakes != null ? ex.mistakes : "";
+    const tVal = ex.timeMins != null ? ex.timeMins : "";
+    return '<div class="topic-row">'
+      + '<div class="topic-row-label">' + escapeHtml(topic) + '</div>'
+      + '<input type="number" id="' + safeId + '_marks" placeholder="\u2014" min="0" max="50" value="' + mVal + '" />'
+      + '<input type="number" id="' + safeId + '_mistakes" placeholder="\u2014" min="0" max="25" value="' + eVal + '" />'
+      + '<input type="number" id="' + safeId + '_mins" placeholder="\u2014" min="0" max="120" value="' + tVal + '" />'
+      + '</div>';
+  }).join("");
+}
+
+async function saveTopicDrill() {
+  const userKey = getUserKey();
+  const status = document.getElementById("topicDrillStatus");
+  const badge = document.getElementById("topicDrillSavedBadge");
+  const subject = _topicDrillActiveSubject;
+  const topics = SSC_TOPICS[subject] || [];
+
+  const subjectData = {};
+  topics.forEach(function (topic) {
+    const safeId = "tdr_" + topic.replace(/[^a-zA-Z0-9]/g, "_");
+    const mRaw = (document.getElementById(safeId + "_marks")?.value || "").trim();
+    const eRaw = (document.getElementById(safeId + "_mistakes")?.value || "").trim();
+    const tRaw = (document.getElementById(safeId + "_mins")?.value || "").trim();
+    if (mRaw !== "" || eRaw !== "" || tRaw !== "") {
+      subjectData[topic] = {
+        marks: mRaw !== "" ? Number(mRaw) : null,
+        mistakes: eRaw !== "" ? Number(eRaw) : null,
+        timeMins: tRaw !== "" ? Number(tRaw) : null
+      };
+    }
+  });
+
+  const tier = activeTierMode;
+  const date = _topicDrillModalTestDate;
+  const tierData = Object.assign({}, topicDrillByTierCache[tier] || {});
+  const dateData = Object.assign({}, tierData[date] || {});
+  if (Object.keys(subjectData).length > 0) {
+    dateData[subject] = subjectData;
+  }
+  tierData[date] = dateData;
+  topicDrillByTierCache = Object.assign({}, topicDrillByTierCache, { [tier]: tierData });
+
+  try {
+    const res = await fetch(apiUrl("/api/user/" + encodeURIComponent(userKey)), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topicDrillByTier: topicDrillByTierCache })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.error || "Save failed");
+    if (status) status.textContent = subject + " saved \u2713";
+    if (badge) { badge.style.display = "inline"; setTimeout(function () { badge.style.display = "none"; }, 3000); }
+    updateTodayActionPlan(lastMarksEntries);
+    updateWeakTopicNote();
+  } catch (err) {
+    console.error("saveTopicDrill error:", err);
+    if (status) status.textContent = "Saved locally. Server sync failed.";
+  }
+}
+
+/**
+ * Aggregate topic drill data for current tier.
+ * Returns array of {topic, subject, totalMistakes, totalMarks, sessions}
+ * sorted by most mistakes descending.
+ */
+function getWeakTopicsFromDrill() {
+  const tierData = topicDrillByTierCache[activeTierMode];
+  if (!tierData || typeof tierData !== "object") return [];
+  const stats = {};
+  Object.values(tierData).forEach(function (dateData) {
+    if (!dateData || typeof dateData !== "object") return;
+    Object.entries(dateData).forEach(function ([subject, subjectData]) {
+      if (!subjectData || typeof subjectData !== "object") return;
+      Object.entries(subjectData).forEach(function ([topic, vals]) {
+        if (!vals) return;
+        const key = subject + "::" + topic;
+        if (!stats[key]) stats[key] = { topic: topic, subject: subject, totalMistakes: 0, totalMarks: 0, sessions: 0 };
+        if (vals.mistakes != null) stats[key].totalMistakes += Number(vals.mistakes);
+        if (vals.marks != null) stats[key].totalMarks += Number(vals.marks);
+        stats[key].sessions++;
+      });
+    });
+  });
+  return Object.values(stats).sort(function (a, b) { return b.totalMistakes - a.totalMistakes; });
+}
+
+/**
+ * Update the purple weak-topic note in the hook zone.
+ */
+function updateWeakTopicNote() {
+  const el = document.getElementById("hzWeakTopicNote");
+  if (!el) return;
+  const weakTopics = getWeakTopicsFromDrill().filter(function (t) { return t.totalMistakes > 0; });
+  if (weakTopics.length === 0) {
+    el.style.display = "none";
+    el.textContent = "";
+    return;
+  }
+  const top = weakTopics[0];
+  const second = weakTopics[1];
+  let msg = "\uD83D\uDCCC Focus area: <strong>" + escapeHtml(top.topic) + "</strong> (" + escapeHtml(top.subject) + ") \u2014 " + top.totalMistakes + " mistakes across " + top.sessions + " test" + (top.sessions !== 1 ? "s" : "") + ".";
+  if (second) msg += " Also watch: <strong>" + escapeHtml(second.topic) + "</strong>.";
+  el.innerHTML = msg;
+  el.style.display = "block";
+}
+
+function showSelfReviewPrompt(testDate = "") {
+  const box = document.getElementById("selfReviewBox");
+  const context = document.getElementById("selfReviewContext");
+  const weak = document.getElementById("selfWeakTopicInput");
+  const guess = document.getElementById("selfGuessAreaInput");
+  const notes = document.getElementById("selfReviewNotes");
+  const status = document.getElementById("selfReviewStatus");
+  if (!box) return;
+
+  pendingSelfReviewDate = String(testDate || "");
+  if (context) {
+    const label = pendingSelfReviewDate || "today";
+    context.textContent = `${activeTierMode.toUpperCase()} • Test ${label}`;
+  }
+  if (weak) weak.value = "";
+  if (guess) guess.value = "";
+  if (notes) notes.value = "";
+  if (status) status.textContent = "";
+  box.style.display = "block";
+}
+
+async function saveSelfDeclaredReview() {
+  const userKey = getUserKey();
+  const weak = String(document.getElementById("selfWeakTopicInput")?.value || "").trim();
+  const guess = String(document.getElementById("selfGuessAreaInput")?.value || "").trim();
+  const notes = String(document.getElementById("selfReviewNotes")?.value || "").trim();
+  const status = document.getElementById("selfReviewStatus");
+
+  if (!weak && !guess && !notes) {
+    if (status) status.textContent = "Pick at least one reflection point.";
+    return;
+  }
+
+  const existing = Array.isArray(selfReviewByTierCache[activeTierMode]) ? selfReviewByTierCache[activeTierMode] : [];
+  const entry = {
+    testDate: pendingSelfReviewDate || new Date().toISOString().split("T")[0],
+    weakTopic: weak || null,
+    guessedMost: guess || null,
+    notes: notes || null,
+    updatedAt: new Date().toISOString()
+  };
+
+  const nextList = [entry, ...existing].slice(0, 60);
+  selfReviewByTierCache = {
+    ...(selfReviewByTierCache && typeof selfReviewByTierCache === "object" ? selfReviewByTierCache : {}),
+    [activeTierMode]: nextList
+  };
+
+  try {
+    const response = await fetch(apiUrl(`/api/user/${encodeURIComponent(userKey)}`), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ selfReviewByTier: selfReviewByTierCache })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Could not save self review");
+    }
+    if (status) status.textContent = "Self review saved.";
+  } catch (err) {
+    console.error("saveSelfDeclaredReview error:", err);
+    if (status) status.textContent = "Saved locally in this session. Server sync failed.";
+  }
+}
+
 async function loadMarksHistory() {
   const userKey = getUserKey();
 
   try {
-    const response = await fetch(`/api/test/${encodeURIComponent(userKey)}`);
+    const response = await fetch(apiUrl(`/api/test/${encodeURIComponent(userKey)}?tier=${encodeURIComponent(activeTierMode)}`));
     const data = await response.json();
 
     if (data.success) {
@@ -2303,19 +2877,18 @@ function displayMarksHistory(entries) {
     return;
   }
 
-  historyDiv.innerHTML = entries.map(entry => `
-    <div class="bg-gray-50 p-4 rounded-xl">
-      <div class="font-semibold">${new Date(entry.test_date).toLocaleDateString()}</div>
-      <div class="grid grid-cols-3 md:grid-cols-6 gap-2 mt-2 text-sm">
-        <div>Quant: ${entry.quant_marks}</div>
-        <div>English: ${entry.english_marks}</div>
-        <div>Reasoning: ${entry.reasoning_marks}</div>
-        <div>GK: ${entry.gk_marks}</div>
-        <div>Computer: ${entry.computer_marks}</div>
-        <div class="font-semibold">Total: ${entry.total_marks}</div>
-      </div>
-    </div>
-  `).join("");
+  const _histCfg = getTierCfg();
+  historyDiv.innerHTML = entries.map(function (entry) {
+    const subjectParts = _histCfg.subjects.map(function (s) {
+      return '<div>' + s.label + ': ' + (entry[s.dbKey] || 0) + '</div>';
+    }).join('');
+    return '<div class="bg-gray-50 p-4 rounded-xl">'
+      + '<div class="font-semibold">' + new Date(entry.test_date).toLocaleDateString() + '</div>'
+      + '<div class="grid grid-cols-3 md:grid-cols-6 gap-2 mt-2 text-sm">'
+      + subjectParts
+      + '<div class="font-semibold">Total: ' + (entry.total_marks || 0) + '</div>'
+      + '</div></div>';
+  }).join('');
 }
 
 function drawProgressChart(entries) {
@@ -2365,7 +2938,7 @@ function drawProgressChart(entries) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      scales: { y: { beginAtZero: true, max: 250 } }
+      scales: { y: { beginAtZero: true, max: getTierCfg().totalMax } }
     }
   });
 }
@@ -2388,61 +2961,34 @@ function drawSubjectChart(entries) {
   const sortedEntries = [...entries].sort((a, b) => new Date(a.test_date) - new Date(b.test_date));
   const labels = sortedEntries.map(e => new Date(e.test_date).toLocaleDateString());
 
+  const _scCfg = getTierCfg();
+  const _scDatasets = _scCfg.subjects.map(function (sub) {
+    return {
+      label: sub.label,
+      data: sortedEntries.map(function (e) { return e[sub.dbKey]; }),
+      borderColor: sub.color,
+      backgroundColor: sub.bg,
+      tension: 0.1
+    };
+  });
+  const _scYMax = Math.max.apply(null, _scCfg.subjects.map(function (s) { return s.max; }));
   subjectChartInstance = new Chart(ctx, {
     type: "line",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: "Quant",
-          data: sortedEntries.map(e => e.quant_marks),
-          borderColor: "rgb(239, 68, 68)",
-          backgroundColor: "rgba(239, 68, 68, 0.1)"
-        },
-        {
-          label: "English",
-          data: sortedEntries.map(e => e.english_marks),
-          borderColor: "rgb(34, 197, 94)",
-          backgroundColor: "rgba(34, 197, 94, 0.1)"
-        },
-        {
-          label: "Reasoning",
-          data: sortedEntries.map(e => e.reasoning_marks),
-          borderColor: "rgb(168, 85, 247)",
-          backgroundColor: "rgba(168, 85, 247, 0.1)"
-        },
-        {
-          label: "GK",
-          data: sortedEntries.map(e => e.gk_marks),
-          borderColor: "rgb(251, 191, 36)",
-          backgroundColor: "rgba(251, 191, 36, 0.1)"
-        },
-        {
-          label: "Computer",
-          data: sortedEntries.map(e => e.computer_marks),
-          borderColor: "rgb(6, 182, 212)",
-          backgroundColor: "rgba(6, 182, 212, 0.1)"
-        }
-      ]
-    },
+    data: { labels: labels, datasets: _scDatasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 50
-        }
-      }
+      scales: { y: { beginAtZero: true, max: _scYMax } }
     }
   });
 }
 
 async function loadGoalCutoffCatalog() {
   const examFamily = String(document.getElementById("goalExamFamily")?.value || "ssc_cgl");
-  const tier = String(document.getElementById("goalTier")?.value || "tier1");
+  const tier = String(document.getElementById("goalTier")?.value || activeTierMode);
+  const userKey = getUserKey();
   try {
-    const response = await fetch(`/api/goals/cutoffs?examFamily=${encodeURIComponent(examFamily)}&tier=${encodeURIComponent(tier)}`);
+    const response = await fetch(apiUrl(`/api/goals/cutoffs?examFamily=${encodeURIComponent(examFamily)}&tier=${encodeURIComponent(tier)}&userKey=${encodeURIComponent(userKey)}`));
     const data = await response.json();
     if (!response.ok || !data.success) {
       throw new Error(data.error || "Could not load cutoff catalog");
@@ -2512,7 +3058,11 @@ function applyGoalAutoCutoff() {
   if (statusEl) {
     const baseYear = goalCutoffCatalog.baseYear ? String(goalCutoffCatalog.baseYear) : "latest";
     const tierLabel = String(goalCutoffCatalog.tier || "tier1").toUpperCase();
-    statusEl.textContent = `Auto cutoff loaded (${tierLabel}, ${baseYear} baseline): ${Math.round(cutoff)} | Recommended target: ${recommendedTarget}`;
+    const smartMeta = goalCutoffCatalog.smartMeta;
+    const smartSuffix = tierLabel === "SMART" && smartMeta
+      ? ` | Blend T1:${Math.round(Number(smartMeta.tier1Weight || 0) * 100)}% / T2:${Math.round(Number(smartMeta.tier2Weight || 0) * 100)}%`
+      : "";
+    statusEl.textContent = `Auto cutoff loaded (${tierLabel}, ${baseYear} baseline): ${Math.round(cutoff)} | Recommended target: ${recommendedTarget}${smartSuffix}`;
     statusEl.style.color = "#047857";
   }
 }
@@ -2541,6 +3091,9 @@ function showGoalModal() {
     setVal("goalExamDate", goalProfile.examDate);
     setVal("goalStudyHours", goalProfile.studyHours);
     setVal("goalTargetScore", goalProfile.targetScore);
+  } else {
+    const tierEl = document.getElementById("goalTier");
+    if (tierEl) tierEl.value = activeTierMode;
   }
   applyGoalAutoCutoff();
   modal.classList.remove("hidden");
@@ -2567,7 +3120,7 @@ async function saveGoalProfile() {
   const autoCutoff = Number(document.getElementById("goalAutoCutoff")?.value || 0);
 
   const examAllowed = ["ssc_cgl", "ssc_chsl", "ssc_mts", "ssc_cpo"];
-  const tierAllowed = ["tier1", "tier2", "smart"];
+  const tierAllowed = ["tier1", "tier2"];
   const categoryAllowed = ["UR", "OBC", "SC", "ST", "EWS"];
 
   if (!examAllowed.includes(examFamily)) {
@@ -2630,26 +3183,43 @@ async function saveGoalProfile() {
   if (statusEl) { statusEl.textContent = "Saving..."; statusEl.style.color = "#1e40af"; }
 
   try {
-    const response = await fetch(`/api/user/${encodeURIComponent(userKey)}`, {
+    const normalizedTier = normalizeTierMode(tier);
+    const nextGoal = {
+      examFamily,
+      tier: normalizedTier,
+      category,
+      targetPost,
+      examDate,
+      studyHours,
+      targetScore,
+      autoCutoff: Number.isFinite(autoCutoff) && autoCutoff > 0 ? Math.round(autoCutoff) : null,
+      updatedAt: new Date().toISOString()
+    };
+
+    goalsByTierCache = {
+      ...(goalsByTierCache && typeof goalsByTierCache === "object" ? goalsByTierCache : {}),
+      [normalizedTier]: nextGoal
+    };
+
+    const profileUpdatePayload = {
+      goalsByTier: goalsByTierCache
+    };
+    if (normalizedTier === "tier1") {
+      profileUpdatePayload.goal = nextGoal;
+    }
+
+    const response = await fetch(apiUrl(`/api/user/${encodeURIComponent(userKey)}`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        goal: {
-          examFamily,
-          tier,
-          category,
-          targetPost,
-          examDate,
-          studyHours,
-          targetScore,
-          autoCutoff: Number.isFinite(autoCutoff) && autoCutoff > 0 ? Math.round(autoCutoff) : null,
-          updatedAt: new Date().toISOString()
-        }
-      })
+      body: JSON.stringify(profileUpdatePayload)
     });
     const data = await response.json();
     if (!response.ok || !data.success) throw new Error(data.error || "Save failed");
-    goalProfile = data.profile?.goal || { examFamily, category, targetPost, examDate, studyHours, targetScore };
+    const profile = data.profile || {};
+    goalsByTierCache = profile.goalsByTier && typeof profile.goalsByTier === "object"
+      ? profile.goalsByTier
+      : goalsByTierCache;
+    goalProfile = goalsByTierCache[activeTierMode] || null;
     updateTopGoalFrame();
     updateGoalGapBanner(lastMarksEntries);
     updateTodayActionPlan(lastMarksEntries);
@@ -2720,8 +3290,10 @@ function buildWeeklyReport(entries) {
   const sorted = [...entries].sort((a, b) => new Date(b.test_date) - new Date(a.test_date));
   const last7 = sorted.slice(0, 7);
   const prev7 = sorted.slice(7, 14);
-  const subjectKeys = ["quant", "english", "reasoning", "gk", "computer"];
-  const subjectLabels = { quant: "Quant", english: "English", reasoning: "Reasoning", gk: "GK", computer: "Computer" };
+  const _wrcCfg = getTierCfg();
+  const subjectKeys = _wrcCfg.subjects.map(function (s) { return s.key; });
+  const subjectLabels = {};
+  _wrcCfg.subjects.forEach(function (s) { subjectLabels[s.key] = s.label; });
   const subjectAvgs = {};
   subjectKeys.forEach(key => {
     const vals = last7.map(e => Number(e[`${key}_marks`] || 0));
@@ -2740,7 +3312,7 @@ function buildWeeklyReport(entries) {
     const prevAvg = prev7.reduce((acc, e) => acc + Number(e.total_marks || 0), 0) / prev7.length;
     weekImprovement = Number((overallAvg - prevAvg).toFixed(1));
   }
-  return { subjectAvgs, subjectLabels, overallAvg, bestDay, worstDay, benchmarkGap, weekImprovement, count: last7.length };
+  return { subjectAvgs, subjectLabels, overallAvg, bestDay, worstDay, benchmarkGap, weekImprovement, count: last7.length, _last7: last7 };
 }
 
 function renderWeeklyReport(report) {
@@ -2751,78 +3323,84 @@ function renderWeeklyReport(report) {
     container.innerHTML = "";
     return;
   }
-  const unlockedPlan = getUnlockedPlan();
-  const { subjectAvgs, subjectLabels, overallAvg, bestDay, worstDay, benchmarkGap, weekImprovement, count } = report;
 
-  // Weekly improvement headline sentence
+  const unlockedPlan = getUnlockedPlan();
+  const { subjectAvgs, overallAvg, bestDay, worstDay, benchmarkGap, weekImprovement, count, _last7 } = report;
+  const tierCfg = getTierCfg();
+  const fmt = function (d) {
+    try { return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short" }); }
+    catch (_) { return d; }
+  };
+
+  const tierLabel = activeTierMode === "tier2" ? "Tier 2" : "Tier 1";
+  const headerHtml = `
+    <div class="wrc-header">
+      <div class="wrc-header-left">
+        <div class="wrc-header-title">Weekly Report Card</div>
+        <div class="wrc-header-sub">Last ${count} session${count !== 1 ? "s" : ""} &middot; ${tierLabel} &middot; Auto-generated</div>
+      </div>
+      <div class="wrc-avg-hero-wrap">
+        <span class="wrc-avg-hero">${overallAvg.toFixed(1)}</span>
+        <span class="wrc-avg-unit">avg / ${tierCfg.totalMax}</span>
+      </div>
+    </div>`;
+
+  const gapColor = benchmarkGap === null ? "#94a3b8" : benchmarkGap > 0 ? "#f87171" : "#34d399";
+  const gapText = benchmarkGap === null ? "--" : (benchmarkGap > 0 ? "-" : "+") + Math.abs(benchmarkGap).toFixed(1);
+  const statsHtml = `
+    <div class="wrc-stats-row">
+      <div class="wrc-stat">
+        <div class="wrc-stat-label">Best Day</div>
+        <div class="wrc-stat-value wrc-best">${escapeHtml(String(bestDay.total_marks))}</div>
+        <div class="wrc-stat-date">${fmt(bestDay.test_date)}</div>
+      </div>
+      <div class="wrc-stat">
+        <div class="wrc-stat-label">Worst Day</div>
+        <div class="wrc-stat-value wrc-worst">${escapeHtml(String(worstDay.total_marks))}</div>
+        <div class="wrc-stat-date">${fmt(worstDay.test_date)}</div>
+      </div>
+      <div class="wrc-stat">
+        <div class="wrc-stat-label">Benchmark Gap</div>
+        <div class="wrc-stat-value" style="color:${gapColor}">${gapText}</div>
+      </div>
+    </div>`;
+
   let improvementHtml = "";
   if (weekImprovement != null) {
+    const sign = weekImprovement >= 0 ? "+" : "";
+    const col = weekImprovement >= 0 ? "#34d399" : "#f87171";
     const daysGoal = _lastOutcome?.trend?.daysToGoal;
-    const sign   = weekImprovement >= 0 ? "+" : "";
-    const color  = weekImprovement >= 0 ? "#047857" : "#b91c1c";
-    const emoji  = weekImprovement >= 0 ? "📈" : "📉";
-    const paceMsg = daysGoal != null && daysGoal > 0
-      ? ` At this rate → safe zone in ~${daysGoal} days.`
-      : "";
-    improvementHtml = `
-      <div style="margin-top:12px;padding:10px 14px;border-radius:12px;background:#0f172a;border:1px solid #334155;color:#f1f5f9;font-size:13px;font-weight:700;">
-        ${emoji} You ${weekImprovement >= 0 ? "improved" : "dropped"} <span style="color:${color}">${sign}${weekImprovement} marks</span> this week.${escapeHtml(paceMsg)}
-      </div>`;
+    const pace = daysGoal != null && daysGoal > 0 ? " Safe zone in ~" + daysGoal + " days at this pace." : "";
+    improvementHtml = `<div class="wrc-improvement">Week-on-week: <span style="color:${col};font-weight:900">${sign}${weekImprovement} marks</span>.${escapeHtml(pace)}</div>`;
   }
 
-  const gapHtml = benchmarkGap !== null
-    ? `<div class="report-stat">
-        <div class="k">Benchmark Gap</div>
-        <div class="v" style="color:${benchmarkGap > 0 ? "#b91c1c" : "#047857"}">${benchmarkGap > 0 ? "-" : "+"}${Math.abs(benchmarkGap).toFixed(1)}</div>
-       </div>`
-    : `<div class="report-stat"><div class="k">Benchmark Gap</div><div class="v">—</div></div>`;
-
-  const fmt = d => { try { return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short" }); } catch { return d; } };
-
-  const subjectStatsHtml = Object.entries(subjectAvgs).map(([key, avg]) =>
-    `<div class="report-stat">
-      <div class="k">${escapeHtml(subjectLabels[key] || key)}</div>
-      <div class="v">${avg.toFixed(1)}</div>
-     </div>`
-  ).join("");
+  const subjectBarsHtml = tierCfg.subjects.map(function (sub) {
+    const avg = Number(subjectAvgs[sub.key] || 0);
+    const pct = Math.min(100, (avg / sub.max) * 100).toFixed(1);
+    return '<div class="wrc-bar-row">'
+      + '<div class="wrc-bar-label">' + escapeHtml(sub.label) + '</div>'
+      + '<div class="wrc-bar-track"><div class="wrc-bar-fill" style="width:' + pct + '%;background:' + sub.color + '"></div></div>'
+      + '<div class="wrc-bar-val">' + avg.toFixed(1) + '<span>/' + sub.max + '</span></div>'
+      + '</div>';
+  }).join('');
 
   const subjectSection = unlockedPlan >= 99
-    ? `<div class="mt-4">
-        <div class="text-sm font-bold text-slate-600 mb-2">Per-Subject Averages (Last ${count} days)</div>
-        <div class="report-grid">${subjectStatsHtml}</div>
-       </div>`
-    : `<div class="mt-4 relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50 p-4" style="min-height:90px">
-        <div class="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex items-center justify-center z-10">
-          <button type="button" class="js-unlock-plan px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-semibold shadow hover:opacity-90 transition" data-plan="99">🔒 Unlock ₹99 for Subject Breakdown</button>
-        </div>
-        <div class="report-grid opacity-30 pointer-events-none">${subjectStatsHtml}</div>
-       </div>`;
+    ? '<div class="wrc-section-title">Subject Performance</div>' + subjectBarsHtml
+    : '<div class="wrc-locked-strip"><button type="button" class="js-unlock-plan" data-plan="99" style="border:none;border-radius:10px;background:#6d28d9;color:#fff;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;">Unlock 99 plan for subject bars</button></div>';
 
-  container.innerHTML = `
-    <div class="report-shell">
-      <div class="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <h3 class="text-lg font-extrabold text-slate-900">📊 Weekly Report Card</h3>
-          <p class="text-slate-500 text-sm mt-0.5">Last ${count} session${count !== 1 ? "s" : ""} summary</p>
-        </div>
-        <span class="text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full bg-blue-100 text-blue-700">Auto-generated</span>
-      </div>
-      <div class="report-grid">
-        <div class="report-stat"><div class="k">Avg Score</div><div class="v">${overallAvg.toFixed(1)}</div></div>
-        <div class="report-stat">
-          <div class="k">Best Day</div>
-          <div class="v">${escapeHtml(String(bestDay.total_marks))}<span style="font-size:11px;font-weight:600;color:#64748b;margin-left:4px">${fmt(bestDay.test_date)}</span></div>
-        </div>
-        <div class="report-stat">
-          <div class="k">Worst Day</div>
-          <div class="v">${escapeHtml(String(worstDay.total_marks))}<span style="font-size:11px;font-weight:600;color:#64748b;margin-left:4px">${fmt(worstDay.test_date)}</span></div>
-        </div>
-        ${gapHtml}
-      </div>
-      ${subjectSection}
-      ${improvementHtml}
-    </div>
-  `;
+  const recent = Array.isArray(_last7) ? _last7 : [];
+  const historySection = recent.length > 0
+    ? '<div class="wrc-history"><div class="wrc-section-title">Recent Sessions</div>'
+      + recent.map(function (e) {
+        const chips = tierCfg.subjects.map(function (sub) {
+          return '<span class="wrc-chip" style="background:' + sub.bg + ';">' + sub.label.charAt(0) + ': ' + (e[sub.dbKey] || 0) + '</span>';
+        }).join('');
+        return '<div class="wrc-session-card"><div class="wrc-session-date">' + fmt(e.test_date) + '</div><div class="wrc-session-total">' + (e.total_marks || 0) + '</div><div class="wrc-chips">' + chips + '</div></div>';
+      }).join('')
+      + '</div>'
+    : '';
+
+  container.innerHTML = '<div class="wrc-shell">' + headerHtml + statsHtml + '<div class="wrc-body">' + improvementHtml + subjectSection + historySection + '</div></div>';
   container.classList.remove("hidden");
   bindUnlockButtons();
 }
@@ -2830,7 +3408,7 @@ function renderWeeklyReport(report) {
 async function syncPaymentStatus() {
   try {
     const userKey = getUserKey();
-    const response = await fetch(`/api/payment/status?userKey=${encodeURIComponent(userKey)}`);
+    const response = await fetch(apiUrl(`/api/payment/status?userKey=${encodeURIComponent(userKey)}`));
     const data = await response.json();
     if (!response.ok || !data.success) return;
 
@@ -2858,7 +3436,7 @@ async function syncPaymentStatus() {
 async function startFreeTrial(triggerButton = null) {
   const originalText = showButtonLoading(triggerButton, "Activating...");
   try {
-    const response = await fetch("/api/payment/start-trial", {
+    const response = await fetch(apiUrl("/api/payment/start-trial"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -2957,7 +3535,7 @@ async function requestLiveAdminMetrics(path, method = "GET", body = null) {
     options.body = JSON.stringify(body);
   }
 
-  const response = await fetch(path, options);
+  const response = await fetch(apiUrl(path), options);
   const data = await response.json();
   if (!response.ok || !data.success) {
     throw new Error(data.error || "Admin request failed");
@@ -3060,7 +3638,7 @@ async function socialRequest(path, method = "GET", body = null) {
     options.body = JSON.stringify(body);
   }
 
-  const response = await fetch(path, options);
+  const response = await fetch(apiUrl(path), options);
   const data = await response.json();
   if (!response.ok || !data.success) {
     throw new Error(data.error || "Request failed");

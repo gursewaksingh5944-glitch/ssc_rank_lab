@@ -31,6 +31,13 @@ const cglTier2PostWisePath = path.join(
   "post_cutoffs_tier2_2024.json"
 );
 
+const testEntriesPath = path.join(
+  __dirname,
+  "..",
+  "data",
+  "test-entries.json"
+);
+
 const TARGET_POSTS = [
   { name: "Inspector Income Tax", delta: 30, safeMin: 155, safeMax: 170 },
   { name: "Sub-Inspector CBI", delta: 20, safeMin: 150, safeMax: 165 },
@@ -165,18 +172,72 @@ function getBaseByTier(tier) {
   return { year: t1.year, cutoff: t1.tier1_cutoff };
 }
 
-function getSmartBlendedBase() {
+function getRecentAverageMarks(userKey, limit = 14) {
+  const normalized = String(userKey || "").trim().toLowerCase();
+  if (!normalized) return null;
+
+  try {
+    if (!fs.existsSync(testEntriesPath)) return null;
+    const raw = fs.readFileSync(testEntriesPath, "utf8");
+    const parsed = JSON.parse(raw || "{}");
+    const rows = Array.isArray(parsed.users?.[normalized]) ? parsed.users[normalized] : [];
+    if (!rows.length) return null;
+
+    const recent = [...rows]
+      .sort((a, b) => String(b.test_date || "").localeCompare(String(a.test_date || "")))
+      .slice(0, Math.max(1, Number(limit) || 14));
+
+    const avg = recent.reduce((acc, row) => acc + Number(row.total_marks || 0), 0) / recent.length;
+    return Number.isFinite(avg) ? Number(avg.toFixed(1)) : null;
+  } catch (err) {
+    console.error("getRecentAverageMarks error:", err);
+    return null;
+  }
+}
+
+function getTier2EquivalentOnTier1Scale(value) {
+  return Number(value || 0) * (250 / 600);
+}
+
+function getSmartBlendWeights(recentAvg) {
+  if (!Number.isFinite(recentAvg)) {
+    return { tier1Weight: 0.72, tier2Weight: 0.28 };
+  }
+
+  // Shift blend toward Tier-2 only when sustained recent performance is higher.
+  const tier2Weight = Math.max(0.18, Math.min(0.82, (recentAvg - 90) / 120));
+  const tier1Weight = 1 - tier2Weight;
+  return {
+    tier1Weight: Number(tier1Weight.toFixed(2)),
+    tier2Weight: Number(tier2Weight.toFixed(2))
+  };
+}
+
+function getSmartBlendedBase(userKey = "") {
   const t1 = loadLatestTier1Cutoff();
   const t2 = loadCglTier2OverallCutoff();
+  const recentAvg = getRecentAverageMarks(userKey);
+  const weights = getSmartBlendWeights(recentAvg);
   const blended = {};
+
   CATEGORIES.forEach((cat) => {
     const a = Number(t1.tier1_cutoff?.[cat] || 0);
-    const b = Number(t2.overall?.[cat] || 0);
-    blended[cat] = clampScore((a * 0.55) + (b * 0.45));
+    const bTier1Equivalent = getTier2EquivalentOnTier1Scale(t2.overall?.[cat]);
+    blended[cat] = clampScore(
+      (a * weights.tier1Weight) + (bTier1Equivalent * weights.tier2Weight),
+      250
+    );
   });
+
   return {
     year: `${t1.year || "NA"}/${t2.year || "NA"}`,
-    cutoff: blended
+    cutoff: blended,
+    smartMeta: {
+      recentAvg,
+      tier1Weight: weights.tier1Weight,
+      tier2Weight: weights.tier2Weight,
+      tier2Normalized: true
+    }
   };
 }
 
@@ -196,6 +257,7 @@ router.get("/cutoffs", (req, res) => {
   try {
     const examFamily = String(req.query.examFamily || "ssc_cgl").trim().toLowerCase();
     const tier = String(req.query.tier || "tier1").trim().toLowerCase();
+    const userKey = String(req.query.userKey || "").trim().toLowerCase();
 
     if (!Object.keys(EXAM_CONFIG).includes(examFamily)) {
       return res.status(400).json({ success: false, error: "Unsupported examFamily" });
@@ -206,7 +268,7 @@ router.get("/cutoffs", (req, res) => {
     }
 
     const resolvedTier = tier;
-    const baseTierData = resolvedTier === "smart" ? getSmartBlendedBase() : getBaseByTier(resolvedTier);
+    const baseTierData = resolvedTier === "smart" ? getSmartBlendedBase(userKey) : getBaseByTier(resolvedTier);
     const scaledBase = scaleCutoffByExam(baseTierData.cutoff || {}, examFamily, resolvedTier);
     const cglTier2PostMap = resolvedTier === "tier2" && examFamily === "ssc_cgl"
       ? loadCglTier2PostwiseMap()
@@ -241,6 +303,11 @@ router.get("/cutoffs", (req, res) => {
     if (resolvedTier === "tier2" && examFamily === "ssc_cgl") {
       note = "Tier-2 mode uses post-wise 2024 cutoffs where available, else modeled fallback";
     }
+    if (resolvedTier === "smart") {
+      const smartMeta = baseTierData.smartMeta || {};
+      const avgTag = Number.isFinite(smartMeta.recentAvg) ? `recent avg ${smartMeta.recentAvg}` : "no marks history yet";
+      note = `Smart mode is marks-adaptive (${avgTag}) and blends Tier-1 with normalized Tier-2 cutoffs instead of fixed averaging.`;
+    }
 
     return res.json({
       success: true,
@@ -249,6 +316,7 @@ router.get("/cutoffs", (req, res) => {
       baseYear: baseTierData.year,
       categories: CATEGORIES,
       posts,
+      smartMeta: baseTierData.smartMeta || null,
       note
     });
   } catch (error) {

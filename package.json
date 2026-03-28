@@ -5,7 +5,8 @@
   "main": "backend/server.js",
   "scripts": {
     "start": "node backend/server.js",
-    "dev": "nodemon backend/server.js"
+    "dev": "nodemon backend/server.js",
+    "test:payments": "playwright test tests/payment-flows.spec.js"
   },
   "dependencies": {
     "cors": "^2.8.6",
@@ -14,6 +15,7 @@
     "razorpay": "^2.9.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.53.2",
     "nodemon": "^3.1.7"
   }
 }

@@ -156,6 +156,31 @@
       margin-top: auto;
     }
 
+    .sidebar .today-action-shell {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 16px;
+      background: linear-gradient(130deg, #ecfdf5, #ffffff 55%, #eff6ff);
+      box-shadow: 0 14px 24px rgba(15, 118, 110, 0.1);
+    }
+
+    .sidebar .today-action-head {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sidebar .today-action-gain {
+      align-self: stretch;
+      text-align: center;
+    }
+
+    .sidebar .today-action-list {
+      padding-left: 18px;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
     .side-card .k {
       font-size: 11px;
       color: var(--muted);
@@ -206,6 +231,33 @@
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    .tier-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      padding: 4px;
+      background: #f8fafc;
+    }
+
+    .tier-switch button {
+      border: none;
+      border-radius: 999px;
+      background: transparent;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    .tier-switch button.active {
+      background: #1d4ed8;
+      color: #ffffff;
+      box-shadow: 0 6px 12px rgba(37, 99, 235, 0.25);
     }
 
     .pill {
@@ -989,21 +1041,14 @@
 
     /* Goal Reminder */
     .goal-reminder-shell{margin-top:11px;}
-    .goal-reminder-badge{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;border-radius:16px;border:1px solid #fcd34d;background:linear-gradient(120deg,#fef3c7,#fffbeb);}
+    .goal-reminder-badge{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-radius:16px;border:1px solid #f59e0b;background:linear-gradient(120deg,#ffedd5,#fef3c7 45%,#fffbeb);box-shadow:0 14px 24px rgba(217,119,6,.14);}
     .goal-reminder-left{display:flex;align-items:center;gap:10px;min-width:0;}
     .goal-reminder-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:#f59e0b;color:#fff;font-size:16px;}
     .goal-reminder-text{min-width:0;}
     .goal-reminder-title{font-size:11px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#92400e;}
     .goal-reminder-meta{margin-top:2px;font-size:14px;font-weight:900;color:#7c2d12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .goal-reminder-sub{margin-top:2px;font-size:12px;font-weight:700;color:#b45309;overflow:hidden;text-overflow:ellipsis;}
-    .goal-reminder-btn{border:none;border-radius:999px;background:#1d4ed8;color:#fff;font-size:12px;font-weight:800;padding:8px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
-
-    /* Daily Target Frame */
-    .daily-target-frame{margin-top:10px;border:1px solid #bfdbfe;background:linear-gradient(140deg,#eff6ff,#ffffff);border-radius:14px;padding:12px;}
-    .daily-target-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px;}
-    .daily-target-item{border:1px solid #dbeafe;background:#ffffffd9;border-radius:12px;padding:10px;}
-    .daily-target-item .k{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:#475569;}
-    .daily-target-item .v{margin-top:4px;font-size:16px;font-weight:900;color:#0f172a;}
+    .goal-reminder-btn{border:none;border-radius:999px;background:linear-gradient(120deg,#b45309,#ea580c);color:#fff;font-size:13px;font-weight:900;padding:10px 14px;cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:0 8px 16px rgba(180,83,9,.25);}
 
     /* Marks Entry Form */
     .marks-form{border:1px solid #a7f3d0;background:linear-gradient(135deg,#ecfdf5,#ffffff);border-radius:16px;padding:14px;margin-bottom:14px;}
@@ -1014,6 +1059,41 @@
     .marks-form input[type=date]{margin-bottom:9px;grid-column:span 3;}
     .save-marks-btn{width:100%;margin-top:10px;border:none;border-radius:12px;background:#059669;color:#fff;font-size:14px;font-weight:800;padding:11px;cursor:pointer;}
     .save-marks-btn:hover{background:#047857;}
+    .self-review-shell{margin-top:10px;border:1px solid #facc15;background:linear-gradient(120deg,#fffbeb,#fff7d6);border-radius:14px;padding:10px;display:none;}
+    .self-review-shell .title{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#92400e;}
+    .self-review-grid{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .self-review-grid select,.self-review-grid textarea{width:100%;border:1px solid #d1d5db;background:#fff;border-radius:10px;padding:8px 10px;font-size:13px;outline:none;}
+    .self-review-grid textarea{grid-column:1/-1;min-height:70px;resize:vertical;}
+    .self-review-actions{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+    .self-review-save{border:none;border-radius:10px;background:#b45309;color:#fff;padding:8px 11px;font-size:12px;font-weight:800;cursor:pointer;}
+
+    /* Topic Drill */
+    .topic-drill-btn{width:100%;margin-top:8px;border:1px solid #c4b5fd;border-radius:12px;background:linear-gradient(120deg,#ede9fe,#ddd6fe);color:#4c1d95;font-size:13px;font-weight:800;padding:9px 12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;}
+    .topic-drill-btn:hover{background:linear-gradient(120deg,#ddd6fe,#c4b5fd);}
+    .topic-modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.65);z-index:1200;display:none;align-items:flex-start;justify-content:center;padding:18px 12px;overflow-y:auto;}
+    .topic-modal-overlay.open{display:flex;}
+    .topic-modal{background:#fff;border-radius:20px;width:100%;max-width:600px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.28);margin:auto;}
+    .topic-modal-header{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid #f1f5f9;}
+    .topic-modal-header h3{margin:0;font-size:15px;font-weight:900;color:#1e1b4b;}
+    .topic-modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:#64748b;line-height:1;padding:0 4px;}
+    .topic-modal-date-label{padding:7px 18px;font-size:12px;font-weight:700;color:#7c3aed;background:#faf5ff;border-bottom:1px solid #ede9fe;}
+    .topic-modal-tabs{display:flex;overflow-x:auto;padding:10px 14px 0;gap:6px;border-bottom:1px solid #f1f5f9;scrollbar-width:none;}
+    .topic-modal-tabs::-webkit-scrollbar{display:none;}
+    .topic-modal-tab{border:none;border-radius:999px;padding:6px 13px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;background:#f1f5f9;color:#64748b;flex-shrink:0;margin-bottom:10px;}
+    .topic-modal-tab.active{background:linear-gradient(120deg,#7c3aed,#6d28d9);color:#fff;}
+    .topic-rows-header{display:grid;grid-template-columns:1fr 66px 72px 64px;gap:5px;padding:7px 12px 4px;font-size:10px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #f8fafc;}
+    .topic-modal-body{flex:1;overflow-y:auto;padding:6px 8px 10px;}
+    .topic-row{display:grid;grid-template-columns:1fr 66px 72px 64px;gap:5px;align-items:center;padding:5px 4px;border-radius:9px;margin-bottom:2px;}
+    .topic-row:nth-child(even){background:#f8fafc;}
+    .topic-row-label{font-size:12px;font-weight:700;color:#1e293b;padding-left:4px;}
+    .topic-row input{width:100%;border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:6px 4px;font-size:12px;text-align:center;outline:none;box-sizing:border-box;}
+    .topic-row input:focus{border-color:#7c3aed;box-shadow:0 0 0 2px rgba(124,58,237,.12);}
+    .topic-modal-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid #f1f5f9;gap:10px;flex-wrap:wrap;}
+    .topic-drill-save-btn{border:none;border-radius:12px;background:linear-gradient(120deg,#7c3aed,#6d28d9);color:#fff;padding:10px 22px;font-size:13px;font-weight:800;cursor:pointer;}
+    .topic-drill-save-btn:hover{background:linear-gradient(120deg,#6d28d9,#5b21b6);}
+    .topic-drill-status{font-size:12px;font-weight:700;color:#4c1d95;min-height:16px;}
+    .hz-weak-topic-note{margin-bottom:10px;border:1px solid rgba(124,58,237,.27);border-radius:12px;background:linear-gradient(120deg,#1e0b3a,#240d4a);padding:9px 11px;color:#c4b5fd;font-size:12px;font-weight:800;display:none;}
+    .hz-weak-topic-note strong{color:#e9d5ff;}
 
     /* Benchmark Shell */
     .benchmark-shell{border:1px solid #bfdbfe;background:#eff6ff;border-radius:16px;padding:14px;margin-bottom:14px;}
@@ -1032,6 +1112,102 @@
     .quick-stat-box .v{margin-top:4px;font-size:20px;color:#0f172a;font-weight:900;}
     .streak-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:linear-gradient(90deg,#f59e0b,#f97316);color:#fff;font-weight:800;font-size:12px;}
 
+    .group-signals-compact {
+      margin-top: 11px;
+      border: 1px solid #bfdbfe;
+      border-radius: 16px;
+      background: linear-gradient(125deg, #eff6ff, #ffffff 55%, #ecfeff);
+      padding: 12px;
+    }
+
+    .group-signals-head {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      font-weight: 900;
+      color: #1e3a8a;
+      margin-bottom: 8px;
+    }
+
+    .group-signals-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .signal-chip {
+      border: 1px solid #dbeafe;
+      border-radius: 12px;
+      background: #ffffffde;
+      padding: 8px;
+    }
+
+    .signal-chip .k {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: #64748b;
+      font-weight: 800;
+    }
+
+    .signal-chip .v {
+      margin-top: 3px;
+      font-size: 15px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+
+    /* Result UI */
+    .result-shell{margin-top:10px;border:1px solid #bfdbfe;border-radius:18px;background:linear-gradient(135deg,#ffffff,#f8fbff);padding:16px;box-shadow:0 16px 32px rgba(37,99,235,.08);}
+    .result-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+    .result-title{margin:0;font-size:30px;font-weight:900;color:#0f172a;font-family:"Space Grotesk",sans-serif;}
+    .result-mode{border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:800;}
+    .result-metrics{margin-top:14px;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+    .metric-card{border:1px solid #dbeafe;border-radius:14px;background:#ffffff;padding:12px;}
+    .metric-card .k{font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:800;color:#64748b;}
+    .metric-card .v{margin-top:5px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.1;}
+    .metric-card .s{margin-top:6px;font-size:12px;color:#475569;font-weight:700;line-height:1.4;}
+    .metric-card.blue{background:linear-gradient(150deg,#eff6ff,#ffffff);}    
+    .metric-card.green{background:linear-gradient(150deg,#ecfdf5,#ffffff);}   
+    .metric-card.indigo{background:linear-gradient(150deg,#eef2ff,#ffffff);}  
+    .metric-card.locked{position:relative;overflow:hidden;}
+    .metric-card.locked::after{content:"";position:absolute;inset:0;background:rgba(255,255,255,.78);backdrop-filter:blur(2px);} 
+    .metric-card .lock-cta{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;border:none;border-radius:10px;background:#6d28d9;color:#fff;padding:8px 12px;font-size:12px;font-weight:800;cursor:pointer;}
+
+    .insights-shell{margin-top:14px;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));}
+    .insight-card{border:1px solid #dbeafe;border-radius:14px;background:#ffffff;padding:12px;}
+    .insight-card .k{font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:800;color:#64748b;}
+    .insight-card .v{margin-top:6px;font-size:24px;font-weight:900;color:#0f172a;line-height:1.15;}
+    .insight-card .s{margin-top:6px;font-size:12px;color:#475569;font-weight:700;line-height:1.5;}
+
+    .ladder-shell{margin-top:12px;border:1px solid #c7d2fe;border-radius:14px;background:#ffffff;padding:12px;}
+    .ladder-title{margin:0;font-size:18px;font-weight:900;color:#1e293b;}
+    .ladder-list{margin-top:10px;display:grid;gap:8px;}
+    .ladder-item{border:1px solid #dbeafe;border-radius:12px;padding:10px;background:#f8fbff;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+    .ladder-item .post{font-size:14px;font-weight:800;color:#0f172a;}
+    .ladder-item .meta{font-size:12px;color:#64748b;font-weight:700;}
+    .ladder-item .band{font-size:12px;font-weight:900;color:#1d4ed8;border:1px solid #bfdbfe;background:#eff6ff;border-radius:999px;padding:5px 10px;}
+
+    /* Plans UI */
+    .plans-grid{margin-top:12px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));}
+    .plan-card{border:1px solid #dbeafe;border-radius:18px;background:#ffffff;padding:14px;position:relative;}
+    .plan-card .plan-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid #cbd5e1;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#64748b;background:#f8fafc;}
+    .plan-card .plan-name{margin-top:8px;font-size:18px;font-weight:900;color:#0f172a;font-family:"Space Grotesk",sans-serif;}
+    .plan-card .plan-price{margin-top:3px;font-size:30px;font-weight:900;color:#0f172a;font-family:"Space Grotesk",sans-serif;line-height:1.1;}
+    .plan-card .plan-copy{margin-top:6px;font-size:12px;color:#475569;font-weight:700;line-height:1.5;}
+    .plan-card ul{margin:8px 0 0;padding-left:18px;color:#334155;font-size:12px;line-height:1.6;font-weight:700;}
+    .plan-card .plan-actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}
+    .plan-card .plan-btn{border:none;border-radius:12px;padding:10px 12px;font-size:12px;font-weight:900;color:#fff;cursor:pointer;}
+    .plan-card .plan-btn.trial{background:#f59e0b;}
+    .plan-card .plan-btn.buy{background:#6d28d9;}
+    .plan-card .plan-btn.alt{background:#0f766e;}
+    .plan-card .active-flag{position:absolute;top:12px;right:12px;border:1px solid #34d399;background:#ecfdf5;color:#047857;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:900;display:none;}
+    .plan-card.active{border-color:#34d399;box-shadow:0 14px 26px rgba(16,185,129,.14);background:linear-gradient(140deg,#ecfdf5,#ffffff);}
+    .plan-card.active .active-flag{display:inline-flex;}
+    .plan-card.tier-free{background:linear-gradient(135deg,#f8fafc,#ffffff);} 
+    .plan-card.tier-99{background:linear-gradient(135deg,#f5f3ff,#ffffff);} 
+    .plan-card.tier-899{background:linear-gradient(135deg,#ecfeff,#ffffff);} 
+
     /* Chart Box */
     .chart-box{border:1px solid #dbeafe;border-radius:14px;background:#ffffffcc;padding:12px;margin-top:10px;}
     .chart-box canvas{width:100% !important;height:220px !important;}
@@ -1042,6 +1218,40 @@
     .report-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-top:10px;}
     .report-stat .k{font-size:11px;text-transform:uppercase;letter-spacing:.02em;color:#64748b;font-weight:700;}
     .report-stat .v{font-size:18px;font-weight:900;color:#0f172a;margin-top:4px;}
+  /* Weekly Report Card — stylish redesign */
+  .wrc-shell{border-radius:18px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.12);margin-bottom:14px;}
+  .wrc-header{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 55%,#064e2e 100%);padding:16px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .wrc-header-left{min-width:0;}
+  .wrc-header-title{font-size:17px;font-weight:900;color:#f1f5f9;letter-spacing:-.01em;}
+  .wrc-header-sub{font-size:11px;font-weight:600;color:#94a3b8;margin-top:3px;}
+  .wrc-avg-hero-wrap{text-align:right;flex-shrink:0;}
+  .wrc-avg-hero{font-size:44px;font-weight:900;color:#34d399;line-height:1;display:block;}
+  .wrc-avg-unit{font-size:12px;color:#6ee7b7;font-weight:700;display:block;margin-top:2px;text-align:right;}
+  .wrc-stats-row{display:grid;grid-template-columns:repeat(3,1fr);background:#1e293b;}
+  .wrc-stat{padding:11px 8px;border-right:1px solid #334155;text-align:center;}
+  .wrc-stat:last-child{border-right:none;}
+  .wrc-stat-label{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;font-weight:800;}
+  .wrc-stat-value{font-size:20px;font-weight:900;color:#f1f5f9;margin-top:3px;line-height:1;}
+  .wrc-stat-value.wrc-best{color:#34d399;}
+  .wrc-stat-value.wrc-worst{color:#f87171;}
+  .wrc-stat-date{font-size:10px;color:#64748b;margin-top:2px;font-weight:600;}
+  .wrc-body{background:#fff;padding:13px 14px;}
+  .wrc-improvement{border-radius:12px;background:linear-gradient(120deg,#052e16,#0a3728);border:1px solid #065f46;padding:10px 13px;color:#6ee7b7;font-size:13px;font-weight:700;margin-bottom:12px;}
+  .wrc-section-title{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .wrc-section-title::after{content:'';flex:1;height:1px;background:#f1f5f9;}
+  .wrc-bar-row{display:grid;grid-template-columns:64px 1fr 58px;align-items:center;gap:6px;margin-bottom:7px;}
+  .wrc-bar-label{font-size:12px;font-weight:800;color:#1e293b;}
+  .wrc-bar-track{height:9px;background:#f1f5f9;border-radius:999px;overflow:hidden;}
+  .wrc-bar-fill{height:100%;border-radius:999px;transition:width .65s ease;}
+  .wrc-bar-val{font-size:12px;font-weight:800;color:#1e293b;text-align:right;}
+  .wrc-bar-val span{font-size:10px;font-weight:600;color:#94a3b8;}
+  .wrc-history{margin-top:14px;}
+  .wrc-session-card{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:11px;margin-bottom:5px;background:#f8fafc;border:1px solid #f1f5f9;flex-wrap:wrap;}
+  .wrc-session-date{font-size:11px;font-weight:800;color:#475569;min-width:52px;}
+  .wrc-session-total{font-size:17px;font-weight:900;color:#0f172a;min-width:34px;}
+  .wrc-chips{display:flex;flex-wrap:wrap;gap:4px;flex:1;}
+  .wrc-chip{font-size:11px;font-weight:700;border-radius:7px;padding:3px 7px;border:1px solid rgba(0,0,0,.1);background:rgba(0,0,0,.04);color:#334155;}
+  .wrc-locked-strip{border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;padding:14px;text-align:center;margin-top:8px;}
 
     /* QLA / Question Lab */
     .qlab-shell{border-radius:16px;border:1px solid #c7d2fe;background:linear-gradient(130deg,#eef2ff 0%,#ffffff 45%,#f8fafc 100%);padding:16px;}
@@ -1056,6 +1266,17 @@
     .predictor-box{border:1px solid #c7d2fe;background:#ffffffd9;border-radius:16px;padding:14px;margin-bottom:14px;}
     .predictor-inputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:10px;}
     .predictor-inputs input,.predictor-inputs select{border:1px solid #cbd5e1;background:#fff;padding:9px 12px;border-radius:12px;font-size:13px;outline:none;}
+    .predictor-offer-strip{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+    .predictor-offer{border:1px solid #dbeafe;background:#f8fafc;border-radius:12px;padding:9px 10px;}
+    .predictor-offer .k{font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#64748b;}
+    .predictor-offer .v{margin-top:3px;font-size:12px;font-weight:800;color:#0f172a;line-height:1.35;}
+    .predictor-offer.free{border-color:#bfdbfe;background:linear-gradient(130deg,#eff6ff,#ffffff);}
+    .predictor-offer.premium{border-color:#a7f3d0;background:linear-gradient(130deg,#ecfdf5,#ffffff);}
+    .predictor-offer.premium .v{color:#065f46;}
+    .predictor-benefits{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+    .predictor-benefit-chip{display:inline-flex;align-items:center;border:1px solid #d1fae5;background:#ecfdf5;color:#065f46;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:800;}
+    .predictor-offer-cta{margin-left:auto;border:none;border-radius:999px;background:#16a34a;color:#fff;font-size:11px;font-weight:900;padding:6px 11px;cursor:pointer;}
+    .predictor-offer-cta.active{background:#065f46;cursor:default;opacity:.9;}
 
     /* Payment Status Toast */
     #paymentStatus{position:fixed;top:80px;right:16px;z-index:60;max-width:340px;background:#fff;border:1px solid #e2e8f0;box-shadow:0 8px 32px rgba(0,0,0,.15);border-radius:16px;padding:12px 16px;}
@@ -1085,6 +1306,13 @@
     .hz-confidence.high{background:#052e16;border-color:#16a34a;color:#4ade80;}
     .hz-confidence.medium{background:#1c1917;border-color:#d97706;color:#fbbf24;}
     .hz-confidence.low{background:#1a0a0a;border-color:#7f1d1d;color:#fca5a5;}
+    .hz-confidence-wrap{margin-top:8px;display:none;}
+    .hz-confidence-label{font-size:11px;font-weight:800;color:#bfdbfe;}
+    .hz-confidence-progress{margin-top:6px;display:flex;align-items:center;gap:8px;}
+    .hz-confidence-track{flex:1;height:7px;border-radius:999px;background:#1e3a5f;border:1px solid #334155;overflow:hidden;}
+    .hz-confidence-fill{height:100%;width:0;background:linear-gradient(90deg,#38bdf8,#22c55e);}
+    .hz-confidence-count{font-size:10px;font-weight:800;color:#93c5fd;min-width:62px;text-align:right;}
+    .hz-driver-note{margin-bottom:10px;border:1px solid #0f766e;border-radius:12px;background:linear-gradient(120deg,#052e16,#052e1a);padding:9px 11px;color:#86efac;font-size:12px;font-weight:800;display:none;}
     .hz-urgency{background:#1e293b;border:1px solid #475569;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
     .hz-urgency-icon{font-size:15px;flex-shrink:0;}
     .hz-urgency-text{font-size:13px;font-weight:700;color:#f1f5f9;line-height:1.5;}
@@ -1120,7 +1348,8 @@
       .benchmark-grid{grid-template-columns:1fr;}
       .predictor-inputs{grid-template-columns:1fr;}
       .quick-stats-row{grid-template-columns:1fr 1fr;}
-      .daily-target-grid{grid-template-columns:1fr;}
+      .group-signals-grid{grid-template-columns:1fr;}
+      .result-title{font-size:24px;}
       .review-grid{grid-template-columns:1fr;}
     }
   </style>
@@ -1187,11 +1416,14 @@
         <button data-panel="plans">Plans</button>
       </div>
 
-      <div class="side-card">
-        <div class="k">Current Goal</div>
-        <div class="v">Inspector (CGL)</div>
-        <div class="k" style="margin-top:8px;">Daily target</div>
-        <div class="v">146 marks</div>
+      <div class="today-action-shell">
+        <div class="today-action-head">
+          <div class="today-action-title" id="todayActionTitle">Today's Focus Plan</div>
+          <div class="today-action-gain" id="todayActionGain">Expected gain: --</div>
+        </div>
+        <ul class="today-action-list" id="todayActionList">
+          <li>Add today's marks to generate your action plan.</li>
+        </ul>
       </div>
     </aside>
 
@@ -1199,11 +1431,14 @@
       <header class="topbar">
         <div class="top-left">
           <h1>Individual + Group Dashboard</h1>
-          <p>Cleaner layout. Fewer blocks. Strong focus on progress and group competition.</p>
         </div>
         <div class="top-actions">
+          <div class="tier-switch" aria-label="Tier mode switch">
+            <button id="tierModeBtnTier1" type="button" class="active">Tier 1</button>
+            <button id="tierModeBtnTier2" type="button">Tier 2</button>
+          </div>
           <button id="notifToggle" class="pill">Notifications (4)</button>
-          <button class="pill" style="background:#ecfdf5;border-color:#a7f3d0;color:#047857;">Premium Active</button>
+          <button id="topPlanBadge" class="pill hidden" style="background:#ecfdf5;border-color:#a7f3d0;color:#047857;">Premium Active</button>
         </div>
       </header>
 
@@ -1219,6 +1454,8 @@
             <span class="hz-urgency-icon" id="hzUrgencyIcon">⏳</span>
             <span class="hz-urgency-text" id="hzUrgencyText">Set your goal post to see urgency status.</span>
           </div>
+          <div id="hzDriverNote" class="hz-driver-note"></div>
+          <div id="hzWeakTopicNote" class="hz-weak-topic-note"></div>
           <div class="hz-cards">
             <div class="hz-card" id="hzGapCard">
               <div class="hz-card-eyebrow">⚠️ &nbsp;Marks to Safe Zone</div>
@@ -1234,6 +1471,13 @@
               <div class="hz-big-num hz-chance-mid" id="hzSelChance">--</div>
               <div class="hz-card-zone" id="hzZoneLabel" style="color:#94a3b8;"></div>
               <div id="hzConfidenceChip" class="hz-confidence low" style="display:none;"></div>
+              <div id="hzConfidenceWrap" class="hz-confidence-wrap">
+                <div class="hz-confidence-label">Confidence improves with more tests</div>
+                <div class="hz-confidence-progress">
+                  <div class="hz-confidence-track"><div id="hzConfidenceFill" class="hz-confidence-fill"></div></div>
+                  <span id="hzConfidenceCount" class="hz-confidence-count">0/10</span>
+                </div>
+              </div>
               <div class="hz-pace" id="hzDaysLabel">at current pace</div>
             </div>
             <div class="hz-card">
@@ -1254,7 +1498,7 @@
           <div class="hz-subjects" id="hzSubjectGrid"></div>
         </div>
 
-        <!-- Goal Reminder + Quick Stats -->
+        <!-- Goal Reminder -->
         <div id="goalReminderWrap" class="goal-reminder-shell hidden">
           <div class="goal-reminder-badge">
             <div class="goal-reminder-left">
@@ -1269,18 +1513,6 @@
           </div>
         </div>
 
-        <div class="daily-target-frame">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-            <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:#1d4ed8;">Daily Target Score</div>
-            <button id="topOpenGoalBtn" style="padding:7px 14px;border-radius:12px;background:#2563eb;border:none;color:#fff;font-size:12px;font-weight:800;cursor:pointer;">Update Goal</button>
-          </div>
-          <div class="daily-target-grid">
-            <div class="daily-target-item"><div class="k">Target Post</div><div class="v" id="topGoalPost">Not set</div></div>
-            <div class="daily-target-item"><div class="k">Auto Cutoff</div><div class="v" id="topGoalAutoCutoff">--</div></div>
-            <div class="daily-target-item"><div class="k">Target Score</div><div class="v" id="topGoalTargetScore">--</div></div>
-          </div>
-        </div>
-
         <!-- Quick Stats Row -->
         <div class="quick-stats-row" style="margin-top:11px;">
           <div class="quick-stat-box"><div class="k">Latest Total</div><div class="v" id="latestTotalStat">--</div></div>
@@ -1288,24 +1520,13 @@
           <div class="quick-stat-box"><div class="k">Streak</div><div id="streakDisplay" style="margin-top:5px;"></div></div>
         </div>
 
-        <!-- Today's Action Plan -->
-        <div class="today-action-shell">
-          <div class="today-action-head">
-            <div class="today-action-title" id="todayActionTitle">Today's Focus Plan</div>
-            <div class="today-action-gain" id="todayActionGain">Expected gain: --</div>
-          </div>
-          <ul class="today-action-list" id="todayActionList">
-            <li>Add today's marks to generate your action plan.</li>
-          </ul>
-        </div>
-
         <!-- Group Signals -->
-        <div class="card" style="margin-top:11px;">
-          <h3>Group Signals</h3>
-          <div class="feed">
-            <div class="feed-item">Top score today: <span id="groupTopScore">—</span></div>
-            <div class="feed-item">Your rank this week: <span id="groupYourRank">—</span></div>
-            <div class="feed-item">Gap to group median: <span id="groupMedianGap">—</span></div>
+        <div class="group-signals-compact">
+          <div class="group-signals-head">Group Signals</div>
+          <div class="group-signals-grid">
+            <div class="signal-chip"><div class="k">Top Score Today</div><div class="v" id="groupTopScore">—</div></div>
+            <div class="signal-chip"><div class="k">Your Weekly Rank</div><div class="v" id="groupYourRank">—</div></div>
+            <div class="signal-chip"><div class="k">Gap to Median</div><div class="v" id="groupMedianGap">—</div></div>
           </div>
         </div>
       </section>
@@ -1323,10 +1544,38 @@
             <input type="number" id="englishMarks"   placeholder="English (0–50)"   min="0" max="50" />
             <input type="number" id="reasoningMarks" placeholder="Reasoning (0–50)" min="0" max="50" />
             <input type="number" id="gkMarks"        placeholder="GK (0–50)"        min="0" max="50" />
-            <input type="number" id="computerMarks"  placeholder="Computer (0–50)"  min="0" max="50" />
+            <div id="computerMarksWrap" style="display:contents"><input type="number" id="computerMarks"  placeholder="Computer (0–50)"  min="0" max="50" /></div>
           </div>
           <button id="saveMarksBtn" class="save-marks-btn">Save Marks</button>
           <div id="progressStatus" style="margin-top:7px;font-size:13px;font-weight:700;color:#1e40af;min-height:18px;"></div>
+          <div id="selfReviewBox" class="self-review-shell">
+            <div class="title">Quick Self Review</div>
+            <div id="selfReviewContext" style="margin-top:4px;font-size:12px;font-weight:700;color:#a16207;"></div>
+            <div class="self-review-grid">
+              <select id="selfWeakTopicInput">
+                <option value="">Which topic felt weakest?</option>
+                <option value="Quant">Quant</option>
+                <option value="English">English</option>
+                <option value="Reasoning">Reasoning</option>
+                <option value="GK">GK</option>
+                <option value="Computer">Computer</option>
+              </select>
+              <select id="selfGuessAreaInput">
+                <option value="">Where did you guess most?</option>
+                <option value="Quant">Quant</option>
+                <option value="English">English</option>
+                <option value="Reasoning">Reasoning</option>
+                <option value="GK">GK</option>
+                <option value="Computer">Computer</option>
+              </select>
+              <textarea id="selfReviewNotes" placeholder="Optional note: what caused errors today?"></textarea>
+            </div>
+            <div class="self-review-actions">
+              <button id="saveSelfReviewBtn" type="button" class="self-review-save">Save Self Review</button>
+              <div id="selfReviewStatus" style="font-size:12px;font-weight:800;color:#92400e;min-height:16px;"></div>
+            </div>
+          </div>
+          <button id="topicDrillBtn" class="topic-drill-btn" type="button">📊 Optional: Add Topic-wise Breakdown</button>
         </div>
 
         <!-- Benchmark Control -->
@@ -1359,7 +1608,7 @@
               <input id="englishTargetInput"   type="number" min="0" max="50" placeholder="English" />
               <input id="reasoningTargetInput" type="number" min="0" max="50" placeholder="Reasoning" />
               <input id="gkTargetInput"        type="number" min="0" max="50" placeholder="GK" />
-              <input id="computerTargetInput"  type="number" min="0" max="50" placeholder="Computer" />
+              <div id="computerTargetWrap" style="display:contents"><input id="computerTargetInput"  type="number" min="0" max="50" placeholder="Computer" /></div>
             </div>
           </div>
           <div style="margin-top:10px;">
@@ -1492,6 +1741,22 @@
         <!-- Rank Predictor -->
         <div class="predictor-box">
           <h3 style="margin:0 0 10px;font-size:16px;font-weight:900;">🎯 Rank Predictor</h3>
+          <div class="predictor-offer-strip">
+            <div class="predictor-offer free" id="predictorFreeOffer">
+              <div class="k">Free Pack</div>
+              <div class="v">Project Zero + ₹49 Service Lite access</div>
+            </div>
+            <div class="predictor-offer premium" id="predictorPremiumOffer">
+              <div class="k">Premium Pack ₹99</div>
+              <div class="v" id="predictorPremiumOfferText">Full rank intelligence + post probability unlock</div>
+            </div>
+          </div>
+          <div class="predictor-benefits" id="predictorBenefitsWrap">
+            <span class="predictor-benefit-chip">Tier-wise prediction band</span>
+            <span class="predictor-benefit-chip">Cutoff + safe-score guidance</span>
+            <span class="predictor-benefit-chip">Daily gain + days-to-goal</span>
+            <button type="button" class="predictor-offer-cta js-unlock-plan" data-plan="99" id="predictorOfferCta">Unlock ₹99</button>
+          </div>
           <div class="predictor-inputs">
             <input type="number" id="marksInput" placeholder="Enter marks (0–250)" min="0" max="250" />
             <select id="categoryInput">
@@ -1502,7 +1767,7 @@
               <option value="EWS">EWS</option>
             </select>
             <select id="premiumInput">
-              <option value="0">Free</option>
+              <option value="0">Free (Project Zero + ₹49 Lite)</option>
             </select>
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
@@ -1546,97 +1811,57 @@
           <div id="questionLabList" class="qlab-list"></div>
         </div>
 
-        <!-- Admin Moderation (Tools section) -->
-        <div class="admin-shell" style="margin-top:14px;">
-          <h3>Admin Question Moderation</h3>
-          <p class="subtitle">Review queued questions, approve/reject, and run bulk actions.</p>
-
-          <div class="admin-grid">
-            <div class="admin-field">
-              <label for="moderationAdminKey">Admin Key</label>
-              <input id="moderationAdminKey" type="password" placeholder="x-admin-key" />
-            </div>
-            <div class="admin-field">
-              <label for="moderationStatus">Status</label>
-              <select id="moderationStatus">
-                <option value="needs_review">needs_review</option>
-                <option value="all">all</option>
-                <option value="approved">approved</option>
-                <option value="rejected">rejected</option>
-              </select>
-            </div>
-            <div class="admin-field">
-              <label for="moderationMaxConfidence">Max Confidence</label>
-              <input id="moderationMaxConfidence" type="number" min="0" max="1" step="0.01" value="0.7" />
-            </div>
-            <div class="admin-field">
-              <label for="moderationLimit">Limit</label>
-              <input id="moderationLimit" type="number" min="1" max="200" step="1" value="25" />
-            </div>
-            <div class="admin-field">
-              <label for="moderationOffset">Offset</label>
-              <input id="moderationOffset" type="number" min="0" step="1" value="0" />
-            </div>
-            <div class="admin-field">
-              <label for="moderationReviewedBy">Reviewed By</label>
-              <input id="moderationReviewedBy" type="text" value="preview_admin" />
-            </div>
-            <div class="admin-field">
-              <label for="moderationRejectReason">Reject Reason</label>
-              <input id="moderationRejectReason" type="text" placeholder="Required for reject" />
-            </div>
-            <div class="admin-field">
-              <label for="moderationBulkDecision">Bulk Decision</label>
-              <select id="moderationBulkDecision">
-                <option value="approve">approve</option>
-                <option value="reject">reject</option>
-              </select>
-            </div>
-            <div class="admin-field">
-              <label for="subscriberGoalInput">Subscriber Goal</label>
-              <input id="subscriberGoalInput" type="number" min="1" step="1" value="100000" />
-            </div>
-          </div>
-
-          <div class="admin-actions">
-            <button id="moderationLoadBtn" class="primary">Load Queue</button>
-            <button id="moderationStatsBtn">Load Stats</button>
-            <button id="subscriberMetricsBtn">Load Subscriber Goal Metrics</button>
-            <button id="subscriberGoalSaveBtn">Save Subscriber Goal</button>
-            <button id="moderationBulkBtn" class="warn">Apply Bulk To Selected</button>
-            <label style="font-size:12px;font-weight:700;color:#334155;display:inline-flex;align-items:center;gap:6px;">
-              <input id="moderationForce" type="checkbox" />
-              Force
-            </label>
-          </div>
-
-          <div id="moderationStatusLine" class="admin-status"></div>
-          <div id="subscriberMetricsGrid" class="admin-stats"></div>
-          <div id="moderationStatsGrid" class="admin-stats"></div>
-          <div id="moderationReviewList" class="review-list"></div>
-        </div>
       </section>
 
       <section id="plans" class="panel">
         <h2>Plans</h2>
         <p class="subtitle">Start free, upgrade when you need deeper rank clarity.</p>
 
-        <!-- Premium Plan -->
-        <div style="border:2px solid #a78bfa;border-radius:20px;background:linear-gradient(135deg,#f5f3ff,#fff);padding:20px;margin-bottom:14px;">
-          <div style="font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#6d28d9;">Monthly Plan</div>
-          <div style="font-size:32px;font-weight:900;color:#0f172a;margin-top:6px;">₹99 <span style="font-size:14px;color:#6d28d9;font-weight:700;">/month</span></div>
-          <p style="margin:6px 0 14px;font-size:13px;color:#475569;">Daily tracker + complete rank intelligence in one subscription.</p>
-          <ul style="margin:0 0 14px;padding-left:18px;color:#334155;font-size:13px;line-height:1.8;">
-            <li>Daily marks tracker with subject splits</li>
-            <li>Streak tracking &amp; benchmark gap alerts</li>
-            <li>Auto cutoff mapped to your target post</li>
-            <li>Full Rank Prediction + Category Rank + Percentile</li>
-            <li>Post chances · What-if jumps · Weekly report card</li>
-          </ul>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button id="startTrialBtn" style="padding:11px 20px;border-radius:14px;background:#f59e0b;border:none;color:#fff;font-weight:800;font-size:14px;cursor:pointer;">Start 2-Day Free Trial →</button>
-            <button id="pricingBuyBtn" style="padding:11px 20px;border-radius:14px;background:#6d28d9;border:none;color:#fff;font-weight:800;font-size:14px;cursor:pointer;">Subscribe ₹99/month</button>
-          </div>
+        <div class="plans-grid">
+          <article class="plan-card tier-free" id="planCard0">
+            <span class="plan-badge">Starter</span>
+            <h3 class="plan-name">Free</h3>
+            <div class="plan-price">₹0</div>
+            <p class="plan-copy">Basic rank checks and limited tools for quick testing.</p>
+            <ul>
+              <li>Basic rank prediction</li>
+              <li>Home dashboard preview</li>
+              <li>Limited insights</li>
+            </ul>
+          </article>
+
+          <article class="plan-card tier-99" id="planCard99">
+            <span class="active-flag" id="plan99Active">Active</span>
+            <span class="plan-badge">Most Popular</span>
+            <h3 class="plan-name">Premium Monthly</h3>
+            <div class="plan-price">₹99 <span style="font-size:13px;color:#6d28d9;font-weight:700;">/month</span></div>
+            <p class="plan-copy">Daily tracker + complete rank intelligence in one subscription.</p>
+            <ul>
+              <li>Daily marks tracker with subject splits</li>
+              <li>Auto cutoff mapped to your target post</li>
+              <li>Category rank, percentile, post chances</li>
+            </ul>
+            <div class="plan-actions">
+              <button id="startTrialBtn" class="plan-btn trial">Start 2-Day Free Trial →</button>
+              <button id="pricingBuyBtn" class="plan-btn buy" data-plan="99">Subscribe ₹99/month</button>
+            </div>
+          </article>
+
+          <article class="plan-card tier-899" id="planCard899">
+            <span class="active-flag" id="plan899Active">Active</span>
+            <span class="plan-badge">Power Pack</span>
+            <h3 class="plan-name">Premium Plus</h3>
+            <div class="plan-price">₹899 <span style="font-size:13px;color:#0f766e;font-weight:700;">/year</span></div>
+            <p class="plan-copy">Long-term unlock for serious aspirants with all premium features.</p>
+            <ul>
+              <li>Everything in ₹99 plan</li>
+              <li>Annual access convenience</li>
+              <li>Priority premium roadmap access</li>
+            </ul>
+            <div class="plan-actions">
+              <button id="pricingBuy899Btn" class="plan-btn alt js-direct-buy-now" data-plan="899">Unlock ₹899/year</button>
+            </div>
+          </article>
         </div>
 
         <!-- Admin Growth Panel (hidden, script.js shows for admins) -->
@@ -1694,7 +1919,6 @@
           <select id="goalTier">
             <option value="tier1">Tier 1</option>
             <option value="tier2">Tier 2</option>
-            <option value="smart">Smart (Auto Blend)</option>
           </select>
         </div>
         <div>
@@ -1747,7 +1971,7 @@
   </div>
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="script.js?v=20260327"></script>
+  <script src="script.js?v=20260327b"></script>
 
   <script>
     const panelButtons = document.querySelectorAll(".nav button, .mobile-nav button");
@@ -2141,5 +2365,34 @@
 
     // chart now handled by script.js (canvas id: progressChart)
   </script>
+
+  <!-- Topic-wise Drill Modal -->
+  <div id="topicDrillModal" class="topic-modal-overlay" role="dialog" aria-modal="true" aria-label="Topic-wise breakdown">
+    <div class="topic-modal">
+      <div class="topic-modal-header">
+        <h3>📊 Topic-wise Breakdown <span id="topicDrillSavedBadge" style="font-size:11px;color:#16a34a;font-weight:700;margin-left:6px;display:none;">&#10003; Saved</span></h3>
+        <button class="topic-modal-close" id="topicDrillCloseBtn" type="button" aria-label="Close">&#x2715;</button>
+      </div>
+      <div id="topicDrillDateLabel" class="topic-modal-date-label">Test date: &mdash;</div>
+      <div class="topic-modal-tabs" id="topicDrillTabs">
+        <button class="topic-modal-tab active" data-subject="Quant" type="button">Quant</button>
+        <button class="topic-modal-tab" data-subject="English" type="button">English</button>
+        <button class="topic-modal-tab" data-subject="Reasoning" type="button">Reasoning</button>
+        <button class="topic-modal-tab" data-subject="GK" type="button">GK</button>
+        <button class="topic-modal-tab" data-subject="Computer" type="button">Computer</button>
+      </div>
+      <div class="topic-rows-header">
+        <div>Topic</div>
+        <div style="text-align:center">Marks</div>
+        <div style="text-align:center">Mistakes</div>
+        <div style="text-align:center">Mins</div>
+      </div>
+      <div class="topic-modal-body" id="topicDrillBody"><!-- rows rendered by JS --></div>
+      <div class="topic-modal-footer">
+        <div id="topicDrillStatus" class="topic-drill-status"></div>
+        <button id="topicDrillSaveBtn" class="topic-drill-save-btn" type="button">Save This Subject</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

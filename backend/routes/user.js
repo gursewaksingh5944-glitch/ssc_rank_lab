@@ -16,16 +16,23 @@ function normalizeUserKey(value) {
   return String(value || "").trim().toLowerCase();
 }
 
+function normalizeTier(value) {
+  const tier = String(value || "tier1").trim().toLowerCase();
+  return tier === "tier2" ? "tier2" : "tier1";
+}
+
 /* ---------------------------------------------------------------
    OUTCOME ENGINE HELPERS
 --------------------------------------------------------------- */
 
-function readTestEntries(userKey) {
+function readTestEntries(userKey, tier = "tier1") {
   try {
     if (!fs.existsSync(TEST_STORE_PATH)) return [];
     const raw = fs.readFileSync(TEST_STORE_PATH, "utf8");
     const parsed = JSON.parse(raw || "{}");
-    const entries = Array.isArray(parsed.users?.[userKey]) ? parsed.users[userKey] : [];
+    const entriesRaw = Array.isArray(parsed.users?.[userKey]) ? parsed.users[userKey] : [];
+    const normalizedTier = normalizeTier(tier);
+    const entries = entriesRaw.filter((item) => normalizeTier(item?.tier || "tier1") === normalizedTier);
     return [...entries].sort((a, b) => String(b.test_date).localeCompare(String(a.test_date)));
   } catch (err) {
     console.error("readTestEntries error:", err);
@@ -115,13 +122,25 @@ function estimateDaysToGoal(marksAway, dailyGain) {
   return Math.ceil(marksAway / dailyGain);
 }
 
-// Weighted impact per subject — higher = needs more focus per mark gained
-const SUBJECT_WEIGHTS = { Quant: 1.3, Reasoning: 1.2, GK: 1.0, English: 1.0, Computer: 0.8 };
+// No cross-scale conversion needed: marks are stored in their actual scale.
+// Tier 1 total_marks is 0-200; Tier 2 merit total_marks is 0-390 (computer excluded).
+function scaleScoreToGoalScale(score) {
+  const s = Number(score || 0);
+  if (!Number.isFinite(s)) return 0;
+  return Number(s.toFixed(1));
+}
+
+// Merit subject weights — Computer is qualifying-only, excluded from merit planning
+const SUBJECT_WEIGHTS = { Quant: 1.3, Reasoning: 1.2, GK: 1.0, English: 1.0 };
 
 function computeWeightedImpact(subjectAvgs) {
   if (!subjectAvgs) return [];
-  const maxAvg = Math.max(...Object.values(subjectAvgs), 1);
-  return Object.entries(subjectAvgs)
+  // Exclude Computer: it is qualifying-only (not counted in merit)
+  const meritAvgs = Object.fromEntries(
+    Object.entries(subjectAvgs).filter(([label]) => label !== "Computer")
+  );
+  const maxAvg = Math.max(...Object.values(meritAvgs), 1);
+  return Object.entries(meritAvgs)
     .map(([label, avg]) => {
       const weight = SUBJECT_WEIGHTS[label] || 1.0;
       const relWeakness = 1 - (avg / maxAvg);
@@ -177,32 +196,48 @@ function buildDynamicPlan(weakestSubjects, marksAway, dailyGainRate, sessionCoun
 router.get("/:userKey/outcome", (req, res) => {
   try {
     const userKey = normalizeUserKey(req.params.userKey);
+    const requestedTier = normalizeTier(req.query.tier || "tier1");
     if (!userKey) {
       return res.status(400).json({ success: false, error: "userKey required" });
     }
 
     const profile = getUserProfile(userKey);
-    const goalProfile = profile?.goal || null;
+    const goalsByTier = profile?.goalsByTier && typeof profile.goalsByTier === "object"
+      ? profile.goalsByTier
+      : {};
+    const legacyGoal = profile?.goal || null;
+    const goalProfile = goalsByTier[requestedTier] ||
+      (legacyGoal && normalizeTier(legacyGoal.tier || "tier1") === requestedTier ? legacyGoal : null);
 
-    const entries = readTestEntries(userKey);
+    const entries = readTestEntries(userKey, requestedTier);
     const hasHistory = entries.length > 0;
 
     // --- safe score and gap ---
+    const goalTier = normalizeTier(goalProfile?.tier || requestedTier);
+    // Tier 2 merit is out of 390 (Quant 90 + Reasoning 90 + English 135 + GK 75).
+    // Computer (60) is qualifying-only — not in merit total.
+    // Tier 1 is out of 200 (4 subjects × 50), qualifying for shortlisting.
+    const scoreScaleMax = goalTier === "tier2" ? 390 : 200;
     const autoCutoff = Number(goalProfile?.autoCutoff || 0);
-    const safeScore = autoCutoff > 0 ? Math.min(250, autoCutoff + 5) : null;
+    const safeBuffer = goalTier === "tier2" ? 8 : 5;
+    const safeScore = autoCutoff > 0 ? Math.min(scoreScaleMax, autoCutoff + safeBuffer) : null;
     const targetPost = String(goalProfile?.targetPost || "").trim() || null;
     const category = String(goalProfile?.category || "UR").toUpperCase();
 
-    const overallAvg = hasHistory ? Number(computeOverallAvg(entries, 0).toFixed(1)) : null;
-    const avg7 = hasHistory ? Number(computeOverallAvg(entries, 7).toFixed(1)) : null;
-    const latestScore = hasHistory ? Number(entries[0]?.total_marks || 0) : null;
+    const overallAvgRaw = hasHistory ? Number(computeOverallAvg(entries, 0).toFixed(1)) : null;
+    const avg7Raw = hasHistory ? Number(computeOverallAvg(entries, 7).toFixed(1)) : null;
+    const latestScoreRaw = hasHistory ? Number(entries[0]?.total_marks || 0) : null;
+    // No scaling: marks are already stored in the correct scale for each tier
+    const overallAvg = overallAvgRaw;
+    const avg7 = avg7Raw;
+    const latestScore = latestScoreRaw;
 
     // Use last 7 entries for subject avgs (recency matters)
     const subjectAvgs = hasHistory ? computeSubjectAvgs(entries, 7) : null;
     const weakestByImpact = computeWeightedImpact(subjectAvgs);
     const weakest = weakestByImpact.slice(0, 2).map(({ label, avg }) => ({ label, avg }));
 
-    // Linear regression over last 14 entries for gain rate
+    // Linear regression over last 14 entries for gain rate (already in correct scale)
     const dailyGainRate = hasHistory ? computeDailyGainRate(entries, 14) : 0;
 
     const marksAway = (safeScore != null && overallAvg != null)
@@ -241,11 +276,14 @@ router.get("/:userKey/outcome", (req, res) => {
     return res.json({
       success: true,
       userKey,
+      activeTier: requestedTier,
       hasHistory,
       confidence,
       goalProfile: goalProfile ? {
         targetPost,
         category,
+        tier: goalTier,
+        scoreScaleMax,
         autoCutoff: autoCutoff || null,
         safeScore
       } : null,

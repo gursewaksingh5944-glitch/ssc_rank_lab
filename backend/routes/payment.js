@@ -19,11 +19,13 @@ const {
 const router = express.Router();
 
 const PLAN_PRICES = {
-  99: 9900
+  99: 9900,
+  899: 89900
 };
 
 const PLAN_NAMES = {
-  99: "Monthly Premium ₹99"
+  99: "Monthly Premium ₹99",
+  899: "Premium Plus ₹899/year"
 };
 
 function normalizeUserKey(value) {
