@@ -99,6 +99,11 @@ async function openToolsPanel(page) {
   await page.locator(".nav button[data-panel='tools']").click();
 }
 
+async function switchToTier2(page) {
+  await page.locator("#tierModeBtnTier2").click();
+  await expect(page.locator("#predictorTier2Box")).toBeVisible();
+}
+
 async function mockPaidCheckout(page, expectedPlan) {
   let createOrderPayload = null;
   let verifyPayload = null;
@@ -159,6 +164,7 @@ test("annual plan is accepted by payment API contract", async ({ request }) => {
 test("unlock CTA opens the upgrade modal", async ({ page }) => {
   await gotoApp(page);
   await openToolsPanel(page);
+  await switchToTier2(page);
 
   await page.locator("#predictorOfferCta").click();
 
@@ -180,6 +186,7 @@ test("plans trial button starts the trial flow", async ({ page }) => {
 test("upgrade modal trial button starts the trial flow", async ({ page }) => {
   await gotoApp(page);
   await openToolsPanel(page);
+  await switchToTier2(page);
 
   await page.locator("#predictorOfferCta").click();
   await page.locator("#upgradeModalTrialBtn").click();
@@ -206,6 +213,7 @@ test("monthly plan button opens and completes synthetic Razorpay checkout", asyn
 test("upgrade modal pay button opens and completes synthetic monthly checkout", async ({ page }) => {
   await gotoApp(page);
   await openToolsPanel(page);
+  await switchToTier2(page);
   const paymentMock = await mockPaidCheckout(page, 99);
 
   await page.locator("#predictorOfferCta").click();

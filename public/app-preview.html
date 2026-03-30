@@ -1739,7 +1739,13 @@
         <p class="subtitle">Rank prediction, question practice, and mock generation in one place.</p>
 
         <!-- Rank Predictor -->
-        <div class="predictor-box">
+        <div id="predictorTier1Notice" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;padding:22px 20px;margin-bottom:0;">
+          <div style="font-size:20px;margin-bottom:8px;">📊</div>
+          <div style="font-size:15px;font-weight:900;color:#1e293b;margin-bottom:6px;">Rank Predictor — Tier 2 Only</div>
+          <div style="font-size:13px;color:#64748b;line-height:1.55;margin-bottom:14px;">SSC CGL posts are allocated based on <strong>Tier 2 scores</strong>. Rank prediction and post probability are only available in Tier 2 mode.</div>
+          <button type="button" onclick="switchTierMode('tier2')" style="padding:9px 20px;border-radius:10px;background:#2563eb;border:none;color:#fff;font-size:13px;font-weight:800;cursor:pointer;">Switch to Tier 2 →</button>
+        </div>
+        <div id="predictorTier2Box" class="predictor-box">
           <h3 style="margin:0 0 10px;font-size:16px;font-weight:900;">🎯 Rank Predictor</h3>
           <div class="predictor-offer-strip">
             <div class="predictor-offer free" id="predictorFreeOffer">
@@ -1775,7 +1781,7 @@
             <span id="planStatusText" style="font-size:12px;color:#64748b;">Start 2-day trial for full rank intelligence.</span>
           </div>
           <div id="rankResult" style="margin-top:12px;min-height:60px;"></div>
-        </div>
+        </div><!-- end predictorTier2Box -->
 
         <!-- Question Lab -->
         <div class="qlab-shell" style="margin-top:14px;">

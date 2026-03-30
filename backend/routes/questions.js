@@ -402,6 +402,11 @@ function sanitizeQuestion(input) {
 
   const now = new Date().toISOString();
   const id = String(input.id || `${Date.now()}_${Math.random().toString(36).slice(2, 9)}`);
+  const isPYQ = Boolean(input.isPYQ);
+  const rawYear = toInt(input.year, 0);
+  const year = (rawYear >= 2000 && rawYear <= 2030) ? rawYear : null;
+  const frequency = Math.max(1, Math.min(20, toInt(input.frequency, 1)));
+  const subtopic = String(input.subtopic || "").trim().slice(0, 100);
 
   return {
     id,
@@ -421,6 +426,10 @@ function sanitizeQuestion(input) {
     isChallengeCandidate,
     confidenceScore: Number.isFinite(confidenceScore) ? Number(confidenceScore.toFixed(2)) : 0,
     reviewStatus,
+    isPYQ,
+    year: isPYQ ? year : null,
+    frequency: isPYQ ? frequency : 1,
+    subtopic: subtopic || null,
     source: input.source && typeof input.source === "object" ? input.source : { kind: "manual" },
     createdAt: String(input.createdAt || now),
     updatedAt: now
@@ -437,6 +446,10 @@ function filterQuestions(all, query) {
   const questionMode = normalize(query.questionMode);
   const challengeOnly = String(query.challengeOnly || "").trim() === "true";
   const includeUnreviewed = String(query.includeUnreviewed || "").trim() === "true";
+  const isPYQFilter = String(query.isPYQ || "").trim();
+  const yearFilter = toInt(query.year, 0);
+  const yearFrom = toInt(query.yearFrom, 0);
+  const yearTo = toInt(query.yearTo, 0);
 
   let results = [...all];
 
@@ -449,6 +462,11 @@ function filterQuestions(all, query) {
   if (topic) results = results.filter((q) => normalize(q.topic).includes(topic));
   if (challengeOnly) results = results.filter((q) => q.isChallengeCandidate || q.difficulty === "hard");
   if (!includeUnreviewed) results = results.filter((q) => String(q.reviewStatus || "approved") === "approved");
+  if (isPYQFilter === "true") results = results.filter((q) => q.isPYQ === true);
+  if (isPYQFilter === "false") results = results.filter((q) => !q.isPYQ);
+  if (yearFilter) results = results.filter((q) => q.year === yearFilter);
+  if (yearFrom) results = results.filter((q) => (q.year || 0) >= yearFrom);
+  if (yearTo) results = results.filter((q) => (q.year || 0) <= yearTo);
 
   const limit = Math.max(1, Math.min(100, Number(query.limit || 20)));
   return results.slice(0, limit);
@@ -488,7 +506,8 @@ function generateQuestionSet(bank, payload = {}) {
   const questionMode = normalize(payload.questionMode);
   const difficulty = normalize(payload.difficulty);
   const challengeCount = Math.max(1, Math.min(10, toInt(payload.challengeCount, 5)));
-  const practiceCount = Math.max(5, Math.min(100, toInt(payload.count, 30)));
+  const requestedCountInput = payload.count ?? payload.practiceCount ?? payload.limit;
+  const practiceCount = Math.max(5, Math.min(100, toInt(requestedCountInput, 30)));
   const requestedSubjects = Array.isArray(payload.subjects)
     ? payload.subjects.map(normalizeSubject).filter(Boolean)
     : [];
@@ -562,6 +581,71 @@ function generateQuestionSet(bank, payload = {}) {
     };
   }
 
+  if (mode === "pyq-smart") {
+    const pyqPool = pool.filter((q) => q.isPYQ === true);
+    const activePyqPool = pyqPool.length > 0 ? pyqPool : pool;
+    const yearGroups = {};
+    activePyqPool.forEach((q) => {
+      const yr = String(q.year || "unknown");
+      if (!yearGroups[yr]) yearGroups[yr] = [];
+      yearGroups[yr].push(q);
+    });
+    const years = Object.keys(yearGroups).sort().reverse();
+    const pyqSelected = [];
+    const perYear = Math.ceil(practiceCount / Math.max(years.length, 1));
+    for (const yr of years) {
+      const picks = pickRandomUnique(yearGroups[yr], perYear, rng);
+      picks.forEach((q) => { if (!pyqSelected.some((s) => s.id === q.id)) pyqSelected.push(q); });
+      if (pyqSelected.length >= practiceCount) break;
+    }
+    if (pyqSelected.length < practiceCount) {
+      const remaining = activePyqPool.filter((q) => !pyqSelected.some((s) => s.id === q.id));
+      pyqSelected.push(...pickRandomUnique(remaining, practiceCount - pyqSelected.length, rng));
+    }
+    const items = shuffleWithRandom(pyqSelected.slice(0, practiceCount), rng);
+    return {
+      mode,
+      tier,
+      requested: practiceCount,
+      served: items.length,
+      isPYQ: true,
+      items,
+      excludedRecentCount: recentQuestionIds.size
+    };
+  }
+
+  if (mode === "weakness-focused") {
+    const rawWeights = typeof payload.subjectWeights === "object" && payload.subjectWeights !== null ? payload.subjectWeights : {};
+    const weightEntries = Object.entries(rawWeights)
+      .map(([sub, w]) => [normalizeSubject(sub), Math.max(0, Number(w || 0))])
+      .filter(([sub, w]) => sub && w > 0);
+    const totalWeight = weightEntries.reduce((s, [, w]) => s + w, 0);
+    let focusSelected = [];
+    if (weightEntries.length === 0 || totalWeight === 0) {
+      focusSelected = pickRandomUnique(pool, practiceCount, rng);
+    } else {
+      for (const [sub, w] of weightEntries) {
+        const count = Math.round((w / totalWeight) * practiceCount);
+        const subPool = pool.filter((q) => q.subject === sub);
+        focusSelected.push(...pickRandomUnique(subPool, count, rng));
+      }
+      if (focusSelected.length < practiceCount) {
+        const extra = pool.filter((q) => !focusSelected.some((s) => s.id === q.id));
+        focusSelected.push(...pickRandomUnique(extra, practiceCount - focusSelected.length, rng));
+      }
+    }
+    const items = shuffleWithRandom(focusSelected.slice(0, practiceCount), rng);
+    return {
+      mode,
+      tier,
+      requested: practiceCount,
+      served: items.length,
+      subjectWeights: Object.fromEntries(weightEntries),
+      items,
+      excludedRecentCount: recentQuestionIds.size
+    };
+  }
+
   let selected = pickRandomUnique(pool, practiceCount, rng);
   if (selected.length < practiceCount && fallbackPool.length > pool.length) {
     const needed = practiceCount - selected.length;
@@ -602,6 +686,8 @@ router.get("/meta", (req, res) => {
     const tiers = [...new Set(bank.questions.map((q) => q.tier))].filter(Boolean).sort();
     const difficulties = [...new Set(bank.questions.map((q) => q.difficulty))].filter(Boolean).sort();
     const questionModes = [...new Set(bank.questions.map((q) => q.questionMode))].filter(Boolean).sort();
+    const pyqCount = bank.questions.filter((q) => q.isPYQ === true).length;
+    const years = [...new Set(bank.questions.filter((q) => q.year).map((q) => q.year))].sort();
 
     return res.json({
       success: true,
@@ -611,10 +697,58 @@ router.get("/meta", (req, res) => {
       tiers,
       difficulties,
       questionModes,
-      total: bank.questions.length
+      total: bank.questions.length,
+      pyqCount,
+      years
     });
   } catch (error) {
     console.error("/api/questions/meta GET error:", error);
+    return res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
+router.get("/pyq/stats", (req, res) => {
+  try {
+    const bank = readBank();
+    const tierFilter = normalizeTier(req.query.tier || "");
+    let pyqs = bank.questions.filter((q) => q.isPYQ === true && String(q.reviewStatus || "approved") !== "rejected");
+    if (tierFilter) pyqs = pyqs.filter((q) => q.tier === tierFilter);
+
+    const topicMap = {};
+    pyqs.forEach((q) => {
+      const key = q.topic;
+      if (!topicMap[key]) topicMap[key] = { topic: key, subject: q.subject, count: 0, years: new Set(), totalFrequency: 0 };
+      topicMap[key].count += 1;
+      topicMap[key].totalFrequency += (q.frequency || 1);
+      if (q.year) topicMap[key].years.add(q.year);
+    });
+    const topTopics = Object.values(topicMap)
+      .map((t) => ({ topic: t.topic, subject: t.subject, count: t.count, years: [...t.years].sort(), totalFrequency: t.totalFrequency }))
+      .sort((a, b) => b.totalFrequency - a.totalFrequency)
+      .slice(0, 10);
+
+    const yearDist = {};
+    pyqs.forEach((q) => { if (q.year) yearDist[q.year] = (yearDist[q.year] || 0) + 1; });
+
+    const highFreq = [...pyqs]
+      .filter((q) => (q.frequency || 1) >= 3)
+      .sort((a, b) => (b.frequency || 1) - (a.frequency || 1))
+      .slice(0, 10)
+      .map((q) => ({ id: q.id, topic: q.topic, subtopic: q.subtopic, subject: q.subject, tier: q.tier, year: q.year, frequency: q.frequency, difficulty: q.difficulty }));
+
+    const subjectBreakdown = {};
+    pyqs.forEach((q) => { subjectBreakdown[q.subject] = (subjectBreakdown[q.subject] || 0) + 1; });
+
+    return res.json({
+      success: true,
+      total: pyqs.length,
+      topTopics,
+      yearDistribution: yearDist,
+      highFrequencyPYQs: highFreq,
+      subjectBreakdown
+    });
+  } catch (error) {
+    console.error("/api/questions/pyq/stats GET error:", error);
     return res.status(500).json({ success: false, error: "Server error" });
   }
 });

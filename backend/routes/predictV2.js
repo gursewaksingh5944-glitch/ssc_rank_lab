@@ -11,9 +11,14 @@ function normalizeUserKey(value) {
   return String(value || "").trim().toLowerCase();
 }
 
+function normalizeTier(value) {
+  const tier = String(value || "tier1").trim().toLowerCase();
+  return tier === "tier2" ? "tier2" : "tier1";
+}
+
 router.post("/", (req, res) => {
   try {
-    const { examKey, score, category, plan, userKey } = req.body;
+    const { examKey, score, category, plan, userKey, tier } = req.body;
 
     if (!examKey || score === undefined || !category) {
       return res.status(400).json({
@@ -23,11 +28,13 @@ router.post("/", (req, res) => {
     }
 
     const numericScore = Number(score);
+    const selectedTier = normalizeTier(tier);
+    const scoreMax = selectedTier === "tier2" ? 390 : 200;
 
-    if (Number.isNaN(numericScore) || numericScore < 0) {
+    if (Number.isNaN(numericScore) || numericScore < 0 || numericScore > scoreMax) {
       return res.status(400).json({
         success: false,
-        error: "Invalid score"
+        error: `Invalid score for ${selectedTier.toUpperCase()} (allowed: 0-${scoreMax})`
       });
     }
 
@@ -121,6 +128,7 @@ router.post("/", (req, res) => {
       effectiveAccessPlan,
       trial,
       plan: finalPlan,
+      tier: selectedTier,
       mode: selectedMode,
       ...safeEst
     };
@@ -132,12 +140,14 @@ router.post("/", (req, res) => {
         dataset
       });
 
-      responsePayload.postChances = getPostChances({
-        examKey,
-        score: numericScore,
-        category: cat,
-        categoryRank: safeEst.categoryRank ?? null
-      });
+      if (selectedTier === "tier2") {
+        responsePayload.postChances = getPostChances({
+          examKey,
+          score: numericScore,
+          category: cat,
+          categoryRank: safeEst.categoryRank ?? null
+        });
+      }
     }
 
     return res.json(responsePayload);

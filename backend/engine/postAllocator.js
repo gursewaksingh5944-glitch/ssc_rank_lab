@@ -172,11 +172,15 @@ function chanceBand(scoreGap, categoryRank, categorySeats) {
     return "Very Low";
   }
 
-  if (scoreGap >= 8 && ratio <= 1.0) return "High";
-  if (scoreGap >= 3 && ratio <= 1.2) return "High";
+  // Candidate-friendly floor: never mark non-negative score gap as Low/Very Low.
+  if (scoreGap >= 0) {
+    if (scoreGap >= 8 && ratio <= 1.1) return "High";
+    if (scoreGap >= 3 && ratio <= 1.3) return "High";
+    return "Moderate";
+  }
 
-  if (scoreGap >= 0 && ratio <= 1.5) return "Moderate";
   if (scoreGap >= -5 && ratio <= 1.2) return "Moderate";
+  if (scoreGap >= -3 && ratio <= 1.5) return "Moderate";
 
   if (scoreGap >= -8 && ratio <= 2.0) return "Low";
   if (scoreGap >= -12 && ratio <= 1.5) return "Low";
@@ -198,9 +202,11 @@ function ladderLevel(scoreGap, categoryRank, seats) {
     return "Very Low";
   }
 
+  // Same floor principle for ladder labels to avoid contradictory messaging.
   if (scoreGap >= 8 && ratio <= 0.9) return "Very High";
-  if (scoreGap >= 3 && ratio <= 1.1) return "High";
-  if (scoreGap >= 0 && ratio <= 1.4) return "Moderate";
+  if (scoreGap >= 3 && ratio <= 1.2) return "High";
+  if (scoreGap >= 0) return "High";
+
   if (scoreGap >= -6 && ratio <= 1.8) return "Low";
   return "Very Low";
 }

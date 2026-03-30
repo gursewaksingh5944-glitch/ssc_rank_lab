@@ -433,11 +433,19 @@ function applyTierModeButtons() {
   const tier2Btn = document.getElementById("tierModeBtnTier2");
   if (tier1Btn) tier1Btn.classList.toggle("active", activeTierMode === "tier1");
   if (tier2Btn) tier2Btn.classList.toggle("active", activeTierMode === "tier2");
+
+  // Rank predictor is Tier 2 only — hide when Tier 1 is active
+  const predictorBox = document.getElementById("predictorTier2Box");
+  const predictorNotice = document.getElementById("predictorTier1Notice");
+  if (predictorBox) predictorBox.style.display = activeTierMode === "tier2" ? "" : "none";
+  if (predictorNotice) predictorNotice.style.display = activeTierMode === "tier1" ? "" : "none";
+
   applyMarksFormForTier(activeTierMode);
 }
 
 function applyMarksFormForTier(tier) {
-  const cfg = TIER_FORM_CONFIG[normalizeTierMode(tier)] || TIER_FORM_CONFIG.tier1;
+  const normalizedTier = normalizeTierMode(tier);
+  const cfg = TIER_FORM_CONFIG[normalizedTier] || TIER_FORM_CONFIG.tier1;
   const hasComputer = cfg.subjects.some(function (s) { return s.key === "computer"; });
 
   const wrap = document.getElementById("computerMarksWrap");
@@ -465,6 +473,24 @@ function applyMarksFormForTier(tier) {
   const previousCutoffInput = document.getElementById("previousCutoffInput");
   if (overallTargetInput) overallTargetInput.max = cfg.totalMax;
   if (previousCutoffInput) previousCutoffInput.max = cfg.totalMax;
+
+  const marksInput = document.getElementById("marksInput");
+  if (marksInput) {
+    marksInput.min = "0";
+    marksInput.max = String(cfg.totalMax);
+    marksInput.placeholder = `Enter marks (0-${cfg.totalMax})`;
+    const currentMarks = Number(marksInput.value || 0);
+    if (Number.isFinite(currentMarks) && currentMarks > cfg.totalMax) {
+      marksInput.value = String(cfg.totalMax);
+    }
+  }
+
+  const whatIfInput = document.getElementById("hzWhatifInput");
+  if (whatIfInput) {
+    whatIfInput.min = "0";
+    whatIfInput.max = String(cfg.totalMax);
+    whatIfInput.placeholder = normalizedTier === "tier2" ? "Try: 320" : "Try: 145";
+  }
 
   const grid = document.querySelector(".marks-form-grid");
   if (grid) grid.style.gridTemplateColumns = cfg.subjects.length <= 4 ? "repeat(2,minmax(0,1fr))" : "repeat(3,minmax(0,1fr))";
@@ -1155,7 +1181,7 @@ function updateHookZone(outcome) {
     } else if (marksAway === 0) {
       daysToGoalEl.textContent = "Already in safe zone ✓";
     } else if (outcome.hasHistory && dailyGainRate <= 0) {
-      daysToGoalEl.textContent = "Trend flat — add more data";
+      daysToGoalEl.innerHTML = "⚠ Not enough data — take 3 more tests<br><small style='opacity:0.75;font-size:0.78em'>Most students drop here — don't break momentum</small>";
     } else {
       daysToGoalEl.textContent = "Track more entries for estimate";
     }
@@ -1607,12 +1633,14 @@ async function predictRank() {
     const selectedPlan = Number(document.getElementById("premiumInput")?.value || 0);
     const unlockedPlan = getUnlockedPlan();
     const userKey = getUserKey();
+    const selectedTier = normalizeTierMode(activeTierMode);
+    const scoreMax = selectedTier === "tier2" ? 390 : 200;
     const plan = selectedPlan > 0 ? Math.min(selectedPlan, unlockedPlan) : 0;
 
-    if (!Number.isFinite(marks) || marks < 0) {
+    if (!Number.isFinite(marks) || marks < 0 || marks > scoreMax) {
       resultDiv.innerHTML = `
         <div class="bg-red-50 border border-red-200 text-red-700 font-semibold p-4 rounded-2xl shadow-sm">
-          Enter valid marks first.
+          Enter valid marks between 0 and ${scoreMax} for ${selectedTier.toUpperCase()}.
         </div>
       `;
       return;
@@ -1658,6 +1686,7 @@ async function predictRank() {
       },
       body: JSON.stringify({
         examKey: "ssc_cgl",
+        tier: selectedTier,
         score: marks,
         category,
         plan,
@@ -1723,6 +1752,7 @@ function renderResult(data) {
   if (!resultDiv) return;
 
   const plan = Number(data.plan || 0);
+  const selectedTier = normalizeTierMode(data.tier || activeTierMode);
 
   const modeLabel =
     data.mode === "computer_qualified_raw"
@@ -1763,7 +1793,7 @@ function renderResult(data) {
       <div class="result-head">
         <h3 class="result-title">Your Result</h3>
         <span class="result-mode">
-          ${escapeHtml(modeLabel)} • Plan ₹${escapeHtml(String(plan))}
+          ${escapeHtml(String(selectedTier).toUpperCase())} • ${escapeHtml(modeLabel)} • Plan ₹${escapeHtml(String(plan))}
         </span>
       </div>
 
@@ -1815,7 +1845,7 @@ function renderResult(data) {
 
       ${plan < 99 ? renderUpgradePanel99() : ""}
 
-      ${plan >= 99 ? renderInsightsBlock(data.insights || {}, data.postChances || {}) : ""}
+      ${plan >= 99 ? renderInsightsBlock(data.insights || {}, data.postChances || {}, selectedTier) : ""}
     </div>
   `;
 
@@ -1921,36 +1951,56 @@ function renderLockedPreviewCard(title, value, note, plan = 99) {
   `;
 }
 
-function renderInsightsBlock(insights = {}, postChances = {}) {
-  const selectionChance = postChances?.selectionChance || null;
-  const ladder = Array.isArray(postChances?.ladder) ? postChances.ladder : [];
-  const items = Array.isArray(postChances?.items) ? postChances.items : [];
+function formatCandidateBand(rawBand) {
+  const key = String(rawBand || "").trim().toLowerCase();
+  if (key === "very high") return "Best Shot";
+  if (key === "high") return "Strong Chance";
+  if (key === "moderate") return "In Reach";
+  if (key === "low") return "Needs Push";
+  if (key === "very low") return "Long Shot";
+  return rawBand || "—";
+}
 
-  const selectionChanceCard = `
-    <div class="insight-card">
-      <div class="k">Overall Seat Position</div>
-      ${
-        selectionChance
-          ? `
-            <div class="v">
-              ${
-                Number(selectionChance.categoryRank) <= Number(selectionChance.categorySeats)
-                  ? "Within Seat Range"
-                  : "Outside Seat Range"
-              }
-            </div>
-            <div class="s">
-              Based on category rank vs total category vacancies
-              <br/>Category Seats: ${escapeHtml(String(selectionChance.categorySeats ?? "—"))}
-              <br/>Category Rank: ${escapeHtml(String(selectionChance.categoryRank ?? "—"))}
-            </div>
-          `
-          : `
-            <div class="s" style="color:#b91c1c;">Not available</div>
-          `
-      }
-    </div>
-  `;
+function renderInsightsBlock(insights = {}, postChances = {}, selectedTier = "tier1") {
+  const tier = normalizeTierMode(selectedTier);
+  const allowPostInsights = tier === "tier2";
+  const selectionChance = allowPostInsights ? (postChances?.selectionChance || null) : null;
+  const ladder = allowPostInsights && Array.isArray(postChances?.ladder) ? postChances.ladder : [];
+  const items = allowPostInsights && Array.isArray(postChances?.items) ? postChances.items : [];
+
+  const selectionChanceCard = allowPostInsights
+    ? `
+      <div class="insight-card">
+        <div class="k">Overall Seat Position</div>
+        ${
+          selectionChance
+            ? `
+              <div class="v">
+                ${
+                  Number(selectionChance.categoryRank) <= Number(selectionChance.categorySeats)
+                    ? "Within Seat Range"
+                    : "Outside Seat Range"
+                }
+              </div>
+              <div class="s">
+                Based on category rank vs total category vacancies
+                <br/>Category Seats: ${escapeHtml(String(selectionChance.categorySeats ?? "—"))}
+                <br/>Category Rank: ${escapeHtml(String(selectionChance.categoryRank ?? "—"))}
+              </div>
+            `
+            : `
+              <div class="s" style="color:#b91c1c;">Not available</div>
+            `
+        }
+      </div>
+    `
+    : `
+      <div class="insight-card">
+        <div class="k">Post Allocation</div>
+        <div class="v">Tier 2 Only</div>
+        <div class="s">Switch to Tier 2 mode to unlock post probability ladder and seat-position mapping.</div>
+      </div>
+    `;
 
   const scoreZoneCard =
     insights?.scoreZone
@@ -1991,7 +2041,7 @@ function renderInsightsBlock(insights = {}, postChances = {}) {
   const ladderSourceItems = items.length > 0 ? items : ladder;
 
   const ladderBlock =
-    ladderSourceItems.length > 0
+    allowPostInsights && ladderSourceItems.length > 0
       ? `
         <div class="ladder-shell">
           <h4 class="ladder-title">Post Probability Ladder</h4>
@@ -2010,40 +2060,47 @@ function renderInsightsBlock(insights = {}, postChances = {}) {
                   </div>
                 </div>
                 <div class="band">
-                  ${escapeHtml(p.ladderLevel || p.level || p.likelihoodBand || "—")}
+                  ${escapeHtml(formatCandidateBand(p.ladderLevel || p.level || p.likelihoodBand || "—"))}
                 </div>
               </div>
             `).join("")}
+          </div>
+          <div class="meta" style="margin-top:10px;font-size:12px;">
+            Tip: +3 to +5 marks can quickly move "Needs Push" into "In Reach".
           </div>
         </div>
       `
       : "";
 
   const postBlock =
-    items.length > 0
-      ? `
-        <div class="ladder-shell">
-          <h4 class="ladder-title">Best Possible Posts</h4>
-          <div class="ladder-list">
-            ${items.map((p) => `
-              <div class="ladder-item">
-                <div>
-                  <div class="post">${escapeHtml(p.post || "—")}</div>
-                  ${p.department ? `<div class="meta">${escapeHtml(p.department)}</div>` : ""}
-                  <div class="meta">Cutoff: ${escapeHtml(String(p.cutoff ?? "—"))} | Score Gap: ${escapeHtml(String(p.scoreGap ?? "—"))}</div>
-                </div>
-                <div class="band">${escapeHtml(p.likelihoodBand || "—")}</div>
+    allowPostInsights
+      ? (
+        items.length > 0
+          ? `
+            <div class="ladder-shell">
+              <h4 class="ladder-title">Best Possible Posts</h4>
+              <div class="ladder-list">
+                ${items.map((p) => `
+                  <div class="ladder-item">
+                    <div>
+                      <div class="post">${escapeHtml(p.post || "—")}</div>
+                      ${p.department ? `<div class="meta">${escapeHtml(p.department)}</div>` : ""}
+                      <div class="meta">Cutoff: ${escapeHtml(String(p.cutoff ?? "—"))} | Score Gap: ${escapeHtml(String(p.scoreGap ?? "—"))}</div>
+                    </div>
+                    <div class="band">${escapeHtml(formatCandidateBand(p.likelihoodBand || "—"))}</div>
+                  </div>
+                `).join("")}
               </div>
-            `).join("")}
-          </div>
-        </div>
-      `
-      : `
-        <div class="ladder-shell">
-          <h4 class="ladder-title">Post Chances</h4>
-          <div style="margin-top:8px;font-size:13px;color:#b91c1c;font-weight:700;">Not available yet.</div>
-        </div>
-      `;
+            </div>
+          `
+          : `
+            <div class="ladder-shell">
+              <h4 class="ladder-title">Post Chances</h4>
+              <div style="margin-top:8px;font-size:13px;color:#b91c1c;font-weight:700;">Not available yet.</div>
+            </div>
+          `
+      )
+      : "";
 
   return `
     <div>
@@ -3035,7 +3092,7 @@ function applyGoalAutoCutoff() {
   autoEl.value = String(Math.round(cutoff));
 
   const targetScoreEl = document.getElementById("goalTargetScore");
-  const cap = selectedTier === "tier2" ? 600 : 250;
+  const cap = selectedTier === "tier2" ? 390 : 200;
   const buffer = selectedTier === "tier2" ? 20 : 8;
   const recommendedTarget = Math.min(cap, Math.round(cutoff + buffer));
 
@@ -3163,7 +3220,7 @@ async function saveGoalProfile() {
     return;
   }
 
-  const targetMaxByTier = tier === "tier2" ? 600 : 250;
+  const targetMaxByTier = tier === "tier2" ? 390 : 200;
   if (!Number.isFinite(targetScore) || targetScore < 60 || targetScore > targetMaxByTier) {
     if (statusEl) {
       statusEl.textContent = `Target score must be between 60 and ${targetMaxByTier}.`;
