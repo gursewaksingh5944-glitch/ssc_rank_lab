@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSC CGL Mock Test Generator - Practice & Analyze</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+            --light: #f3f4f6;
+            --dark: #1f2937;
+            --text: #374151;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .modes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .mode-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary);
+        }
+
+        .mode-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .mode-card h3 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .mode-card p {
+            color: var(--text);
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .mode-details {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .mode-details div {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            color: var(--text);
+        }
+
+        .mode-details span {
+            margin-right: 10px;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .start-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 40px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--light);
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--dark);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .close {
+            color: var(--text);
+            float: right;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: var(--danger);
+        }
+
+        .stats-banner {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text);
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .modes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 30% auto;
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🎯 SSC CGL Mock Test Generator</h1>
+            <p>Professional exam preparation with realistic timing and analytics</p>
+        </header>
+
+        <!-- Stats Banner -->
+        <div class="stats-banner">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">3,912+</div>
+                    <div class="stat-label">Questions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Accurate Answers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">Real Exam</div>
+                    <div class="stat-label">Patterns & Timing</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">Detailed</div>
+                    <div class="stat-label">Analytics</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Modes Grid -->
+        <div class="modes-grid">
+            <!-- Full Mock -->
+            <div class="mode-card" onclick="openModal('fullMockModal')">
+                <div class="mode-icon">📋</div>
+                <h3>Full Mock Test</h3>
+                <p>Complete SSC CGL exam with all 4 sections</p>
+                <div class="mode-details">
+                    <div><span>⏱️</span> 60 minutes</div>
+                    <div><span>📊</span> 100 questions (25-25-25-25)</div>
+                    <div><span>🎯</span> Real exam timing & pattern</div>
+                </div>
+                <button class="start-btn">Start Full Mock →</button>
+            </div>
+
+            <!-- PYQ Based -->
+            <div class="mode-card" onclick="openModal('pyqModal')">
+                <div class="mode-icon">📚</div>
+                <h3>PYQ Based Exam</h3>
+                <p>Actual questions from SSC CGL previous years</p>
+                <div class="mode-details">
+                    <div><span>📅</span> 2023-2025 available</div>
+                    <div><span>🏆</span> From real exams</div>
+                    <div><span>✅</span> With year metadata</div>
+                </div>
+                <button class="start-btn">Select Year →</button>
+            </div>
+
+            <!-- Random Mixed -->
+            <div class="mode-card" onclick="openModal('randomModal')">
+                <div class="mode-icon">🎲</div>
+                <h3>Random Mixed Test</h3>
+                <p>PYQ questions mixed with fresh ones</p>
+                <div class="mode-details">
+                    <div><span>🔀</span> 50% PYQ | 50% New</div>
+                    <div><span>⏱️</span> 60 minutes</div>
+                    <div><span>📈</span> Varied difficulty</div>
+                </div>
+                <button class="start-btn">Start Mixed Test →</button>
+            </div>
+
+            <!-- Topic Wise -->
+            <div class="mode-card" onclick="openModal('topicModal')">
+                <div class="mode-icon">🎓</div>
+                <h3>Topic Wise Test</h3>
+                <p>Deep dive into specific Quant topics</p>
+                <div class="mode-details">
+                    <div><span>⏱️</span> Unlimited time</div>
+                    <div><span>📐</span> 16 quant topics</div>
+                    <div><span>🔍</span> Focused practice</div>
+                </div>
+                <button class="start-btn">Choose Topic →</button>
+            </div>
+
+            <!-- Speed Test -->
+            <div class="mode-card" onclick="openModal('speedModal')">
+                <div class="mode-icon">⚡</div>
+                <h3>Speed Test</h3>
+                <p>Quick 20-question test to build speed</p>
+                <div class="mode-details">
+                    <div><span>⏱️</span> 15 minutes</div>
+                    <div><span>📊</span> 20 questions</div>
+                    <div><span>🚀</span> Fast feedback</div>
+                </div>
+                <button class="start-btn">Start Speed Test →</button>
+            </div>
+
+            <!-- Weakness Builder -->
+            <div class="mode-card" onclick="alert('Feature coming soon!')">
+                <div class="mode-icon">💪</div>
+                <h3>Weakness Builder</h3>
+                <p>Personalized focus on your weak areas</p>
+                <div class="mode-details">
+                    <div><span>📈</span> Based on history</div>
+                    <div><span>🎯</span> Targeted practice</div>
+                    <div><span>⏱️</span> Coming Soon</div>
+                </div>
+                <button class="start-btn" style="opacity: 0.5; cursor: not-allowed;">Coming Soon</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Mock Modal -->
+    <div id="fullMockModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('fullMockModal')">&times;</span>
+            <h2>Start Full Mock Test</h2>
+            <form onsubmit="startFullMock(event)">
+                <div class="form-group">
+                    <label>Select Exam Tier</label>
+                    <select id="tier" required>
+                        <option value="tier1">SSC CGL Tier 1 (60 min, 100 Q)</option>
+                        <option value="tier2">SSC CGL Tier 2 (120 min, 120 Q)</option>
+                    </select>
+                </div>
+                <div class="mode-details" style="margin: 20px 0;">
+                    <div><span>📋</span> 100 Questions</div>
+                    <div><span>⏱️</span> Professional Timing</div>
+                    <div><span>📊</span> Detailed Analytics</div>
+                    <div><span>🔒</span> Cannot skip sections</div>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('fullMockModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Start Test</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PYQ Modal -->
+    <div id="pyqModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('pyqModal')">&times;</span>
+            <h2>Select PYQ Exam</h2>
+            <form onsubmit="startPYQExam(event)">
+                <div class="form-group">
+                    <label>Year</label>
+                    <select id="pyqYear" onchange="updateExams()" required>
+                        <option value="">Select Year</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Exam Date</label>
+                    <select id="pyqExam" required>
+                        <option value="">Select exam date</option>
+                    </select>
+                </div>
+                <div class="mode-details" style="margin: 20px 0;">
+                    <div><span>✅</span> Real exam questions</div>
+                    <div><span>📅</span> With year metadata</div>
+                    <div><span>🏆</span> Authentic experience</div>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('pyqModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Start PYQ Exam</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Random Mixed Modal -->
+    <div id="randomModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('randomModal')">&times;</span>
+            <h2>Start Random Mixed Test</h2>
+            <form onsubmit="startRandomMixed(event)">
+                <div class="form-group">
+                    <label>PYQ Ratio</label>
+                    <select id="pyqRatio">
+                        <option value="0.5">50% PYQ | 50% Fresh</option>
+                        <option value="0.6">60% PYQ | 40% Fresh</option>
+                        <option value="0.4">40% PYQ | 60% Fresh</option>
+                    </select>
+                </div>
+                <div class="mode-details" style="margin: 20px 0;">
+                    <div><span>🔀</span> Mix of both types</div>
+                    <div><span>⏱️</span> 60 minutes</div>
+                    <div><span>📈</span> Varied practice</div>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('randomModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Start Test</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = "block";
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        function updateExams() {
+            const year = document.getElementById('pyqYear').value;
+            const examSelect = document.getElementById('pyqExam');
+            examSelect.innerHTML = '<option value="">Select exam date</option>';
+
+            const exams = {
+                '2023': ['12-Sep-Shift1', '12-Sep-Shift2', '12-Sep-Shift3', '13-Sep-Shift1', '13-Sep-Shift2', '13-Sep-Shift3'],
+                '2024': ['14-Sep-Shift1', '14-Sep-Shift2', '15-Sep-Shift1', '16-Sep-Shift1'],
+                '2025': ['15-Sep-Shift1-2025']
+            };
+
+            if (exams[year]) {
+                exams[year].forEach(exam => {
+                    const option = document.createElement('option');
+                    option.value = exam;
+                    option.textContent = exam;
+                    examSelect.appendChild(option);
+                });
+            }
+        }
+
+        function startFullMock(e) {
+            e.preventDefault();
+            const tier = document.getElementById('tier').value;
+            alert('🎯 Full Mock Test Started!\n\nTier: ' + tier + '\n\n⏱️ Timer will start on next screen...');
+            closeModal('fullMockModal');
+        }
+
+        function startPYQExam(e) {
+            e.preventDefault();
+            const year = document.getElementById('pyqYear').value;
+            const exam = document.getElementById('pyqExam').value;
+            alert('📚 PYQ Exam Loaded!\n\nYear: ' + year + '\nExam: ' + exam + '\n\n🏆 Good Luck!');
+            closeModal('pyqModal');
+        }
+
+        function startRandomMixed(e) {
+            e.preventDefault();
+            const ratio = document.getElementById('pyqRatio').value;
+            alert('🎲 Random Mixed Test Started!\n\nPYQ Ratio: ' + (ratio * 100).toFixed(0) + '%\n\n⏱️ Let\'s begin!');
+            closeModal('randomModal');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

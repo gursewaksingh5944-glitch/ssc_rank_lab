@@ -7,6 +7,8 @@ const router = express.Router();
 
 let multerLib = null;
 let pdfParseLib = null;
+let pdfParseClass = null;
+let tesseractRecognize = null;
 try {
   // Optional dependency. Route still works without it for manual upserts.
   multerLib = require("multer");
@@ -16,13 +18,26 @@ try {
 
 try {
   // Optional dependency. Used for direct PDF text extraction.
-  pdfParseLib = require("pdf-parse");
+  const pdfParseModule = require("pdf-parse");
+  if (typeof pdfParseModule === "function") {
+    pdfParseLib = pdfParseModule;
+  } else if (pdfParseModule && typeof pdfParseModule.PDFParse === "function") {
+    pdfParseClass = pdfParseModule.PDFParse;
+  }
 } catch (err) {
   pdfParseLib = null;
+  pdfParseClass = null;
+}
+
+try {
+  const tesseractModule = require("tesseract.js");
+  tesseractRecognize = typeof tesseractModule.recognize === "function" ? tesseractModule.recognize : null;
+} catch (err) {
+  tesseractRecognize = null;
 }
 
 const upload = multerLib
-  ? multerLib({ storage: multerLib.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } })
+  ? multerLib({ storage: multerLib.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } })
   : null;
 
 const dataDir = path.join(__dirname, "..", "data");
@@ -47,6 +62,166 @@ const MOCK_BLUEPRINTS = {
       gk: 20,
       computer: 15
     }
+  }
+};
+
+// Source hint: Testbook SSC CGL topic-wise weightage (Tier 1, 2025 trend ranges).
+// Midpoint weights are used to keep topic proportions realistic during auto-mock generation.
+const SSC_CGL_TOPIC_WEIGHTAGE = {
+  quant: {
+    "Data Interpretation": 4.5,
+    Geometry: 3,
+    Mensuration: 3,
+    Trigonometry: 2.5,
+    "Profit & Loss": 2,
+    Algebra: 1.5,
+    "Number System": 1.5,
+    "Time & Work": 1.5,
+    "Time & Distance": 1.5,
+    "Ratio & Proportion": 1,
+    "Simple & Compound Interest": 1,
+    Percentage: 0.5,
+    Average: 1,
+    Simplification: 1,
+    Arithmetic: 2
+  },
+  english: {
+    "Cloze Test": 4,
+    "Active Passive": 3,
+    "Direct Indirect": 3,
+    Vocabulary: 3,
+    "Fill in the Blanks": 2.5,
+    Spelling: 2.5,
+    Idioms: 1.5,
+    "Para Jumbles": 1.5,
+    "One Word Substitution": 1,
+    "Sentence Completion": 0.5,
+    "Error Detection": 2,
+    Grammar: 2,
+    English: 2
+  },
+  reasoning: {
+    "Coding-Decoding": 3,
+    Analogy: 2,
+    "Number Series": 2,
+    Classification: 1.5,
+    Syllogism: 1.5,
+    "Blood Relation": 1.5,
+    "Venn Diagram": 1,
+    "Seating Arrangement": 1,
+    "Arithmetic Reasoning": 1,
+    Reasoning: 2
+  },
+  gk: {
+    "Current Affairs": 3.5,
+    Economy: 3,
+    History: 3,
+    Polity: 2,
+    Geography: 1.5,
+    Chemistry: 1.5,
+    Biology: 1,
+    Physics: 1,
+    Science: 1,
+    "Static GK": 2,
+    GK: 1.5
+  },
+  computer: {
+    "Computer Fundamentals": 4,
+    "Internet": 2,
+    "Networking": 2,
+    "Database": 1.5,
+    "MS Office": 2,
+    "Operating Systems": 2,
+    "Programming": 1.5
+  }
+};
+
+const TOPIC_ALIASES = {
+  quant: {
+    "profit loss": "Profit & Loss",
+    "profit and loss": "Profit & Loss",
+    "profit, loss & discount": "Profit & Loss",
+    "si ci": "Simple & Compound Interest",
+    "simple interest": "Simple & Compound Interest",
+    "compound interest": "Simple & Compound Interest",
+    "ci & si": "Simple & Compound Interest",
+    "time distance": "Time & Distance",
+    "speed time distance": "Time & Distance",
+    "speed of train": "Time & Distance",
+    "boat stream": "Time & Distance",
+    "boats and streams": "Time & Distance",
+    "time work": "Time & Work",
+    "ratio proportion": "Ratio & Proportion",
+    "percentages": "Percentage",
+    "number system": "Number System",
+    "data interpretation": "Data Interpretation",
+    "geometry": "Geometry",
+    "trigonometry": "Trigonometry",
+    "mensuration": "Mensuration",
+    "algebra": "Algebra",
+    "average": "Average",
+    "simplification": "Simplification",
+    "arithmetic": "Arithmetic"
+  },
+  english: {
+    "synonym": "Vocabulary",
+    "synonyms": "Vocabulary",
+    "antonym": "Vocabulary",
+    "antonyms": "Vocabulary",
+    "vocabulary": "Vocabulary",
+    "cloze test": "Cloze Test",
+    "fill in the blanks": "Fill in the Blanks",
+    "one word substitution": "One Word Substitution",
+    "direct indirect": "Direct Indirect",
+    "active passive": "Active Passive",
+    "error spotting": "Error Detection",
+    "error detection": "Error Detection",
+    "para jumbles": "Para Jumbles",
+    "idioms": "Idioms",
+    "spelling": "Spelling",
+    "grammar": "Grammar",
+    "sentence completion": "Sentence Completion",
+    "english": "English"
+  },
+  reasoning: {
+    "coding decoding": "Coding-Decoding",
+    "analogy": "Analogy",
+    "number series": "Number Series",
+    "series": "Number Series",
+    "blood relations": "Blood Relation",
+    "blood relation": "Blood Relation",
+    "venn diagram": "Venn Diagram",
+    "seating arrangement": "Seating Arrangement",
+    "arithmetic reasoning": "Arithmetic Reasoning",
+    "reasoning": "Reasoning"
+  },
+  gk: {
+    "current affairs": "Current Affairs",
+    "economy": "Economy",
+    "history": "History",
+    "polity": "Polity",
+    "geography": "Geography",
+    "chemistry": "Chemistry",
+    "biology": "Biology",
+    "physics": "Physics",
+    "science": "Science",
+    "gk": "GK",
+    "general awareness": "GK",
+    "static gk": "Static GK"
+  },
+  computer: {
+    "computer fundamentals": "Computer Fundamentals",
+    "computer basics": "Computer Fundamentals",
+    "internet": "Internet",
+    "networking": "Networking",
+    "network": "Networking",
+    "database": "Database",
+    "dbms": "Database",
+    "ms office": "MS Office",
+    "microsoft office": "MS Office",
+    "operating systems": "Operating Systems",
+    "os": "Operating Systems",
+    "programming": "Programming"
   }
 };
 
@@ -237,6 +412,122 @@ function applyReviewDecision(question, { decision, reviewedBy, rejectReason, rev
   };
 }
 
+function cleanOcrLine(line = "") {
+  return String(line || "")
+    .replace(/[|]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeAlphaLine(line = "") {
+  return cleanOcrLine(line).replace(/[^A-Za-z0-9%()/:?.,'+\- ]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function parseQuestionsFromSscOcrText(rawText = "", defaults = {}) {
+  const lines = String(rawText || "")
+    .split(/\r?\n/)
+    .map((line) => normalizeAlphaLine(line))
+    .filter(Boolean);
+
+  const questionStartRx = /^Q\s*\.?\s*No\s*[:\-. ]*\d+/i;
+  const questionAltRx = /^Q\s*\.?\s*\d+[\).:-]?/i;
+  const markers = [];
+
+  for (let i = 0; i < lines.length; i += 1) {
+    if (questionStartRx.test(lines[i]) || questionAltRx.test(lines[i])) {
+      markers.push(i);
+    }
+  }
+
+  if (markers.length === 0) return [];
+
+  const out = [];
+  const isPYQ = Boolean(defaults.isPYQ);
+  const parsedYear = toInt(defaults.year, 0);
+  const normalizedYear = parsedYear >= 2000 && parsedYear <= 2030 ? parsedYear : null;
+  const frequency = Math.max(1, Math.min(20, toInt(defaults.frequency, 1)));
+  const subtopic = String(defaults.subtopic || "").trim().slice(0, 100) || null;
+
+  for (let m = 0; m < markers.length; m += 1) {
+    const start = markers[m];
+    const end = m + 1 < markers.length ? markers[m + 1] : lines.length;
+    const block = lines.slice(start, end).filter(Boolean);
+    if (block.length < 2) continue;
+
+    const content = block.slice(1).filter((line) => !/^PART[- ]/i.test(line));
+    if (content.length === 0) continue;
+
+    const questionBits = [];
+    for (const line of content) {
+      if (line.length < 8) continue;
+      questionBits.push(line);
+      if (line.includes("?")) break;
+      if (questionBits.length >= 3) break;
+    }
+
+    let questionText = questionBits.join(" ").trim();
+    if (!questionText) {
+      questionText = content.slice(0, 2).join(" ").trim();
+    }
+    if (!questionText || questionText.length < 15) continue;
+
+    const tailCandidates = [];
+    for (let i = content.length - 1; i >= 0; i -= 1) {
+      const line = content[i];
+      if (!line || /^Q\s*\.?\s*/i.test(line)) continue;
+      if (line.length > 42) continue;
+      const words = line.split(/\s+/).filter(Boolean);
+      if (words.length > 6) continue;
+      if (!/[A-Za-z]/.test(line)) continue;
+      if (/following question|given alternatives|select/i.test(line)) continue;
+      tailCandidates.push(line);
+      if (tailCandidates.length >= 8) break;
+    }
+
+    const uniqueOptions = [];
+    const seen = new Set();
+    for (const option of tailCandidates.reverse()) {
+      const key = normalize(option);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      uniqueOptions.push(option);
+      if (uniqueOptions.length >= 4) break;
+    }
+
+    if (uniqueOptions.length < 2) continue;
+
+    out.push({
+      id: `${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+      type: "question",
+      examFamily: normalize(defaults.examFamily) || "ssc",
+      subject: normalizeSubject(defaults.subject),
+      difficulty: normalize(defaults.difficulty) || "medium",
+      topic: String(defaults.topic || "Imported Topic").trim(),
+      tier: normalizeTier(defaults.tier) || "tier1",
+      questionMode: normalizeQuestionMode(defaults.questionMode),
+      question: questionText,
+      options: uniqueOptions,
+      answerIndex: 0,
+      explanation: "",
+      marks: Number(defaults.marks || 2),
+      negativeMarks: Number(defaults.negativeMarks || 0.5),
+      source: {
+        kind: String(defaults.sourceKind || "pdf").trim() || "pdf",
+        fileName: String(defaults.fileName || "").trim(),
+        importedAt: new Date().toISOString()
+      },
+      isChallengeCandidate: Boolean(defaults.isChallengeCandidate),
+      confidenceScore: 0.4,
+      isPYQ,
+      year: isPYQ ? normalizedYear : null,
+      frequency: isPYQ ? frequency : 1,
+      subtopic
+    });
+  }
+
+  return out;
+}
+
 function parseQuestionsFromText(rawText = "", defaults = {}) {
   const preset = getParserPreset(defaults.parserPreset);
   const lines = String(rawText || "")
@@ -246,6 +537,11 @@ function parseQuestionsFromText(rawText = "", defaults = {}) {
 
   const items = [];
   let current = null;
+  const isPYQ = Boolean(defaults.isPYQ);
+  const parsedYear = toInt(defaults.year, 0);
+  const normalizedYear = parsedYear >= 2000 && parsedYear <= 2030 ? parsedYear : null;
+  const frequency = Math.max(1, Math.min(20, toInt(defaults.frequency, 1)));
+  const subtopic = String(defaults.subtopic || "").trim().slice(0, 100) || null;
 
   const finalizeCurrent = () => {
     if (!current) return;
@@ -282,12 +578,16 @@ function parseQuestionsFromText(rawText = "", defaults = {}) {
         marks: Number(defaults.marks || 2),
         negativeMarks: Number(defaults.negativeMarks || 0.5),
         source: {
-          kind: "pdf",
+          kind: String(defaults.sourceKind || "pdf").trim() || "pdf",
           fileName: String(defaults.fileName || "").trim(),
           importedAt: new Date().toISOString()
         },
         isChallengeCandidate: Boolean(defaults.isChallengeCandidate),
-        confidenceScore: 0
+        confidenceScore: 0,
+        isPYQ,
+        year: isPYQ ? normalizedYear : null,
+        frequency: isPYQ ? frequency : 1,
+        subtopic
       };
       continue;
     }
@@ -319,6 +619,13 @@ function parseQuestionsFromText(rawText = "", defaults = {}) {
 
   finalizeCurrent();
 
+  if (items.length === 0) {
+    const maybeOcrBlockItems = parseQuestionsFromSscOcrText(rawText, defaults);
+    if (maybeOcrBlockItems.length > 0) {
+      return maybeOcrBlockItems;
+    }
+  }
+
   return items.map((item) => {
     let confidence = 0.25;
     if (item.options.length >= 4) confidence += 0.35;
@@ -332,6 +639,85 @@ function parseQuestionsFromText(rawText = "", defaults = {}) {
 
     return item;
   });
+}
+
+function isLikelyScannedPdfText(rawText = "", totalPages = 0) {
+  const text = String(rawText || "");
+  const stripped = text
+    .replace(/--\s*\d+\s+of\s+\d+\s*--/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const minLength = Math.max(200, Number(totalPages || 0) * 20);
+  return stripped.length < minLength;
+}
+
+async function extractPdfText(pdfBuffer, options = {}) {
+  if (!pdfParseLib && !pdfParseClass) {
+    throw new Error("PDF parser dependency missing. Install pdf-parse to use PDF ingestion.");
+  }
+
+  let text = "";
+  let totalPages = 0;
+  let source = "pdf-text";
+
+  if (pdfParseLib) {
+    const parsed = await pdfParseLib(pdfBuffer);
+    text = String(parsed?.text || "");
+    totalPages = Number(parsed?.numpages || 0);
+  } else {
+    const parser = new pdfParseClass({ data: pdfBuffer });
+    try {
+      const parsed = await parser.getText();
+      text = String(parsed?.text || "");
+      totalPages = Number(parsed?.total || 0);
+    } finally {
+      await parser.destroy();
+    }
+  }
+
+  const useOCR = toBool(options.useOCR, false);
+  if (useOCR && isLikelyScannedPdfText(text, totalPages)) {
+    if (!pdfParseClass || !tesseractRecognize) {
+      return { text, totalPages, source: "pdf-text", ocrUsed: false, warning: "OCR fallback unavailable" };
+    }
+
+    const pageLimit = Math.max(1, Math.min(80, toInt(options.ocrPageLimit, 20)));
+    const pageStart = Math.max(1, toInt(options.ocrPageStart, 1));
+    const pageEnd = Math.min(totalPages || pageLimit, pageStart + pageLimit - 1);
+    const pages = [];
+    for (let p = pageStart; p <= pageEnd; p += 1) pages.push(p);
+
+    const parser = new pdfParseClass({ data: pdfBuffer });
+    try {
+      const shots = await parser.getScreenshot({ partial: pages, scale: 1.7 });
+      const out = [];
+
+      const shotPages = Array.isArray(shots?.pages) ? shots.pages : [];
+      for (let idx = 0; idx < shotPages.length; idx += 1) {
+        const image = shotPages[idx]?.data;
+        if (!image) continue;
+        const ocr = await tesseractRecognize(image, "eng");
+        const ocrText = String(ocr?.data?.text || "").trim();
+        if (ocrText) {
+          out.push(`Page ${pages[idx]}\n${ocrText}`);
+        }
+      }
+
+      if (out.length > 0) {
+        text = out.join("\n\n");
+        source = "ocr";
+      }
+    } finally {
+      await parser.destroy();
+    }
+  }
+
+  return {
+    text,
+    totalPages,
+    source,
+    ocrUsed: source === "ocr"
+  };
 }
 
 function seededRng(seedText) {
@@ -353,6 +739,150 @@ function shuffleWithRandom(input, randomFn = Math.random) {
 
 function pickRandomUnique(input, count, randomFn = Math.random) {
   return shuffleWithRandom(input, randomFn).slice(0, Math.max(0, count));
+}
+
+function pickWeightedUnique(input, count, randomFn = Math.random) {
+  if (!Array.isArray(input) || input.length === 0) return [];
+
+  const expanded = [];
+  input.forEach((item) => {
+    const repeat = item.isPYQ ? Math.max(1, Math.min(5, Number(item.frequency || 1))) : 1;
+    for (let i = 0; i < repeat; i += 1) {
+      expanded.push(item);
+    }
+  });
+
+  const shuffled = shuffleWithRandom(expanded, randomFn);
+  const selected = [];
+  const seen = new Set();
+
+  for (const item of shuffled) {
+    if (seen.has(item.id)) continue;
+    seen.add(item.id);
+    selected.push(item);
+    if (selected.length >= count) break;
+  }
+
+  if (selected.length < count) {
+    const remain = input.filter((item) => !seen.has(item.id));
+    selected.push(...pickRandomUnique(remain, count - selected.length, randomFn));
+  }
+
+  return selected;
+}
+
+function normalizeTopicKey(value) {
+  return normalize(value).replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function canonicalTopic(subject, topic) {
+  const sub = normalizeSubject(subject);
+  const key = normalizeTopicKey(topic);
+  const aliases = TOPIC_ALIASES[sub] || {};
+  return aliases[key] || String(topic || "").trim();
+}
+
+function allocateCountsByWeights(weightedBuckets, targetCount) {
+  if (!Array.isArray(weightedBuckets) || weightedBuckets.length === 0 || targetCount <= 0) return [];
+  const totalWeight = weightedBuckets.reduce((sum, b) => sum + Math.max(0, Number(b.weight || 0)), 0) || 1;
+  const allocations = weightedBuckets.map((bucket) => {
+    const exact = (Math.max(0, Number(bucket.weight || 0)) / totalWeight) * targetCount;
+    const base = Math.floor(exact);
+    return { bucket, count: base, fraction: exact - base };
+  });
+
+  let used = allocations.reduce((sum, item) => sum + item.count, 0);
+  const sortedByFraction = [...allocations].sort((a, b) => b.fraction - a.fraction);
+  for (const item of sortedByFraction) {
+    if (used >= targetCount) break;
+    item.count += 1;
+    used += 1;
+  }
+
+  return allocations;
+}
+
+function pickTopicWeightedUnique(input, count, subject, randomFn = Math.random, options = {}) {
+  if (!Array.isArray(input) || input.length === 0 || count <= 0) return [];
+  const sub = normalizeSubject(subject);
+  const weightMap = SSC_CGL_TOPIC_WEIGHTAGE[sub];
+  if (!weightMap) return pickWeightedUnique(input, count, randomFn);
+
+  const preferPYQ = options.preferPYQ !== false;
+  const grouped = new Map();
+  input.forEach((item) => {
+    const key = canonicalTopic(sub, item.topic);
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key).push(item);
+  });
+
+  const weightedBuckets = [];
+  for (const [key, items] of grouped.entries()) {
+    const weight = Number(weightMap[key] || 0);
+    if (weight <= 0) continue;
+    const pyqItems = items.filter((q) => q.isPYQ === true);
+    const pool = preferPYQ && pyqItems.length > 0 ? pyqItems : items;
+    weightedBuckets.push({ key, items: pool, weight });
+  }
+
+  if (weightedBuckets.length === 0) {
+    return pickWeightedUnique(input, count, randomFn);
+  }
+
+  const allocations = allocateCountsByWeights(weightedBuckets, count);
+  const selected = [];
+  const seen = new Set();
+
+  allocations.forEach(({ bucket, count: bucketCount }) => {
+    if (bucketCount <= 0) return;
+    const picks = pickWeightedUnique(bucket.items.filter((q) => !seen.has(q.id)), bucketCount, randomFn);
+    picks.forEach((item) => {
+      if (seen.has(item.id)) return;
+      seen.add(item.id);
+      selected.push(item);
+    });
+  });
+
+  if (selected.length < count) {
+    const remain = input.filter((q) => !seen.has(q.id));
+    selected.push(...pickWeightedUnique(remain, count - selected.length, randomFn));
+  }
+
+  return selected.slice(0, count);
+}
+
+function isExactAnswerQuestion(item) {
+  const options = Array.isArray(item?.options) ? item.options : [];
+  const answerIndex = Number(item?.answerIndex);
+  const confidence = Number(item?.confidenceScore);
+  const text = String(item?.question || "").trim();
+
+  if (String(item?.questionMode || "objective") !== "objective") return false;
+  if (options.length < 2) return false;
+  if (!Number.isInteger(answerIndex) || answerIndex < 0 || answerIndex >= options.length) return false;
+  if (Number.isFinite(confidence) && confidence > 0 && confidence < 0.7) return false;
+  if (text.length < 15) return false;
+  if (/answer\s*key/i.test(text)) return false;
+
+  return true;
+}
+
+function parseTopicSelections(value) {
+  const list = Array.isArray(value) ? value : [];
+  const tokens = new Set();
+
+  list.forEach((entry) => {
+    const raw = String(entry || "").trim();
+    if (!raw || !raw.includes("::")) return;
+    const [subject, topic] = raw.split("::");
+    const normalizedSubject = normalizeSubject(subject);
+    const normalizedTopic = normalize(topic);
+    if (normalizedSubject && normalizedTopic) {
+      tokens.add(`${normalizedSubject}::${normalizedTopic}`);
+    }
+  });
+
+  return tokens;
 }
 
 function sanitizeQuestion(input) {
@@ -472,24 +1002,198 @@ function filterQuestions(all, query) {
   return results.slice(0, limit);
 }
 
-function buildMockByTier(pool, tier, randomFn) {
+function formatSubjectLabel(subject) {
+  const map = {
+    quant: "Quant",
+    reasoning: "Reasoning",
+    english: "English",
+    gk: "GK",
+    computer: "Computer"
+  };
+  const key = normalizeSubject(subject);
+  return map[key] || String(subject || "").trim() || "Unknown";
+}
+
+function buildQuestionSetDiagnostics(items = [], context = {}) {
+  const list = Array.isArray(items) ? items : [];
+  const subjectBreakdown = {};
+  const difficultyBreakdown = {};
+  const subjectTopics = {};
+  const uniqueTopics = new Set();
+  let pyqCount = 0;
+  let confidenceTotal = 0;
+  let confidenceCount = 0;
+
+  list.forEach((item) => {
+    const subject = normalizeSubject(item?.subject) || "unknown";
+    const difficulty = normalize(item?.difficulty) || "unknown";
+    const topic = canonicalTopic(subject, item?.topic || "Mixed");
+
+    subjectBreakdown[subject] = (subjectBreakdown[subject] || 0) + 1;
+    difficultyBreakdown[difficulty] = (difficultyBreakdown[difficulty] || 0) + 1;
+
+    if (!subjectTopics[subject]) subjectTopics[subject] = new Set();
+    if (topic) {
+      subjectTopics[subject].add(topic);
+      uniqueTopics.add(`${subject}::${topic}`);
+    }
+
+    if (item?.isPYQ === true) pyqCount += 1;
+
+    const confidence = Number(item?.confidenceScore);
+    if (Number.isFinite(confidence) && confidence > 0) {
+      confidenceTotal += confidence;
+      confidenceCount += 1;
+    }
+  });
+
+  const requested = Math.max(0, Number(context.requested || list.length || 0));
+  const coverageRatio = requested > 0
+    ? Number((list.length / requested).toFixed(2))
+    : (list.length > 0 ? 1 : 0);
+
+  const requestedBlueprint = context?.blueprint?.distribution && typeof context.blueprint.distribution === "object"
+    ? context.blueprint.distribution
+    : null;
+
+  const shortfalls = {};
+  if (requestedBlueprint) {
+    Object.entries(requestedBlueprint).forEach(([subject, target]) => {
+      const actual = subjectBreakdown[subject] || 0;
+      if (actual < target) {
+        shortfalls[subject] = Math.max(0, target - actual);
+      }
+    });
+  }
+
+  const lowDiversitySubjects = Object.entries(subjectTopics)
+    .filter(([subject, topics]) => (subjectBreakdown[subject] || 0) >= 10 && topics.size < 3)
+    .map(([subject, topics]) => `${formatSubjectLabel(subject)} (${topics.size} topic${topics.size === 1 ? "" : "s"})`);
+
+  const warnings = [];
+  const tierLabel = normalizeTier(context.tier || "tier1") === "tier2" ? "Tier 2" : "Tier 1";
+
+  if (requested > 0 && list.length === 0) {
+    warnings.push(`No approved ${tierLabel} questions are available for the current filters yet.`);
+  }
+
+  if (requested > 0 && list.length > 0 && list.length < requested) {
+    warnings.push(`Only ${list.length} of ${requested} requested questions could be served from the current bank.`);
+  }
+
+  if (Object.keys(shortfalls).length > 0) {
+    const shortfallText = Object.entries(shortfalls)
+      .map(([subject, count]) => `${formatSubjectLabel(subject)} short by ${count}`)
+      .join(", ");
+    warnings.push(`Balanced mock coverage is limited right now: ${shortfallText}.`);
+  }
+
+  if (lowDiversitySubjects.length > 0) {
+    warnings.push(`Topic diversity is still thin in ${lowDiversitySubjects.join(", ")}.`);
+  }
+
+  let qualityBand = "strong";
+  if (list.length === 0) qualityBand = "insufficient";
+  else if (coverageRatio < 0.85 || Object.keys(shortfalls).length > 0) qualityBand = "limited";
+  else if (lowDiversitySubjects.length > 0 || coverageRatio < 1) qualityBand = "good";
+
+  return {
+    warnings,
+    summary: {
+      total: list.length,
+      requested,
+      coverageRatio,
+      qualityBand,
+      subjectBreakdown,
+      difficultyBreakdown,
+      topicCount: uniqueTopics.size,
+      pyqCount,
+      pyqSharePct: list.length ? Number(((pyqCount / list.length) * 100).toFixed(1)) : 0,
+      avgConfidencePct: confidenceCount ? Number(((confidenceTotal / confidenceCount) * 100).toFixed(1)) : null,
+      shortfalls,
+      excludedRecentCount: Number(context.excludedRecentCount || 0) || 0
+    }
+  };
+}
+
+function attachQuestionSetDiagnostics(result, context = {}) {
+  const meta = buildQuestionSetDiagnostics(result?.items, {
+    ...context,
+    requested: result?.requested,
+    tier: result?.tier,
+    excludedRecentCount: result?.excludedRecentCount
+  });
+
+  return {
+    ...result,
+    warnings: meta.warnings,
+    summary: meta.summary
+  };
+}
+
+function buildMockByTier(pool, tier, randomFn, options = {}) {
   const blueprint = MOCK_BLUEPRINTS[tier] || MOCK_BLUEPRINTS.tier1;
+  const preferPYQ = options.preferPYQ !== false;
+  const useTopicWeightage = options.useTopicWeightage !== false;
   const selected = [];
   const picked = new Set();
+  const subjectShortfalls = {};
 
+  // First pass: try to pick exactly the distribution count from each subject
   for (const [subject, count] of Object.entries(blueprint.distribution)) {
     const subjectPool = pool.filter((q) => q.subject === subject && !picked.has(q.id));
-    const picks = pickRandomUnique(subjectPool, count, randomFn);
+    const picks = useTopicWeightage
+      ? pickTopicWeightedUnique(subjectPool, count, subject, randomFn, { preferPYQ })
+      : pickWeightedUnique(subjectPool, count, randomFn);
+    
     picks.forEach((item) => {
       picked.add(item.id);
       selected.push(item);
     });
+    
+    // Track if this subject came up short
+    const shortfall = Math.max(0, count - picks.length);
+    if (shortfall > 0) {
+      subjectShortfalls[subject] = shortfall;
+    }
   }
 
+  // Second pass: if we're short on total questions, try to backfill evenly across subjects with available pool
   if (selected.length < blueprint.total) {
     const remain = pool.filter((q) => !picked.has(q.id));
-    const backfill = pickRandomUnique(remain, blueprint.total - selected.length, randomFn);
-    selected.push(...backfill);
+    const needed = blueprint.total - selected.length;
+    
+    if (Object.keys(subjectShortfalls).length > 0 && remain.length > 0) {
+      // Backfill primarily from subjects that had shortfalls
+      const shortfallSubjects = Object.keys(subjectShortfalls);
+      let backfilled = 0;
+      
+      for (const subject of shortfallSubjects) {
+        if (backfilled >= needed) break;
+        const subjectRemain = remain.filter((q) => q.subject === subject && !picked.has(q.id));
+        const toTake = Math.min(subjectRemain.length, subjectShortfalls[subject]);
+        
+        if (toTake > 0) {
+          const picks = pickRandomUnique(subjectRemain, toTake, randomFn);
+          picks.forEach((item) => {
+            picked.add(item.id);
+            selected.push(item);
+            backfilled++;
+          });
+        }
+      }
+      
+      // If still short, do a general backfill
+      if (backfilled < needed) {
+        const finalRemain = pool.filter((q) => !picked.has(q.id));
+        const generalBackfill = pickRandomUnique(finalRemain, needed - backfilled, randomFn);
+        selected.push(...generalBackfill);
+      }
+    } else {
+      // No shortfalls but still need questions - general backfill
+      const backfill = pickRandomUnique(remain, needed, randomFn);
+      selected.push(...backfill);
+    }
   }
 
   return {
@@ -512,6 +1216,10 @@ function generateQuestionSet(bank, payload = {}) {
     ? payload.subjects.map(normalizeSubject).filter(Boolean)
     : [];
   const includeUnreviewed = String(payload.includeUnreviewed || "").trim() === "true";
+  const topicFilter = normalize(payload.topic);
+  const selectedTopics = parseTopicSelections(payload.selectedTopics);
+  const mockType = normalize(payload.mockType) || "full_ssc";
+  const enforceExactAnswers = String(payload.enforceExactAnswers || "true").trim() !== "false";
   const recentQuestionIds = new Set(
     Array.isArray(payload.recentQuestionIds)
       ? payload.recentQuestionIds.map((item) => String(item || "").trim()).filter(Boolean)
@@ -532,11 +1240,28 @@ function generateQuestionSet(bank, payload = {}) {
     pool = pool.filter((q) => q.difficulty === difficulty);
   }
 
+  if (topicFilter) {
+    pool = pool.filter((q) => normalize(q.topic).includes(topicFilter));
+  }
+
+  if (selectedTopics.size > 0) {
+    pool = pool.filter((q) => {
+      const token = `${normalizeSubject(q.subject)}::${normalize(q.topic)}`;
+      return selectedTopics.has(token);
+    });
+  }
+
   if (scope === "selective" && requestedSubjects.length > 0) {
     pool = pool.filter((q) => requestedSubjects.includes(q.subject));
   }
 
+  if (enforceExactAnswers) {
+    pool = pool.filter((q) => isExactAnswerQuestion(q));
+  }
+
   const fallbackPool = [...pool];
+  const respond = (result, extra = {}) => attachQuestionSetDiagnostics(result, { tier, ...extra });
+
   if (recentQuestionIds.size > 0) {
     pool = pool.filter((q) => !recentQuestionIds.has(String(q.id || "").trim()));
     if (pool.length === 0) {
@@ -553,7 +1278,7 @@ function generateQuestionSet(bank, payload = {}) {
       const extraPool = fallbackPool.filter((q) => (q.isChallengeCandidate || q.difficulty === "hard") && !selected.some((x) => x.id === q.id));
       selected = [...selected, ...pickRandomUnique(extraPool, challengeCount - selected.length, rng)];
     }
-    return {
+    return respond({
       mode,
       tier,
       requested: challengeCount,
@@ -561,24 +1286,71 @@ function generateQuestionSet(bank, payload = {}) {
       seed,
       items: selected,
       excludedRecentCount: recentQuestionIds.size
-    };
+    });
   }
 
   const rng = Math.random;
   if (mode === "mock") {
-    let built = buildMockByTier(pool, tier, rng);
-    if (built.selected.length < built.requested && fallbackPool.length > pool.length) {
-      built = buildMockByTier(fallbackPool, tier, rng);
+    const isCustomTopicSelection = selectedTopics.size > 0 || Boolean(topicFilter);
+
+    if (mockType === "topic_select") {
+      const topicRequested = Math.max(10, practiceCount);
+      let topicItems = pickWeightedUnique(pool, topicRequested, rng);
+      if (topicItems.length < topicRequested && fallbackPool.length > pool.length) {
+        const remain = fallbackPool.filter((q) => !topicItems.some((item) => item.id === q.id));
+        topicItems = [...topicItems, ...pickWeightedUnique(remain, topicRequested - topicItems.length, rng)];
+      }
+      const selected = shuffleWithRandom(topicItems.slice(0, topicRequested), rng);
+      return respond({
+        mode,
+        tier,
+        mockType,
+        requested: topicRequested,
+        served: selected.length,
+        selectedTopics: [...selectedTopics],
+        items: selected,
+        excludedRecentCount: recentQuestionIds.size
+      });
     }
-    return {
+
+    const isQuantOnlyMock = scope === "selective" && requestedSubjects.length === 1 && requestedSubjects[0] === "quant";
+
+    if (!isCustomTopicSelection && isQuantOnlyMock) {
+      const requested = Math.max(10, practiceCount);
+      let selected = pickTopicWeightedUnique(pool, requested, "quant", rng, { preferPYQ: true });
+      if (selected.length < requested && fallbackPool.length > pool.length) {
+        const remain = fallbackPool.filter((q) => q.subject === "quant" && !selected.some((x) => x.id === q.id));
+        selected = [...selected, ...pickTopicWeightedUnique(remain, requested - selected.length, "quant", rng, { preferPYQ: true })];
+      }
+      selected = shuffleWithRandom(selected.slice(0, requested), rng);
+      return respond({
+        mode,
+        tier,
+        mockType: "quant_section",
+        requested,
+        served: selected.length,
+        pattern: "ssc_cgl_topic_weighted_quant",
+        items: selected,
+        excludedRecentCount: recentQuestionIds.size
+      });
+    }
+
+    let built = buildMockByTier(pool, tier, rng, { preferPYQ: true, useTopicWeightage: !isCustomTopicSelection });
+    if (built.selected.length < built.requested && fallbackPool.length > pool.length) {
+      built = buildMockByTier(fallbackPool, tier, rng, { preferPYQ: true, useTopicWeightage: !isCustomTopicSelection });
+    }
+    return respond({
       mode,
       tier,
+      mockType: "full_ssc",
       requested: built.requested,
       served: built.selected.length,
       pattern: MOCK_BLUEPRINTS[tier],
       items: built.selected,
       excludedRecentCount: recentQuestionIds.size
-    };
+    }, {
+      blueprint: MOCK_BLUEPRINTS[tier]
+    });
   }
 
   if (mode === "pyq-smart") {
@@ -603,7 +1375,7 @@ function generateQuestionSet(bank, payload = {}) {
       pyqSelected.push(...pickRandomUnique(remaining, practiceCount - pyqSelected.length, rng));
     }
     const items = shuffleWithRandom(pyqSelected.slice(0, practiceCount), rng);
-    return {
+    return respond({
       mode,
       tier,
       requested: practiceCount,
@@ -611,7 +1383,7 @@ function generateQuestionSet(bank, payload = {}) {
       isPYQ: true,
       items,
       excludedRecentCount: recentQuestionIds.size
-    };
+    });
   }
 
   if (mode === "weakness-focused") {
@@ -635,7 +1407,7 @@ function generateQuestionSet(bank, payload = {}) {
       }
     }
     const items = shuffleWithRandom(focusSelected.slice(0, practiceCount), rng);
-    return {
+    return respond({
       mode,
       tier,
       requested: practiceCount,
@@ -643,7 +1415,7 @@ function generateQuestionSet(bank, payload = {}) {
       subjectWeights: Object.fromEntries(weightEntries),
       items,
       excludedRecentCount: recentQuestionIds.size
-    };
+    });
   }
 
   let selected = pickRandomUnique(pool, practiceCount, rng);
@@ -652,14 +1424,14 @@ function generateQuestionSet(bank, payload = {}) {
     const extra = fallbackPool.filter((q) => !selected.some((s) => s.id === q.id));
     selected = [...selected, ...pickRandomUnique(extra, needed, rng)];
   }
-  return {
+  return respond({
     mode,
     tier,
     requested: practiceCount,
     served: selected.length,
     items: selected,
     excludedRecentCount: recentQuestionIds.size
-  };
+  });
 }
 
 router.get("/", (req, res) => {
@@ -681,23 +1453,54 @@ router.get("/", (req, res) => {
 router.get("/meta", (req, res) => {
   try {
     const bank = readBank();
-    const subjects = [...new Set(bank.questions.map((q) => q.subject))].sort();
-    const topics = [...new Set(bank.questions.map((q) => q.topic))].sort();
-    const tiers = [...new Set(bank.questions.map((q) => q.tier))].filter(Boolean).sort();
-    const difficulties = [...new Set(bank.questions.map((q) => q.difficulty))].filter(Boolean).sort();
-    const questionModes = [...new Set(bank.questions.map((q) => q.questionMode))].filter(Boolean).sort();
-    const pyqCount = bank.questions.filter((q) => q.isPYQ === true).length;
-    const years = [...new Set(bank.questions.filter((q) => q.year).map((q) => q.year))].sort();
+    const approvedQuestions = bank.questions.filter((q) => q.type === "question" && String(q.reviewStatus || "approved") === "approved");
+    const subjects = [...new Set(approvedQuestions.map((q) => q.subject))].filter(Boolean).sort();
+
+    const topicMap = new Map();
+    approvedQuestions.forEach((q) => {
+      const subject = normalizeSubject(q.subject);
+      const tier = normalizeTier(q.tier || "tier1");
+      const topic = canonicalTopic(subject, q.topic);
+      if (!subject || !topic) return;
+      const key = `${tier}::${subject}::${normalize(topic)}`;
+      if (!topicMap.has(key)) {
+        topicMap.set(key, { subject, topic, tier, count: 0 });
+      }
+      topicMap.get(key).count += 1;
+    });
+
+    const topicItems = [...topicMap.values()]
+      .sort((a, b) => a.tier.localeCompare(b.tier) || a.subject.localeCompare(b.subject) || b.count - a.count || a.topic.localeCompare(b.topic));
+
+    const coverageByTier = {};
+    approvedQuestions.forEach((q) => {
+      const tier = normalizeTier(q.tier || "tier1");
+      const subject = normalizeSubject(q.subject) || "unknown";
+      if (!coverageByTier[tier]) {
+        coverageByTier[tier] = { total: 0, bySubject: {} };
+      }
+      coverageByTier[tier].total += 1;
+      coverageByTier[tier].bySubject[subject] = (coverageByTier[tier].bySubject[subject] || 0) + 1;
+    });
+
+    const topics = [...new Set(topicItems.map((item) => item.topic))].sort();
+    const tiers = [...new Set(approvedQuestions.map((q) => q.tier))].filter(Boolean).sort();
+    const difficulties = [...new Set(approvedQuestions.map((q) => q.difficulty))].filter(Boolean).sort();
+    const questionModes = [...new Set(approvedQuestions.map((q) => q.questionMode))].filter(Boolean).sort();
+    const pyqCount = approvedQuestions.filter((q) => q.isPYQ === true).length;
+    const years = [...new Set(approvedQuestions.filter((q) => q.year).map((q) => q.year))].sort();
 
     return res.json({
       success: true,
       updatedAt: bank.updatedAt,
       subjects,
       topics,
+      topicItems,
+      coverageByTier,
       tiers,
       difficulties,
       questionModes,
-      total: bank.questions.length,
+      total: approvedQuestions.length,
       pyqCount,
       years
     });
@@ -791,7 +1594,7 @@ router.post("/admin/import-pdf", maybeUploadSingle, async (req, res) => {
   try {
     if (!requireAdminAccess(req, res)) return;
 
-    if (!pdfParseLib) {
+    if (!pdfParseLib && !pdfParseClass) {
       return res.status(400).json({
         success: false,
         error: "PDF parser dependency missing. Install pdf-parse to use PDF ingestion."
@@ -810,7 +1613,12 @@ router.post("/admin/import-pdf", maybeUploadSingle, async (req, res) => {
       });
     }
 
-    const parsed = await pdfParseLib(pdfBuffer);
+    const extraction = await extractPdfText(pdfBuffer, {
+      useOCR: req.body.useOCR,
+      ocrPageLimit: req.body.ocrPageLimit,
+      ocrPageStart: req.body.ocrPageStart
+    });
+    const isPYQImport = String(req.body.isPYQ || "").trim() === "true";
     const defaults = {
       examFamily: req.body.examFamily || "ssc",
       subject: req.body.subject || "",
@@ -822,14 +1630,20 @@ router.post("/admin/import-pdf", maybeUploadSingle, async (req, res) => {
       marks: req.body.marks || undefined,
       negativeMarks: req.body.negativeMarks || undefined,
       isChallengeCandidate: String(req.body.isChallengeCandidate || "").trim() === "true",
+      isPYQ: isPYQImport,
+      year: req.body.year || undefined,
+      frequency: req.body.frequency || undefined,
+      subtopic: req.body.subtopic || undefined,
+      sourceKind: req.body.sourceKind || (isPYQImport ? "pyq_pdf" : "daily_practice_pdf"),
       fileName
     };
     const reviewThreshold = Number.isFinite(Number(req.body.reviewThreshold))
       ? Number(req.body.reviewThreshold)
       : 0.65;
     const autoApprove = String(req.body.autoApprove || "").trim() === "true";
+    const forceReview = extraction.ocrUsed;
 
-    const extracted = parseQuestionsFromText(parsed.text || "", defaults);
+    const extracted = parseQuestionsFromText(extraction.text || "", defaults);
     if (extracted.length === 0) {
       return res.status(400).json({
         success: false,
@@ -858,9 +1672,9 @@ router.post("/admin/import-pdf", maybeUploadSingle, async (req, res) => {
         return;
       }
 
-      sanitized.reviewStatus = autoApprove
+      sanitized.reviewStatus = (autoApprove && !forceReview)
         ? "approved"
-        : (Number(sanitized.confidenceScore || 0) < reviewThreshold ? "needs_review" : "approved");
+        : (Number(sanitized.confidenceScore || 0) < Math.max(reviewThreshold, forceReview ? 0.95 : 0) ? "needs_review" : "approved");
       if (sanitized.reviewStatus === "needs_review") {
         queuedForReview += 1;
       }
@@ -877,6 +1691,8 @@ router.post("/admin/import-pdf", maybeUploadSingle, async (req, res) => {
       success: true,
       imported: accepted,
       queuedForReview,
+      extractionSource: extraction.source,
+      ocrUsed: extraction.ocrUsed,
       warnings,
       updatedAt: next.updatedAt,
       total: next.questions.length
@@ -891,7 +1707,7 @@ router.post("/admin/import-pdf/preview", maybeUploadSingle, async (req, res) => 
   try {
     if (!requireAdminAccess(req, res)) return;
 
-    if (!pdfParseLib) {
+    if (!pdfParseLib && !pdfParseClass) {
       return res.status(400).json({
         success: false,
         error: "PDF parser dependency missing. Install pdf-parse to use PDF ingestion."
@@ -910,7 +1726,11 @@ router.post("/admin/import-pdf/preview", maybeUploadSingle, async (req, res) => 
       });
     }
 
-    const parsed = await pdfParseLib(pdfBuffer);
+    const extraction = await extractPdfText(pdfBuffer, {
+      useOCR: req.body.useOCR,
+      ocrPageLimit: req.body.ocrPageLimit,
+      ocrPageStart: req.body.ocrPageStart
+    });
     const defaults = {
       examFamily: req.body.examFamily || "ssc",
       subject: req.body.subject || "",
@@ -922,12 +1742,14 @@ router.post("/admin/import-pdf/preview", maybeUploadSingle, async (req, res) => 
       fileName
     };
 
-    const extracted = parseQuestionsFromText(parsed.text || "", defaults);
+    const extracted = parseQuestionsFromText(extraction.text || "", defaults);
     const preview = extracted.slice(0, Math.max(1, Math.min(20, toInt(req.body.previewCount, 5))));
 
     return res.json({
       success: true,
       parserPreset: defaults.parserPreset,
+      extractionSource: extraction.source,
+      ocrUsed: extraction.ocrUsed,
       extractedCount: extracted.length,
       preview
     });
@@ -1036,6 +1858,64 @@ router.post("/admin/review/decision", (req, res) => {
     });
   } catch (error) {
     console.error("/api/questions/admin/review/decision POST error:", error);
+    return res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
+router.post("/admin/review/auto-decision", (req, res) => {
+  try {
+    if (!requireAdminAccess(req, res)) return;
+
+    const decision = normalize(req.body.decision);
+    const reviewedBy = String(req.body.reviewedBy || "system_admin").trim().slice(0, 80);
+    const rejectReason = String(req.body.rejectReason || "Auto-rejected due to very low OCR confidence").trim().slice(0, 500);
+    const minConfidence = Number.isFinite(Number(req.body.minConfidence)) ? Number(req.body.minConfidence) : 0.85;
+    const maxConfidence = Number.isFinite(Number(req.body.maxConfidence)) ? Number(req.body.maxConfidence) : 0.25;
+    const limit = Math.max(1, Math.min(500, toInt(req.body.limit, 200)));
+
+    if (!["approve", "reject"].includes(decision)) {
+      return res.status(400).json({ success: false, error: "decision must be approve or reject" });
+    }
+
+    const bank = readBank();
+    const candidates = bank.questions.filter((q) => String(q.reviewStatus || "approved") === "needs_review");
+    let filtered = [];
+
+    if (decision === "approve") {
+      filtered = candidates.filter((q) => Number(q.confidenceScore || 0) >= minConfidence);
+    } else {
+      filtered = candidates.filter((q) => Number(q.confidenceScore || 0) <= maxConfidence);
+    }
+
+    const picked = filtered.slice(0, limit);
+    if (picked.length === 0) {
+      return res.json({ success: true, decision, updated: 0, reviewedBy, message: "No matching needs_review questions found" });
+    }
+
+    const nowIso = new Date().toISOString();
+    const ids = new Set(picked.map((q) => String(q.id || "")));
+    bank.questions = bank.questions.map((q) => {
+      if (!ids.has(String(q.id || ""))) return q;
+      return applyReviewDecision(q, {
+        decision,
+        reviewedBy,
+        rejectReason,
+        reviewedAt: nowIso
+      });
+    });
+
+    const next = writeBank({ questions: ensureUniqueIds(bank.questions) });
+    return res.json({
+      success: true,
+      decision,
+      updated: picked.length,
+      reviewedBy,
+      minConfidence,
+      maxConfidence,
+      updatedAt: next.updatedAt
+    });
+  } catch (error) {
+    console.error("/api/questions/admin/review/auto-decision POST error:", error);
     return res.status(500).json({ success: false, error: "Server error" });
   }
 });

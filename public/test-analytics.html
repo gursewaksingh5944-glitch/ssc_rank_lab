@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Analytics & Results Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+            --primary: #2563eb;
+            --light: #f3f4f6;
+            --dark: #1f2937;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        /* Score Card */
+        .score-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .score-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .score-box {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--info) 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .status.pass {
+            background: #d1f4d1;
+            color: var(--success);
+        }
+
+        .status.fail {
+            background: #fdd9d9;
+            color: var(--danger);
+        }
+
+        /* Analytics Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .analytics-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .analytics-card h3 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+        }
+
+        .analytics-card h3 span {
+            margin-right: 10px;
+            font-size: 1.5em;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .stats-table th,
+        .stats-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .stats-table th {
+            background: var(--light);
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .stats-table tr:hover {
+            background: var(--light);
+        }
+
+        /* Section Breakdown */
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .section-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .section-card.math {
+            border-left-color: #3b82f6;
+        }
+
+        .section-card.english {
+            border-left-color: #ef4444;
+        }
+
+        .section-card.reasoning {
+            border-left-color: #10b981;
+        }
+
+        .section-card.gk {
+            border-left-color: #f59e0b;
+        }
+
+        .section-header {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .section-stats {
+            font-size: 0.9em;
+            color: var(--text);
+            line-height: 1.8;
+        }
+
+        .progress-bar {
+            background: var(--light);
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success) 0%, var(--info) 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Recommendations */
+        .recommendations {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .recommendations h2 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+
+        .recommendation-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--warning);
+        }
+
+        .recommendation-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--info) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--dark);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.6em;
+            }
+
+            .score-display {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                flex: none;
+            }
+        }
+
+        .metric {
+            margin: 10px 0;
+            font-size: 0.95em;
+        }
+
+        .metric-label {
+            color: var(--text);
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>📊 Test Analytics & Results</h1>
+            <p>Detailed performance analysis and recommendations</p>
+        </header>
+
+        <!-- Score Card -->
+        <div class="score-card">
+            <div class="score-display">
+                <div class="score-box">
+                    <div class="score-number" id="netMarks">68</div>
+                    <div class="score-label">Net Marks</div>
+                </div>
+                <div class="score-box" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <div class="score-number" id="accuracy">85%</div>
+                    <div class="score-label">Accuracy</div>
+                </div>
+                <div class="score-box" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <div class="score-number" id="speed">1.2</div>
+                    <div class="score-label">Questions/Min</div>
+                </div>
+                <div class="score-box" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                    <div class="score-number" id="timeUsed">65%</div>
+                    <div class="score-label">Time Used</div>
+                </div>
+            </div>
+
+            <div class="status pass" id="statusDisplay">
+                ✅ PASS - Score 68/100 (68%) - Above Cutoff (40%)
+            </div>
+        </div>
+
+        <!-- Analytics Grid -->
+        <div class="analytics-grid">
+            <!-- Accuracy by Section -->
+            <div class="analytics-card">
+                <h3><span>📈</span> Accuracy by Section</h3>
+                <div class="chart-container">
+                    <canvas id="sectionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Question Attempt -->
+            <div class="analytics-card">
+                <h3><span>📋</span> Question Attempt</h3>
+                <div class="chart-container">
+                    <canvas id="attemptChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Time Distribution -->
+            <div class="analytics-card">
+                <h3><span>⏱️</span> Time Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="timeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Breakdown -->
+        <div class="analytics-card" style="margin-bottom: 40px;">
+            <h3><span>🎯</span> Section Wise Breakdown</h3>
+            <div class="section-grid">
+                <!-- Quantitative -->
+                <div class="section-card math">
+                    <div class="section-header">📐 Quantitative Aptitude</div>
+                    <div class="section-stats">
+                        <div class="metric">
+                            <span class="metric-label">Attempted:</span>
+                            <span class="metric-value">24/25</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Correct:</span>
+                            <span class="metric-value">20</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Accuracy:</span>
+                            <span class="metric-value">83%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Marks:</span>
+                            <span class="metric-value">19/25</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 83%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- English -->
+                <div class="section-card english">
+                    <div class="section-header">📚 English Comprehension</div>
+                    <div class="section-stats">
+                        <div class="metric">
+                            <span class="metric-label">Attempted:</span>
+                            <span class="metric-value">25/25</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Correct:</span>
+                            <span class="metric-value">17</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Accuracy:</span>
+                            <span class="metric-value">68%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Marks:</span>
+                            <span class="metric-value">16/25</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 68%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reasoning -->
+                <div class="section-card reasoning">
+                    <div class="section-header">🧠 Reasoning</div>
+                    <div class="section-stats">
+                        <div class="metric">
+                            <span class="metric-label">Attempted:</span>
+                            <span class="metric-value">25/25</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Correct:</span>
+                            <span class="metric-value">22</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Accuracy:</span>
+                            <span class="metric-value">88%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Marks:</span>
+                            <span class="metric-value">21/25</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 88%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GK -->
+                <div class="section-card gk">
+                    <div class="section-header">🌍 General Awareness</div>
+                    <div class="section-stats">
+                        <div class="metric">
+                            <span class="metric-label">Attempted:</span>
+                            <span class="metric-value">23/25</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Correct:</span>
+                            <span class="metric-value">18</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Accuracy:</span>
+                            <span class="metric-value">78%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Marks:</span>
+                            <span class="metric-value">18/25</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 78%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Weak Areas -->
+        <div class="analytics-card" style="margin-bottom: 40px;">
+            <h3><span>⚠️</span> Top 5 Weak Areas</h3>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Attempted</th>
+                        <th>Correct</th>
+                        <th>Accuracy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Vocabulary & Idioms</td>
+                        <td>8</td>
+                        <td>4</td>
+                        <td>50%</td>
+                    </tr>
+                    <tr>
+                        <td>Reading Comprehension</td>
+                        <td>7</td>
+                        <td>4</td>
+                        <td>57%</td>
+                    </tr>
+                    <tr>
+                        <td>Coordinate Geometry</td>
+                        <td>3</td>
+                        <td>2</td>
+                        <td>67%</td>
+                    </tr>
+                    <tr>
+                        <td>Mensuration</td>
+                        <td>4</td>
+                        <td>3</td>
+                        <td>75%</td>
+                    </tr>
+                    <tr>
+                        <td>Modern History</td>
+                        <td>5</td>
+                        <td>4</td>
+                        <td>80%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="recommendations" style="margin-bottom: 40px;">
+            <h2>💡 Personalized Recommendations</h2>
+            <div class="recommendation-item">
+                <strong>Vocabulary & Idioms (50% Accuracy)</strong> - This is your weakest area. Dedicate 30 minutes daily to learn 20 new words and their usage in context. Check out the English vocabulary course.
+            </div>
+            <div class="recommendation-item">
+                <strong>Reading Comprehension (57% Accuracy)</strong> - Practice comprehensive reading with varied topics. Increase your reading speed to 250 words per minute.
+            </div>
+            <div class="recommendation-item">
+                <strong>Geometry (67% Accuracy)</strong> - Take 5-10 topic-wise tests on Coordinate Geometry to strengthen fundamentals.
+            </div>
+            <div class="recommendation-item">
+                <strong>Time Management (65% Used)</strong> - You're using the allocated time efficiently. Try to solve more questions in less time by practicing speed tests.
+            </div>
+            <div class="recommendation-item">
+                <strong>Overall Accuracy (85%)</strong> - Excellent! Your accuracy is above 80%. Now focus on attempting all questions to maximize your score.
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="button-group">
+            <button class="btn btn-secondary">📊 Review Test</button>
+            <button class="btn btn-secondary">📐 Topic Wise Test</button>
+            <button class="btn btn-primary">🎯 Take Another Mock</button>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for charts
+        const ctx1 = document.getElementById('sectionChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: ['Quantitative', 'English', 'Reasoning', 'GK'],
+                datasets: [{
+                    data: [83, 68, 88, 78],
+                    backgroundColor: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const ctx2 = document.getElementById('attemptChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Attempted', 'Correct', 'Incorrect', 'Skipped'],
+                datasets: [{
+                    label: 'Questions',
+                    data: [97, 77, 20, 3],
+                    backgroundColor: ['#2563eb', '#10b981', '#ef4444', '#f3f4f6']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const ctx3 = document.getElementById('timeChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: ['Quant', 'English', 'Reasoning', 'GK'],
+                datasets: [{
+                    label: 'Time Spent (min)',
+                    data: [16, 14, 15, 14],
+                    backgroundColor: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    </script>
+</body>
+</html>

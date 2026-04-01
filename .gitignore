@@ -26,3 +26,21 @@ backend/data/test-entries.json
 # OS/Editor files
 Thumbs.db
 .vscode/
+
+# PDF source files (too large for git)
+backend/pyq/
+backend/*.pdf
+*.pdf
+eng.traineddata
+backend/pdf_page_*.png
+
+# Intermediate extraction data
+backend/data/pyq_qa_ocr.json
+backend/data/extracted-pyq.json
+backend/data/extraction-summary.json
+backend/data/geom_raw.txt
+backend/data/question-bank.pre-*.json
+backend/data/pyq_verified/
+
+# Test results
+test-results/

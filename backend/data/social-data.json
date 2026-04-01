@@ -1,4 +1,26 @@
 {
-  "groups": [],
+  "groups": [
+    {
+      "id": "grp_mn8t1rs9rxsebi",
+      "name": "SSC",
+      "description": "",
+      "visibility": "private",
+      "memberLimit": 20,
+      "inviteCode": "GRP-BU31Q7",
+      "ownerKey": "guest_1773590513851_1nbyjgfx",
+      "members": [
+        {
+          "userKey": "guest_1773590513851_1nbyjgfx",
+          "displayName": "SSC#JGFX",
+          "role": "owner",
+          "joinedAt": "2026-03-27T11:15:24.777Z"
+        }
+      ],
+      "messages": [],
+      "challenges": [],
+      "createdAt": "2026-03-27T11:15:24.777Z",
+      "updatedAt": "2026-03-27T11:15:24.777Z"
+    }
+  ],
   "notificationsByUser": {}
 }

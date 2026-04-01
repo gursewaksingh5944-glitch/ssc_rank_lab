@@ -1,27 +1,632 @@
 {
   "users": {
-    "guest_1774545465829_iiyjiv5n": {
-      "referralCode": "RL4EF63B950B",
-      "updatedAt": "2026-03-26T17:17:45.918Z"
-    },
     "guest_1773590513851_1nbyjgfx": {
       "referralCode": "RL475C647046",
-      "updatedAt": "2026-03-26T17:18:53.622Z"
-    },
-    "guest_1774587991103_3yb2estw": {
-      "referralCode": "RL8401DFF145",
-      "updatedAt": "2026-03-27T05:06:52.001Z",
+      "updatedAt": "2026-03-27T11:59:34.312Z",
       "goal": {
         "examFamily": "ssc_cgl",
-        "tier": "tier2",
+        "tier": "tier1",
         "category": "UR",
         "targetPost": "Assistant Section Officer",
         "examDate": "",
-        "studyHours": 6,
-        "targetScore": 374,
-        "autoCutoff": 354,
-        "updatedAt": "2026-03-27T05:06:51.985Z"
+        "studyHours": 8,
+        "targetScore": 166,
+        "autoCutoff": 158,
+        "updatedAt": "2026-03-27T11:38:07.336Z"
+      },
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-27T11:16:27.054Z",
+      "trialEndsAt": "2026-03-29T11:16:27.054Z",
+      "hasUsedTrial": true,
+      "goalsByTier": {
+        "tier1": {
+          "examFamily": "ssc_cgl",
+          "tier": "tier1",
+          "category": "UR",
+          "targetPost": "Assistant Section Officer",
+          "examDate": "",
+          "studyHours": 8,
+          "targetScore": 166,
+          "autoCutoff": 158,
+          "updatedAt": "2026-03-27T11:38:07.336Z"
+        },
+        "tier2": {
+          "examFamily": "ssc_cgl",
+          "tier": "tier2",
+          "category": "UR",
+          "targetPost": "Assistant Section Officer",
+          "examDate": "",
+          "studyHours": 8,
+          "targetScore": 374,
+          "autoCutoff": 354,
+          "updatedAt": "2026-03-27T11:59:34.310Z"
+        }
       }
+    },
+    "guest_1774679858985_la9qymwj": {
+      "referralCode": "RLDB14B83B5D",
+      "updatedAt": "2026-03-28T06:37:39.025Z"
+    },
+    "guest_1774679858976_fanfrd0q": {
+      "referralCode": "RLE648FEEF2E",
+      "updatedAt": "2026-03-28T06:37:39.044Z"
+    },
+    "guest_1774679859005_5ihspqr0": {
+      "referralCode": "RL4F43DE7F3B",
+      "updatedAt": "2026-03-28T06:37:39.064Z"
+    },
+    "guest_1774679859077_ptdvt1ip": {
+      "referralCode": "RLEE8C5795F4",
+      "updatedAt": "2026-03-28T06:37:39.117Z"
+    },
+    "guest_1774679859076_i7a6necj": {
+      "referralCode": "RL0D01AB158B",
+      "updatedAt": "2026-03-28T06:37:39.128Z"
+    },
+    "guest_1774679859145_cqjqjd0h": {
+      "referralCode": "RL37A1E242CE",
+      "updatedAt": "2026-03-28T06:37:39.168Z"
+    },
+    "guest_1774680086104_2v64d266": {
+      "referralCode": "RL82562BB39B",
+      "updatedAt": "2026-03-28T06:41:28.047Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-28T06:41:28.047Z",
+      "trialEndsAt": "2026-03-30T06:41:28.047Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774680086124_hqq7nojn": {
+      "referralCode": "RL48BC5A6781",
+      "updatedAt": "2026-03-28T06:41:26.268Z"
+    },
+    "guest_1774680086124_6hsodx7u": {
+      "referralCode": "RL151F1DFEA0",
+      "updatedAt": "2026-03-28T06:41:28.225Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-28T06:41:28.225Z",
+      "trialEndsAt": "2026-03-30T06:41:28.225Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774680086333_j1lyyh2s": {
+      "referralCode": "RL23CE2386B1",
+      "updatedAt": "2026-03-28T06:41:26.376Z"
+    },
+    "guest_1774680086334_z12bk53n": {
+      "referralCode": "RLAAD520C694",
+      "updatedAt": "2026-03-28T06:41:26.383Z"
+    },
+    "guest_1774680086335_zz92mkcm": {
+      "referralCode": "RL815F17FCCD",
+      "updatedAt": "2026-03-28T06:41:26.389Z"
+    },
+    "guest_1774680385591_7ss13y6g": {
+      "referralCode": "RL371177FFAF",
+      "updatedAt": "2026-03-28T06:46:25.622Z"
+    },
+    "guest_1774680385652_urlp6dgh": {
+      "referralCode": "RL06F02384AE",
+      "updatedAt": "2026-03-28T06:46:25.678Z"
+    },
+    "guest_1774680385669_w3d67xaz": {
+      "referralCode": "RLE4E8CEE913",
+      "updatedAt": "2026-03-28T06:46:27.588Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-28T06:46:27.588Z",
+      "trialEndsAt": "2026-03-30T06:46:27.588Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774680385820_ofqhs5vi": {
+      "referralCode": "RL798BA26C47",
+      "updatedAt": "2026-03-28T06:46:25.840Z"
+    },
+    "guest_1774680385827_qiizqz10": {
+      "referralCode": "RL628AA903EC",
+      "updatedAt": "2026-03-28T06:46:25.850Z"
+    },
+    "guest_1774680385878_gi3yh0ez": {
+      "referralCode": "RLEB2A9ED9DE",
+      "updatedAt": "2026-03-28T06:46:27.458Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-28T06:46:27.458Z",
+      "trialEndsAt": "2026-03-30T06:46:27.458Z",
+      "hasUsedTrial": true
+    },
+    "guest_1773727044650_7aj78sfv": {
+      "referralCode": "RL9BCC6798CE",
+      "updatedAt": "2026-03-28T06:48:02.304Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-28T06:47:44.716Z",
+      "trialEndsAt": "2026-03-30T06:47:44.716Z",
+      "hasUsedTrial": true,
+      "goalsByTier": {
+        "tier2": {
+          "examFamily": "ssc_cgl",
+          "tier": "tier2",
+          "category": "UR",
+          "targetPost": "Assistant Section Officer",
+          "examDate": "2026-04",
+          "studyHours": 10,
+          "targetScore": 374,
+          "autoCutoff": 354,
+          "updatedAt": "2026-03-28T06:48:02.300Z"
+        }
+      }
+    },
+    "guest_1774682827603_1cbmzykb": {
+      "referralCode": "RLF1580CD937",
+      "updatedAt": "2026-03-28T07:27:07.629Z"
+    },
+    "guest_1774682827657_im166tl4": {
+      "referralCode": "RL5FC9D5A365",
+      "updatedAt": "2026-03-28T07:27:09.515Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-28T07:27:09.515Z",
+      "trialEndsAt": "2026-03-30T07:27:09.515Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774682827744_aatrgw4l": {
+      "referralCode": "RL602973A83A",
+      "updatedAt": "2026-03-28T07:27:09.441Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-28T07:27:09.441Z",
+      "trialEndsAt": "2026-03-30T07:27:09.441Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774682827795_3qyg0qls": {
+      "referralCode": "RL3DB650E1BD",
+      "updatedAt": "2026-03-28T07:27:07.813Z"
+    },
+    "guest_1774682827834_2bvjetsw": {
+      "referralCode": "RL1DE024BA4F",
+      "updatedAt": "2026-03-28T07:27:07.849Z"
+    },
+    "guest_1774682827870_f2h29a61": {
+      "referralCode": "RLF1A407B8A5",
+      "updatedAt": "2026-03-28T07:27:07.882Z"
+    },
+    "guest_1774857193924_gelfcyzb": {
+      "referralCode": "RL6014D1C225",
+      "updatedAt": "2026-03-30T07:53:13.961Z"
+    },
+    "guest_1774857194032_rvw4noos": {
+      "referralCode": "RL50BA419024",
+      "updatedAt": "2026-03-30T07:53:14.086Z"
+    },
+    "guest_1774857194069_ccwxngno": {
+      "referralCode": "RL6C4D416094",
+      "updatedAt": "2026-03-30T07:53:14.125Z"
+    },
+    "guest_1774857194264_ylljv5q8": {
+      "referralCode": "RL75DCD8B253",
+      "updatedAt": "2026-03-30T07:53:16.159Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T07:53:16.159Z",
+      "trialEndsAt": "2026-04-01T07:53:16.159Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774857194303_dn2nt4qc": {
+      "referralCode": "RLDE275750BD",
+      "updatedAt": "2026-03-30T07:53:16.342Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T07:53:16.342Z",
+      "trialEndsAt": "2026-04-01T07:53:16.342Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774857194330_jnkauovs": {
+      "referralCode": "RLD8A42C917E",
+      "updatedAt": "2026-03-30T07:53:14.349Z"
+    },
+    "guest_1774857381489_sgfin989": {
+      "referralCode": "RLC166671236",
+      "updatedAt": "2026-03-30T07:56:21.520Z"
+    },
+    "guest_1774857381514_ifyz36xv": {
+      "referralCode": "RL9B4A58FA32",
+      "updatedAt": "2026-03-30T07:56:23.329Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T07:56:23.329Z",
+      "trialEndsAt": "2026-04-01T07:56:23.329Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774857381634_h01zhv2y": {
+      "referralCode": "RL104CDF4331",
+      "updatedAt": "2026-03-30T07:56:23.514Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T07:56:23.514Z",
+      "trialEndsAt": "2026-04-01T07:56:23.514Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774857381661_xqdwiere": {
+      "referralCode": "RL852C44D6FE",
+      "updatedAt": "2026-03-30T07:56:21.687Z"
+    },
+    "guest_1774857381672_gdwae2w6": {
+      "referralCode": "RL8F92EFDAEB",
+      "updatedAt": "2026-03-30T07:56:21.699Z"
+    },
+    "guest_1774857381781_1ipqzlq0": {
+      "referralCode": "RL63C3FD960B",
+      "updatedAt": "2026-03-30T07:56:21.795Z"
+    },
+    "guest_1774857759109_boqzhtnq": {
+      "referralCode": "RL275B1E928D",
+      "updatedAt": "2026-03-30T08:02:39.137Z"
+    },
+    "guest_1774857759146_5u6n996n": {
+      "referralCode": "RL7C8208B1D0",
+      "updatedAt": "2026-03-30T08:02:39.172Z"
+    },
+    "guest_1774857759290_4jhbmvxv": {
+      "referralCode": "RL8062517C4A",
+      "updatedAt": "2026-03-30T08:02:41.125Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T08:02:41.125Z",
+      "trialEndsAt": "2026-04-01T08:02:41.125Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774857759303_sacokj5e": {
+      "referralCode": "RLED4FC4B3CC",
+      "updatedAt": "2026-03-30T08:02:41.165Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T08:02:41.165Z",
+      "trialEndsAt": "2026-04-01T08:02:41.165Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774857759336_h8fddlun": {
+      "referralCode": "RL29F4DEC967",
+      "updatedAt": "2026-03-30T08:02:39.353Z"
+    },
+    "guest_1774857759390_4f66rxjt": {
+      "referralCode": "RL0CEAD1F52C",
+      "updatedAt": "2026-03-30T08:02:39.408Z"
+    },
+    "guest_1774858456720_a62mxvy0": {
+      "referralCode": "RL250F97E1CF",
+      "updatedAt": "2026-03-30T08:14:16.778Z"
+    },
+    "guest_1774858456736_l3f601rn": {
+      "referralCode": "RL03BF05C07B",
+      "updatedAt": "2026-03-30T08:14:16.796Z"
+    },
+    "guest_1774858456736_l0libde6": {
+      "referralCode": "RL5410CA205E",
+      "updatedAt": "2026-03-30T08:14:19.087Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T08:14:19.087Z",
+      "trialEndsAt": "2026-04-01T08:14:19.087Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774858456839_mlo78j7z": {
+      "referralCode": "RL08EDA05733",
+      "updatedAt": "2026-03-30T08:14:18.884Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T08:14:18.884Z",
+      "trialEndsAt": "2026-04-01T08:14:18.884Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774858456903_2kgsux0r": {
+      "referralCode": "RL0E526608EB",
+      "updatedAt": "2026-03-30T08:14:16.934Z"
+    },
+    "guest_1774858456909_xb34pc8t": {
+      "referralCode": "RL95D634FEC2",
+      "updatedAt": "2026-03-30T08:14:16.946Z"
+    },
+    "guest_1774867818563_cdzzt9qi": {
+      "referralCode": "RLBBA43C12B6",
+      "updatedAt": "2026-03-30T10:50:18.612Z"
+    },
+    "guest_1774867818750_8me62jrk": {
+      "referralCode": "RL789064EF3C",
+      "updatedAt": "2026-03-30T10:50:18.790Z"
+    },
+    "guest_1774867818782_jg2tv1ez": {
+      "referralCode": "RL3002DBAB93",
+      "updatedAt": "2026-03-30T10:50:18.828Z"
+    },
+    "guest_1774867818800_vab3k853": {
+      "referralCode": "RL6C74C40FEE",
+      "updatedAt": "2026-03-30T10:50:19.548Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T10:50:19.548Z",
+      "trialEndsAt": "2026-04-01T10:50:19.548Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774867818896_lzq46fyi": {
+      "referralCode": "RL4CBE6BD8CA",
+      "updatedAt": "2026-03-30T10:50:18.927Z"
+    },
+    "guest_1774867818896_avnkzqry": {
+      "referralCode": "RL1C9B7D5AFC",
+      "updatedAt": "2026-03-30T10:50:18.937Z"
+    },
+    "guest_1774867907090_w1tv1aj3": {
+      "referralCode": "RLFA92858C27",
+      "updatedAt": "2026-03-30T10:51:47.159Z"
+    },
+    "guest_1774867907168_mu6s7mj7": {
+      "referralCode": "RL4A49CB9997",
+      "updatedAt": "2026-03-30T10:51:49.183Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T10:51:49.183Z",
+      "trialEndsAt": "2026-04-01T10:51:49.183Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774867907285_yuz28v1z": {
+      "referralCode": "RLB7DFE1E7AA",
+      "updatedAt": "2026-03-30T10:51:49.410Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T10:51:49.410Z",
+      "trialEndsAt": "2026-04-01T10:51:49.410Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774867907311_fhl83j09": {
+      "referralCode": "RLA015869B9F",
+      "updatedAt": "2026-03-30T10:51:47.345Z"
+    },
+    "guest_1774867907325_tx6fumme": {
+      "referralCode": "RL7714759E35",
+      "updatedAt": "2026-03-30T10:51:47.361Z"
+    },
+    "guest_1774867907346_t4v4mwpi": {
+      "referralCode": "RL8E61FB3CA2",
+      "updatedAt": "2026-03-30T10:51:47.375Z"
+    },
+    "guest_1774868869330_47mr0971": {
+      "referralCode": "RLCD33F6B73D",
+      "updatedAt": "2026-03-30T11:07:49.383Z"
+    },
+    "guest_1774868869505_od2jv71v": {
+      "referralCode": "RLB8A5EFE93F",
+      "updatedAt": "2026-03-30T11:07:51.394Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T11:07:51.394Z",
+      "trialEndsAt": "2026-04-01T11:07:51.394Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774868869505_fmieymaa": {
+      "referralCode": "RL9DDC674BE1",
+      "updatedAt": "2026-03-30T11:07:49.641Z"
+    },
+    "guest_1774868869720_f5j0bnrk": {
+      "referralCode": "RL266686F914",
+      "updatedAt": "2026-03-30T11:07:51.634Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T11:07:51.634Z",
+      "trialEndsAt": "2026-04-01T11:07:51.634Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774868869744_wtk2hlh3": {
+      "referralCode": "RL51DCF1399E",
+      "updatedAt": "2026-03-30T11:07:49.775Z"
+    },
+    "guest_1774868869761_zf9rvl6o": {
+      "referralCode": "RL50DDC437C8",
+      "updatedAt": "2026-03-30T11:07:49.790Z"
+    },
+    "guest_1774870988736_l8753jpl": {
+      "referralCode": "RLF8FC895B50",
+      "updatedAt": "2026-03-30T11:43:10.616Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T11:43:10.616Z",
+      "trialEndsAt": "2026-04-01T11:43:10.616Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774870988818_rpjtr4jn": {
+      "referralCode": "RLAB7F32C96C",
+      "updatedAt": "2026-03-30T11:43:10.776Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T11:43:10.776Z",
+      "trialEndsAt": "2026-04-01T11:43:10.776Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774870988980_g47r3l0v": {
+      "referralCode": "RLC82BAC1031",
+      "updatedAt": "2026-03-30T11:43:09.006Z"
+    },
+    "guest_1774870988994_89jfqlg8": {
+      "referralCode": "RLC3DF70AFCB",
+      "updatedAt": "2026-03-30T11:43:09.021Z"
+    },
+    "guest_1774870989032_mzs043vb": {
+      "referralCode": "RL1A8E515CB0",
+      "updatedAt": "2026-03-30T11:43:09.054Z"
+    },
+    "guest_1774870989054_a5zjlu2l": {
+      "referralCode": "RL355648F4B0",
+      "updatedAt": "2026-03-30T11:43:09.082Z"
+    },
+    "guest_1774875518305_eehh8g3j": {
+      "referralCode": "RLE16BD7E0F3",
+      "updatedAt": "2026-03-30T12:58:39.340Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T12:58:39.340Z",
+      "trialEndsAt": "2026-04-01T12:58:39.340Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774875518361_ra2j0g58": {
+      "referralCode": "RLFD15B8BF93",
+      "updatedAt": "2026-03-30T12:58:38.405Z"
+    },
+    "guest_1774875518323_oz5fznbu": {
+      "referralCode": "RL46CDEF146A",
+      "updatedAt": "2026-03-30T12:58:39.172Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T12:58:39.172Z",
+      "trialEndsAt": "2026-04-01T12:58:39.172Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774875518461_jvuum70u": {
+      "referralCode": "RL2A1F7E281B",
+      "updatedAt": "2026-03-30T12:58:38.492Z"
+    },
+    "guest_1774875518489_43itrcbl": {
+      "referralCode": "RL7413639458",
+      "updatedAt": "2026-03-30T12:58:38.514Z"
+    },
+    "guest_1774875518548_svajo9jm": {
+      "referralCode": "RLEE2495F234",
+      "updatedAt": "2026-03-30T12:58:38.573Z"
+    },
+    "guest_1774875862365_nnbfonjp": {
+      "referralCode": "RLAB1470AEDC",
+      "updatedAt": "2026-03-30T13:04:24.409Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T13:04:24.409Z",
+      "trialEndsAt": "2026-04-01T13:04:24.409Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774875862397_8irna9tk": {
+      "referralCode": "RL297B6FDE20",
+      "updatedAt": "2026-03-30T13:04:22.426Z"
+    },
+    "guest_1774875862443_zm0s2dcl": {
+      "referralCode": "RL153B394F23",
+      "updatedAt": "2026-03-30T13:04:24.637Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-03-30T13:04:24.637Z",
+      "trialEndsAt": "2026-04-01T13:04:24.637Z",
+      "hasUsedTrial": true
+    },
+    "guest_1774875862475_13ir36wt": {
+      "referralCode": "RLB2573CA1ED",
+      "updatedAt": "2026-03-30T13:04:22.509Z"
+    },
+    "guest_1774875862624_c6rg1nag": {
+      "referralCode": "RL7C015588ED",
+      "updatedAt": "2026-03-30T13:04:22.642Z"
+    },
+    "guest_1774875862623_qbxsou26": {
+      "referralCode": "RL82742A7131",
+      "updatedAt": "2026-03-30T13:04:22.649Z"
+    },
+    "guest_1775022639757_iwe5vfjf": {
+      "referralCode": "RLB840E1D11D",
+      "updatedAt": "2026-04-01T05:50:40.083Z"
+    },
+    "guest_1775022639757_pvrg6jt3": {
+      "referralCode": "RL0F1A60223E",
+      "updatedAt": "2026-04-01T05:50:40.161Z"
+    },
+    "guest_1775022639757_xicb0lb2": {
+      "referralCode": "RLBF89B3419E",
+      "updatedAt": "2026-04-01T05:50:40.311Z"
+    },
+    "guest_1775022639757_z7y8jduy": {
+      "referralCode": "RLD12990EA71",
+      "updatedAt": "2026-04-01T05:50:40.317Z"
+    },
+    "guest_1775022639757_oxbi91ye": {
+      "referralCode": "RL8B3A1895DE",
+      "updatedAt": "2026-04-01T05:50:41.602Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-04-01T05:50:41.602Z",
+      "trialEndsAt": "2026-04-03T05:50:41.602Z",
+      "hasUsedTrial": true
+    },
+    "guest_1775022639757_fp7zbt7v": {
+      "referralCode": "RLB979D19239",
+      "updatedAt": "2026-04-01T05:50:41.839Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-04-01T05:50:41.839Z",
+      "trialEndsAt": "2026-04-03T05:50:41.839Z",
+      "hasUsedTrial": true
+    },
+    "guest_1775023195343_mzuk2nlf": {
+      "referralCode": "RL2E6DFC89D4",
+      "updatedAt": "2026-04-01T05:59:55.619Z"
+    },
+    "guest_1775023195684_r5thc89r": {
+      "referralCode": "RL90CE6D6A82",
+      "updatedAt": "2026-04-01T05:59:55.874Z"
+    },
+    "guest_1775023195683_oszgzrzd": {
+      "referralCode": "RL2D15EE7779",
+      "updatedAt": "2026-04-01T05:59:55.937Z"
+    },
+    "guest_1775023195683_9hw2x9ve": {
+      "referralCode": "RL768BFB95BC",
+      "updatedAt": "2026-04-01T05:59:57.708Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-04-01T05:59:57.708Z",
+      "trialEndsAt": "2026-04-03T05:59:57.708Z",
+      "hasUsedTrial": true
+    },
+    "guest_1775023195683_lplu2190": {
+      "referralCode": "RL9E29B57C56",
+      "updatedAt": "2026-04-01T05:59:56.063Z"
+    },
+    "guest_1775023195692_4yeiy7jz": {
+      "referralCode": "RL8436EBE038",
+      "updatedAt": "2026-04-01T05:59:57.285Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-04-01T05:59:57.285Z",
+      "trialEndsAt": "2026-04-03T05:59:57.285Z",
+      "hasUsedTrial": true
+    },
+    "guest_1775061048153_w8c2h21y": {
+      "referralCode": "RL7BF08075DE",
+      "updatedAt": "2026-04-01T16:30:48.439Z"
+    },
+    "guest_1775061048154_3ytzjv3b": {
+      "referralCode": "RL0699D998AE",
+      "updatedAt": "2026-04-01T16:30:50.737Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-04-01T16:30:50.737Z",
+      "trialEndsAt": "2026-04-03T16:30:50.737Z",
+      "hasUsedTrial": true
+    },
+    "guest_1775061048496_388dv2b0": {
+      "referralCode": "RL305359E7FC",
+      "updatedAt": "2026-04-01T16:30:48.676Z"
+    },
+    "guest_1775061048496_ezbr1jyp": {
+      "referralCode": "RL053C0BDB89",
+      "updatedAt": "2026-04-01T16:30:48.681Z"
+    },
+    "guest_1775061048495_3jctsmvn": {
+      "referralCode": "RLFE4D6630F8",
+      "updatedAt": "2026-04-01T16:30:48.686Z"
+    },
+    "guest_1775061048497_qsft5tg3": {
+      "referralCode": "RLEBF12432B5",
+      "updatedAt": "2026-04-01T16:30:50.251Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-04-01T16:30:50.251Z",
+      "trialEndsAt": "2026-04-03T16:30:50.251Z",
+      "hasUsedTrial": true
+    },
+    "guest_1775062407108_8do7e1uk": {
+      "referralCode": "RLECC6E6285D",
+      "updatedAt": "2026-04-01T16:53:27.329Z"
+    },
+    "guest_1775062407188_go855gaj": {
+      "referralCode": "RL3EEA53C7C9",
+      "updatedAt": "2026-04-01T16:53:27.485Z"
+    },
+    "guest_1775062407534_wun5kxcx": {
+      "referralCode": "RL0D2A7C6253",
+      "updatedAt": "2026-04-01T16:53:29.292Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-04-01T16:53:29.292Z",
+      "trialEndsAt": "2026-04-03T16:53:29.292Z",
+      "hasUsedTrial": true
+    },
+    "guest_1775062407534_oz796slq": {
+      "referralCode": "RL361B0DC71B",
+      "updatedAt": "2026-04-01T16:53:27.788Z"
+    },
+    "guest_1775062407537_bh2c2pfn": {
+      "referralCode": "RL03B3762DFF",
+      "updatedAt": "2026-04-01T16:53:27.824Z"
+    },
+    "guest_1775062407548_kxfx2f3r": {
+      "referralCode": "RL0835E9B54F",
+      "updatedAt": "2026-04-01T16:53:29.202Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-04-01T16:53:29.202Z",
+      "trialEndsAt": "2026-04-03T16:53:29.202Z",
+      "hasUsedTrial": true
     }
   },
   "payments": [],

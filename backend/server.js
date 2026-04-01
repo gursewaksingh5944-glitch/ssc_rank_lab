@@ -3,6 +3,7 @@ require("dotenv").config({ path: require("path").join(__dirname, ".env") });
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
 
 const predictRoute = require("./routes/predict");
 const predictV2Route = require("./routes/predictV2");
@@ -10,6 +11,7 @@ const paymentRoute = require("./routes/payment");
 const userRoute = require("./routes/user");
 const testRoute = require("./routes/test");
 const questionsRoute = require("./routes/questions");
+const testsRoute = require("./routes/tests");
 const goalsRoute = require("./routes/goals");
 const socialRoute = require("./routes/social");
 
@@ -76,8 +78,29 @@ app.use((req, res, next) => {
 // MIDDLEWARE
 // ===============================
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
+
+// Rate limiting: 100 requests per minute per IP for API routes
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { trustProxy: false },
+  message: { success: false, error: "Too many requests, please try again later." }
+});
+app.use("/api/", apiLimiter);
+
+// Stricter limit for payment endpoints
+const paymentLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  validate: { trustProxy: false },
+  message: { success: false, error: "Too many payment requests." }
+});
+app.use("/api/payment/create-order", paymentLimiter);
+app.use("/api/payment/verify", paymentLimiter);
 
 
 // ===============================
@@ -109,6 +132,7 @@ app.use("/api/payment", paymentRoute);
 app.use("/api/user", userRoute);
 app.use("/api/test", testRoute);
 app.use("/api/questions", questionsRoute);
+app.use("/api/tests", testsRoute);
 app.use("/api/goals", goalsRoute);
 app.use("/api/social", socialRoute);
 
@@ -168,12 +192,37 @@ app.use((req, res) => {
 
 
 // ===============================
+// GLOBAL ERROR HANDLER
+// ===============================
+app.use((err, req, res, _next) => {
+  console.error(`[ERROR] ${req.method} ${req.path}:`, err.message || err);
+  if (res.headersSent) return;
+  res.status(500).json({ success: false, error: "Internal server error" });
+});
+
+
+// ===============================
 // START SERVER
 // ===============================
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`✅ Health: /health`);
   console.log(`✅ Robots: /robots.txt`);
   console.log(`✅ Sitemap: /sitemap.xml`);
-  console.log(`✅ Debug: /debug-headers`);
 });
+
+
+// ===============================
+// GRACEFUL SHUTDOWN
+// ===============================
+function shutdown(signal) {
+  console.log(`\n${signal} received. Shutting down gracefully...`);
+  server.close(() => {
+    console.log("Server closed.");
+    process.exit(0);
+  });
+  // Force exit after 10s if connections hang
+  setTimeout(() => process.exit(1), 10000);
+}
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

@@ -58,9 +58,35 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  const qlabSubjectEl = document.getElementById("qlabSubject");
+  if (qlabSubjectEl) {
+    qlabSubjectEl.addEventListener("change", renderQuestionLabTopicChecklist);
+  }
+
+  const qlabMockModeEl = document.getElementById("qlabMockMode");
+  if (qlabMockModeEl) {
+    qlabMockModeEl.addEventListener("change", updateTopicChecklistVisibility);
+  }
+
   const generateMockBtn = document.getElementById("btnGenerateMock");
   if (generateMockBtn) {
     generateMockBtn.addEventListener("click", generateMockFromLab);
+  }
+
+  const questionLabListEl = document.getElementById("questionLabList");
+  if (questionLabListEl && questionLabListEl.dataset.optionBound !== "1") {
+    questionLabListEl.dataset.optionBound = "1";
+    questionLabListEl.addEventListener("click", handleQuestionLabOptionClick);
+  }
+
+  const checkQuestionLabBtn = document.getElementById("btnCheckQuestionLab");
+  if (checkQuestionLabBtn) {
+    checkQuestionLabBtn.addEventListener("click", checkQuestionLabPerformance);
+  }
+
+  const toggleQuestionLabAnswersBtn = document.getElementById("btnToggleQuestionLabAnswers");
+  if (toggleQuestionLabAnswersBtn) {
+    toggleQuestionLabAnswersBtn.addEventListener("click", toggleQuestionLabAnswers);
   }
 
   const startTrialBtn = document.getElementById("startTrialBtn");
@@ -116,6 +142,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const topicDrillSaveBtnEl = document.getElementById("topicDrillSaveBtn");
   if (topicDrillSaveBtnEl) {
     topicDrillSaveBtnEl.addEventListener("click", saveTopicDrill);
+  }
+
+  const weakSuggestRefreshBtn = document.getElementById("weakSuggestRefreshBtn");
+  if (weakSuggestRefreshBtn) {
+    weakSuggestRefreshBtn.addEventListener("click", function () {
+      loadWeakTopicSuggestions();
+    });
   }
 
   const goalTargetPostEl = document.getElementById("goalTargetPost");
@@ -236,12 +269,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   initSocialFeatures();
   initLiveAdminGrowthPanel();
+  initQuestionAdminPanel();
 
   loadBenchmarkProfile();
   loadMarksHistory();
+  loadQuestionLabMeta();
   loadQuestionLabItems({ interactive: false });
   syncPaymentStatus();
   setInterval(syncPaymentStatus, 60000);
+
+  attachCombinedDashboardInputListeners();
+  refreshCombinedDashboard();
+  updateQuestionGeneratorRecords();
 
   loadGoalCutoffCatalog();
   setTimeout(checkGoalOnboarding, 900);
@@ -265,6 +304,10 @@ let progressChartInstance = null;
 let subjectChartInstance = null;
 let benchmarkProfile = null;
 let questionLabCache = [];
+let questionLabMetaCache = { topics: [], coverageByTier: {} };
+let questionLabLastResult = { summary: null, warnings: [], mode: "practice", served: 0 };
+let questionLabSelections = {};
+let questionLabAnswersVisible = false;
 let goalProfile = null;
 let goalCutoffCatalog = null;
 let lastMarksEntries = [];
@@ -503,6 +546,16 @@ function switchTierMode(nextTier) {
   loadBenchmarkProfile();
   loadMarksHistory();
   loadUserOutcome();
+
+  questionLabCache = [];
+  resetQuestionLabAttemptState({
+    warnings: [`Switched to ${activeTierMode.toUpperCase()} mode. Load a fresh set for this tier.`],
+    served: 0
+  });
+  renderQuestionLabItems([]);
+  renderQuestionLabInsights();
+  loadQuestionLabMeta();
+  loadQuestionLabItems({ interactive: false });
 }
 
 function bindUnlockButtons() {
@@ -2499,6 +2552,7 @@ function setQuestionLabStatus(message, type = "info") {
   const toneMap = {
     info: "#4338ca",
     success: "#047857",
+    warning: "#b45309",
     error: "#b91c1c"
   };
 
@@ -2506,45 +2560,606 @@ function setQuestionLabStatus(message, type = "info") {
   el.textContent = message || "";
 }
 
+function setWeakSuggestStatus(message, type = "info") {
+  const el = document.getElementById("weakSuggestStatus");
+  if (!el) return;
+  const toneMap = {
+    info: "#1e40af",
+    success: "#047857",
+    error: "#b91c1c"
+  };
+  el.style.color = toneMap[type] || toneMap.info;
+  el.textContent = message || "";
+}
+
+function mapSubjectLabelToKey(value) {
+  const raw = String(value || "").trim().toLowerCase();
+  if (!raw) return "";
+  if (raw === "quant" || raw === "math" || raw === "mathematics") return "quant";
+  if (raw === "english") return "english";
+  if (raw === "reasoning") return "reasoning";
+  if (raw === "gk" || raw === "ga" || raw === "general awareness") return "gk";
+  if (raw === "computer") return "computer";
+  return raw;
+}
+
+function buildWeakSubjectWeights() {
+  const weakTopics = getWeakTopicsFromDrill().filter(function (t) {
+    return Number(t.totalMistakes || 0) > 0;
+  });
+  const weights = {};
+
+  weakTopics.slice(0, 8).forEach((item) => {
+    const key = mapSubjectLabelToKey(item.subject);
+    if (!key) return;
+    weights[key] = (weights[key] || 0) + Number(item.totalMistakes || 1);
+  });
+
+  if (Object.keys(weights).length > 0) return weights;
+
+  const latest = Array.isArray(lastMarksEntries) && lastMarksEntries.length > 0
+    ? [...lastMarksEntries].sort((a, b) => new Date(b.test_date) - new Date(a.test_date))[0]
+    : null;
+  if (!latest) return weights;
+
+  getTierCfg().subjects.forEach(function (sub) {
+    const val = Number(latest[sub.dbKey] || 0);
+    const deficit = Math.max(0, sub.max - val);
+    if (deficit > 0) {
+      weights[sub.key] = deficit;
+    }
+  });
+
+  return weights;
+}
+
+function renderWeakTopicSuggestions(items = []) {
+  const list = document.getElementById("weakSuggestList");
+  if (!list) return;
+
+  if (!Array.isArray(items) || items.length === 0) {
+    list.innerHTML = "<div style='font-size:12px;color:#64748b;'>No weak-topic suggestions yet. Add topic-wise breakdown to unlock this box.</div>";
+    return;
+  }
+
+  list.innerHTML = items.slice(0, 5).map((item, index) => {
+    const options = Array.isArray(item.options) ? item.options : [];
+    const answerIndex = Number(item.answerIndex);
+    const answerOption = (Number.isInteger(answerIndex) && answerIndex >= 0 && answerIndex < options.length)
+      ? String.fromCharCode(65 + answerIndex)
+      : "N/A";
+    const optionHtml = options.map((opt, i) => {
+      return `<div style=\"font-size:12px;color:#334155;line-height:1.45;\">${String.fromCharCode(65 + i)}. ${escapeHtml(String(opt || ""))}</div>`;
+    }).join("");
+    return `
+      <div style="border:1px solid #dbeafe;border-radius:12px;background:#ffffffde;padding:10px;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+          <span class="qlab-chip">Q${index + 1}</span>
+          <span class="qlab-chip">${escapeHtml(item.subject || "subject")}</span>
+          <span class="qlab-chip">${escapeHtml(item.topic || "topic")}</span>
+        </div>
+        <div style="margin-top:6px;font-size:13px;font-weight:800;color:#0f172a;line-height:1.45;">${escapeHtml(item.question || "")}</div>
+        <div style="margin-top:6px;display:grid;gap:4px;">${optionHtml}</div>
+        <div style="margin-top:7px;font-size:11px;color:#0f766e;font-weight:800;">Correct Option: ${escapeHtml(answerOption)}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function loadWeakTopicSuggestions() {
+  const weights = buildWeakSubjectWeights();
+  const hasWeights = Object.keys(weights).length > 0;
+
+  if (!hasWeights) {
+    setWeakSuggestStatus("Add topic drill or marks history to generate weak-topic suggestions.", "info");
+    renderWeakTopicSuggestions([]);
+    return;
+  }
+
+  setWeakSuggestStatus("Building today’s 5 weak-topic suggestions...", "info");
+
+  try {
+    const response = await fetch(apiUrl("/api/questions/generate"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode: "weakness-focused",
+        tier: normalizeTierMode(activeTierMode),
+        questionMode: "objective",
+        practiceCount: 5,
+        subjectWeights: weights
+      })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Could not load weak-topic suggestions");
+    }
+
+    const items = Array.isArray(data.items) ? data.items : [];
+    renderWeakTopicSuggestions(items);
+    setWeakSuggestStatus(`Showing ${items.length} suggestions from your weak topics.`, "success");
+  } catch (err) {
+    console.error("loadWeakTopicSuggestions error:", err);
+    setWeakSuggestStatus("Could not load suggestions right now.", "error");
+    renderWeakTopicSuggestions([]);
+  }
+}
+
 function getQuestionLabFilters() {
+  const sourceMode = String(document.getElementById("qlabSourceMode")?.value || "random").trim();
+  const mockMode = String(document.getElementById("qlabMockMode")?.value || "full_ssc").trim();
   const subject = String(document.getElementById("qlabSubject")?.value || "").trim();
   const difficulty = String(document.getElementById("qlabDifficulty")?.value || "").trim();
   const topic = String(document.getElementById("qlabTopic")?.value || "").trim();
   const count = Math.max(5, Math.min(50, Number(document.getElementById("qlabCount")?.value || 10)));
+  const selectedTopics = Array.from(document.querySelectorAll(".qlab-topic-check:checked"))
+    .map((el) => String(el.value || "").trim())
+    .filter(Boolean);
 
-  return { subject, difficulty, topic, count };
+  return { sourceMode, mockMode, subject, difficulty, topic, count, selectedTopics };
+}
+
+function updateTopicChecklistVisibility() {
+  const mode = String(document.getElementById("qlabMockMode")?.value || "full_ssc").trim();
+  const wrap = document.getElementById("qlabTopicChecklistWrap");
+  if (wrap) {
+    wrap.style.display = mode === "topic_select" ? "block" : "none";
+  }
+}
+
+function renderQuestionLabTopicChecklist() {
+  const container = document.getElementById("qlabTopicChecklist");
+  if (!container) return;
+
+  const selectedSubject = String(document.getElementById("qlabSubject")?.value || "").trim();
+  const activeTier = normalizeTierMode(activeTierMode);
+  let topics = Array.isArray(questionLabMetaCache?.topics) ? questionLabMetaCache.topics : [];
+
+  topics = topics.filter((entry) => normalizeTierMode(entry.tier || "tier1") === activeTier);
+
+  if (selectedSubject) {
+    topics = topics.filter((entry) => String(entry.subject || "") === selectedSubject);
+  }
+
+  if (topics.length === 0) {
+    container.innerHTML = `<div style='font-size:12px;color:#64748b;'>No approved ${activeTier.toUpperCase()} topics found yet for this filter. Switch tier or add more question data.</div>`;
+    return;
+  }
+
+  container.innerHTML = topics.slice(0, 120).map((entry) => {
+    const token = `${entry.subject}::${entry.topic}`;
+    const countText = Number(entry.count || 0) > 0 ? ` (${Number(entry.count)})` : "";
+    return `
+      <label class="qlab-topic-option">
+        <input class="qlab-topic-check" type="checkbox" value="${escapeHtml(token)}" />
+        <span>${escapeHtml(entry.subject || "subject")} - ${escapeHtml(entry.topic || "topic")}${escapeHtml(countText)}</span>
+      </label>
+    `;
+  }).join("");
+}
+
+async function loadQuestionLabMeta() {
+  try {
+    const response = await fetch(apiUrl("/api/questions/meta"));
+    const data = await response.json();
+    if (!response.ok || !data.success) return;
+
+    const topicRows = [];
+    const items = Array.isArray(data.topicItems) ? data.topicItems : [];
+    items.forEach((item) => {
+      if (!item || !item.topic) return;
+      topicRows.push({
+        subject: String(item.subject || "").trim(),
+        topic: String(item.topic || "").trim(),
+        tier: normalizeTierMode(item.tier || "tier1"),
+        count: Number(item.count || 0)
+      });
+    });
+
+    topicRows.sort((a, b) => a.tier.localeCompare(b.tier) || a.subject.localeCompare(b.subject) || b.count - a.count || a.topic.localeCompare(b.topic));
+
+    questionLabMetaCache = {
+      ...data,
+      topics: topicRows,
+      coverageByTier: data.coverageByTier && typeof data.coverageByTier === "object" ? data.coverageByTier : {}
+    };
+    renderQuestionLabTopicChecklist();
+    updateTopicChecklistVisibility();
+  } catch (err) {
+    console.error("loadQuestionLabMeta error:", err);
+  }
+}
+
+function resetQuestionLabAttemptState(meta = {}) {
+  questionLabSelections = {};
+  questionLabAnswersVisible = false;
+  questionLabLastResult = {
+    mode: String(meta.mode || "practice"),
+    summary: meta.summary && typeof meta.summary === "object" ? meta.summary : null,
+    warnings: Array.isArray(meta.warnings) ? meta.warnings : [],
+    served: Number(meta.served || 0)
+  };
+  updateQuestionLabActionButtons();
+}
+
+function updateQuestionLabActionButtons() {
+  const hasItems = Array.isArray(questionLabCache) && questionLabCache.length > 0;
+  const toggleBtn = document.getElementById("btnToggleQuestionLabAnswers");
+  if (toggleBtn) {
+    toggleBtn.disabled = !hasItems;
+    toggleBtn.textContent = questionLabAnswersVisible ? "Hide Answers" : "Reveal Answers";
+  }
+
+  const checkBtn = document.getElementById("btnCheckQuestionLab");
+  if (checkBtn) {
+    checkBtn.disabled = !hasItems;
+  }
+}
+
+function getQuestionLabAttemptMetrics() {
+  const metrics = {
+    total: Array.isArray(questionLabCache) ? questionLabCache.length : 0,
+    attempted: 0,
+    correct: 0,
+    wrong: 0,
+    score: 0,
+    subjectAccuracy: {}
+  };
+
+  if (!Array.isArray(questionLabCache) || questionLabCache.length === 0) {
+    metrics.accuracyPct = 0;
+    return metrics;
+  }
+
+  questionLabCache.forEach((item) => {
+    const questionId = String(item?.id || "");
+    if (!Object.prototype.hasOwnProperty.call(questionLabSelections, questionId)) return;
+
+    const pickedIndex = Number(questionLabSelections[questionId]);
+    if (!Number.isInteger(pickedIndex)) return;
+
+    const correctIndex = Number(item?.answerIndex);
+    const subject = String(item?.subject || "Mixed").trim() || "Mixed";
+    const marks = Number(item?.marks || 0);
+    const negativeMarks = Number(item?.negativeMarks || 0);
+
+    metrics.attempted += 1;
+    if (!metrics.subjectAccuracy[subject]) {
+      metrics.subjectAccuracy[subject] = { attempted: 0, correct: 0 };
+    }
+    metrics.subjectAccuracy[subject].attempted += 1;
+
+    if (pickedIndex === correctIndex) {
+      metrics.correct += 1;
+      metrics.score += marks;
+      metrics.subjectAccuracy[subject].correct += 1;
+    } else {
+      metrics.wrong += 1;
+      metrics.score -= negativeMarks;
+    }
+  });
+
+  metrics.accuracyPct = metrics.attempted > 0
+    ? Number(((metrics.correct / metrics.attempted) * 100).toFixed(1))
+    : 0;
+  metrics.score = Number(metrics.score.toFixed(2));
+  return metrics;
+}
+
+function renderQuestionLabInsights() {
+  const el = document.getElementById("questionLabInsights");
+  if (!el) return;
+
+  const metrics = getQuestionLabAttemptMetrics();
+  const summary = questionLabLastResult.summary && typeof questionLabLastResult.summary === "object"
+    ? questionLabLastResult.summary
+    : null;
+  const warnings = Array.isArray(questionLabLastResult.warnings) ? questionLabLastResult.warnings : [];
+
+  if (!Array.isArray(questionLabCache) || questionLabCache.length === 0) {
+    const tierLabel = activeTierMode.toUpperCase();
+    const warningHtml = warnings.length > 0
+      ? `<div class="qlab-warning-list">${warnings.map((msg) => `<div class="qlab-warning">⚠️ ${escapeHtml(msg)}</div>`).join("")}</div>`
+      : "";
+    el.innerHTML = `<div class="qlab-helper">${tierLabel} question lab is ready. Load a fresh set, attempt it honestly, then check your performance for instant feedback.</div>${warningHtml}`;
+    updateQuestionLabActionButtons();
+    return;
+  }
+
+  const qualityBandMap = {
+    strong: "Strong",
+    good: "Good",
+    limited: "Limited",
+    insufficient: "Insufficient"
+  };
+
+  const subjectMix = summary && summary.subjectBreakdown
+    ? Object.entries(summary.subjectBreakdown).map(([subject, count]) => `${String(subject).toUpperCase()} ${count}`).join(" • ")
+    : "--";
+  const qualityLabel = qualityBandMap[String(summary?.qualityBand || "good")] || "Good";
+  const setCoverage = summary ? `${Math.round(Number(summary.coverageRatio || 0) * 100)}%` : "--";
+  const pyqShare = summary && summary.pyqSharePct != null ? `${summary.pyqSharePct}%` : "--";
+  const scoreText = metrics.attempted > 0 ? `${metrics.score.toFixed(2)}` : "--";
+  const accuracyText = metrics.attempted > 0 ? `${metrics.accuracyPct.toFixed(1)}%` : "--";
+  const subjectAccuracyText = metrics.attempted > 0
+    ? Object.entries(metrics.subjectAccuracy)
+      .map(([subject, row]) => `${subject}: ${row.attempted > 0 ? ((row.correct / row.attempted) * 100).toFixed(0) : 0}%`)
+      .join(" • ")
+    : "Attempted subject accuracy will appear here after you check the set.";
+  const warningHtml = warnings.length > 0
+    ? `<div class="qlab-warning-list">${warnings.map((msg) => `<div class="qlab-warning">⚠️ ${escapeHtml(msg)}</div>`).join("")}</div>`
+    : `<div class="qlab-helper">Answers stay hidden until you reveal them. Use this as a real mock, not a passive reading session.</div>`;
+
+  el.innerHTML = `
+    <div class="qlab-insight-grid">
+      <div class="qlab-insight-card">
+        <div class="qlab-insight-k">Attempted</div>
+        <div class="qlab-insight-v">${metrics.attempted}/${metrics.total}</div>
+      </div>
+      <div class="qlab-insight-card">
+        <div class="qlab-insight-k">Accuracy</div>
+        <div class="qlab-insight-v">${accuracyText}</div>
+      </div>
+      <div class="qlab-insight-card">
+        <div class="qlab-insight-k">Projected Score</div>
+        <div class="qlab-insight-v">${scoreText}</div>
+      </div>
+      <div class="qlab-insight-card">
+        <div class="qlab-insight-k">Set Quality</div>
+        <div class="qlab-insight-v">${escapeHtml(qualityLabel)}</div>
+      </div>
+      <div class="qlab-insight-card">
+        <div class="qlab-insight-k">Coverage</div>
+        <div class="qlab-insight-v">${escapeHtml(setCoverage)}</div>
+      </div>
+      <div class="qlab-insight-card">
+        <div class="qlab-insight-k">PYQ Share</div>
+        <div class="qlab-insight-v">${escapeHtml(pyqShare)}</div>
+      </div>
+    </div>
+    <div class="qlab-helper" style="margin-top:10px;"><strong>Set mix:</strong> ${escapeHtml(subjectMix)}</div>
+    <div class="qlab-helper" style="margin-top:6px;"><strong>Subject accuracy:</strong> ${escapeHtml(subjectAccuracyText)}</div>
+    ${warningHtml}
+  `;
+
+  updateQuestionLabActionButtons();
+}
+
+function handleQuestionLabOptionClick(event) {
+  const optionBtn = event.target.closest(".qlab-option-btn");
+  if (!optionBtn) return;
+
+  const qid = decodeURIComponent(String(optionBtn.dataset.qid || ""));
+  const idx = Number(optionBtn.dataset.idx);
+  if (!qid || !Number.isInteger(idx)) return;
+
+  questionLabSelections[qid] = idx;
+  renderQuestionLabItems(questionLabCache);
+  renderQuestionLabInsights();
+}
+
+function toggleQuestionLabAnswers() {
+  if (!Array.isArray(questionLabCache) || questionLabCache.length === 0) {
+    setQuestionLabStatus("Load a set first, then reveal answers if needed.", "info");
+    return;
+  }
+
+  questionLabAnswersVisible = !questionLabAnswersVisible;
+  renderQuestionLabItems(questionLabCache);
+  renderQuestionLabInsights();
+}
+
+function checkQuestionLabPerformance() {
+  if (!Array.isArray(questionLabCache) || questionLabCache.length === 0) {
+    setQuestionLabStatus("Load a set first to check your performance.", "info");
+    return;
+  }
+
+  const metrics = getQuestionLabAttemptMetrics();
+  if (metrics.attempted === 0) {
+    setQuestionLabStatus("Attempt a few questions first, then check performance.", "warning");
+    return;
+  }
+
+  questionLabAnswersVisible = true;
+  renderQuestionLabItems(questionLabCache);
+  renderQuestionLabInsights();
+  setQuestionLabStatus(`Checked ${metrics.attempted} answers · ${metrics.accuracyPct.toFixed(1)}% accuracy · score ${metrics.score.toFixed(2)}.`, "success");
 }
 
 function renderQuestionLabItems(items = []) {
   const container = document.getElementById("questionLabList");
   if (!container) return;
 
+  updateQuestionLabActionButtons();
+
   if (!Array.isArray(items) || items.length === 0) {
-    container.innerHTML = "<div class='qlab-item'>No items found for selected filters.</div>";
+    container.innerHTML = "<div class='qlab-item'>No items found for the selected tier or filters.</div>";
     return;
   }
 
   container.innerHTML = items.map((item, idx) => {
     const options = Array.isArray(item.options) ? item.options : [];
+    const questionId = String(item?.id || `q_${idx}`);
+    const selectedIndex = Object.prototype.hasOwnProperty.call(questionLabSelections, questionId)
+      ? Number(questionLabSelections[questionId])
+      : null;
+
     const optionRows = options.map((opt, i) => {
+      const isSelected = selectedIndex === i;
       const isAnswer = Number(item.answerIndex) === i;
-      return `<div class=\"text-sm ${isAnswer ? "font-semibold text-emerald-700" : "text-slate-700"}\">${String.fromCharCode(65 + i)}. ${escapeHtml(opt)}</div>`;
+      const classes = ["qlab-option-btn"];
+      if (isSelected) classes.push("selected");
+      if (questionLabAnswersVisible && isAnswer) classes.push("correct");
+      if (questionLabAnswersVisible && isSelected && !isAnswer) classes.push("wrong");
+      const answerTag = questionLabAnswersVisible && isAnswer ? " <strong>(Answer)</strong>" : "";
+      return `<button type="button" class="${classes.join(" ")}" data-qid="${encodeURIComponent(questionId)}" data-idx="${i}">${String.fromCharCode(65 + i)}. ${escapeHtml(opt)}${answerTag}</button>`;
     }).join("");
+
+    const yearText = item.year ? `Year ${item.year}` : "Year N/A";
+    const batchText = item.batch || item.shift || item?.source?.batch || item?.source?.shift || "Batch N/A";
+    const sourceText = item.isPYQ ? "PYQ" : "Random";
+    const explanationText = questionLabAnswersVisible
+      ? (item.explanation || "No explanation added yet.")
+      : "Explanation stays hidden until you reveal/check the answers.";
 
     return `
       <div class="qlab-item">
-        <div>
+        <div class="qlab-item-head">
           <span class="qlab-chip">${escapeHtml(item.subject || "subject")}</span>
-          <span class="qlab-chip">${escapeHtml(item.difficulty || "level")}</span>
           <span class="qlab-chip">${escapeHtml(item.topic || "topic")}</span>
+          <span class="qlab-chip">${escapeHtml(sourceText)}</span>
+          <span class="qlab-chip">${escapeHtml(yearText)}</span>
+          <span class="qlab-chip">${escapeHtml(String(batchText))}</span>
         </div>
-        <div class="text-sm text-slate-500 mt-1">Q${idx + 1}</div>
-        <div class="font-semibold text-slate-900 mt-2 leading-relaxed">${escapeHtml(item.question || "")}</div>
-        <div class="mt-3 space-y-1">${optionRows}</div>
-        <div class="text-xs text-slate-500 mt-3">${escapeHtml(item.explanation || "")}</div>
+        <div class="qlab-item-qno">Q${idx + 1}</div>
+        <div class="qlab-item-question">${escapeHtml(item.question || "")}</div>
+        <div class="qlab-options">${optionRows}</div>
+        <div class="qlab-explain ${questionLabAnswersVisible ? "" : "is-hidden"}">${escapeHtml(explanationText)}</div>
       </div>
     `;
   }).join("");
+}
+
+function computeCurrentInputAveragePct() {
+  const values = [];
+
+  const rankInput = Number(document.getElementById("marksInput")?.value);
+  const rankMax = activeTierMode === "tier2" ? 390 : 200;
+  if (Number.isFinite(rankInput) && rankInput >= 0) {
+    values.push(Math.max(0, Math.min(100, (rankInput / rankMax) * 100)));
+  }
+
+  const subjectInputs = getTierCfg().subjects
+    .map((s) => ({
+      val: Number(document.getElementById(s.id)?.value),
+      max: Number(s.max || 0)
+    }))
+    .filter((entry) => Number.isFinite(entry.val) && entry.val >= 0 && entry.max > 0)
+    .map((entry) => Math.max(0, Math.min(100, (entry.val / entry.max) * 100)));
+
+  if (subjectInputs.length > 0) {
+    values.push(subjectInputs.reduce((sum, n) => sum + n, 0) / subjectInputs.length);
+  }
+
+  if (values.length === 0) return null;
+  return values.reduce((sum, n) => sum + n, 0) / values.length;
+}
+
+function computeRecordedAveragePct() {
+  if (!Array.isArray(lastMarksEntries) || lastMarksEntries.length === 0) return null;
+  const maxTotal = Number(getTierCfg().totalMax || 200);
+  if (maxTotal <= 0) return null;
+  const avgMarks = lastMarksEntries.reduce((sum, e) => sum + Number(e.total_marks || 0), 0) / lastMarksEntries.length;
+  return Math.max(0, Math.min(100, (avgMarks / maxTotal) * 100));
+}
+
+function computeQuestionSectionAveragePct() {
+  if (!Array.isArray(questionLabCache) || questionLabCache.length === 0) return null;
+
+  const confidenceSeries = questionLabCache
+    .map((q) => Number(q.confidenceScore))
+    .filter((n) => Number.isFinite(n) && n >= 0);
+
+  if (confidenceSeries.length > 0) {
+    const avgConfidence = confidenceSeries.reduce((sum, n) => sum + n, 0) / confidenceSeries.length;
+    return Math.max(0, Math.min(100, avgConfidence * 100));
+  }
+
+  const pyqCount = questionLabCache.filter((q) => q && q.isPYQ === true).length;
+  return Math.max(0, Math.min(100, (pyqCount / questionLabCache.length) * 100));
+}
+
+function updateQuestionGeneratorRecords() {
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
+
+  if (!Array.isArray(lastMarksEntries) || lastMarksEntries.length === 0) {
+    setText("qgenBestScore", "--");
+    setText("qgenAvgScore", "--");
+  } else {
+    const sorted = [...lastMarksEntries].sort((a, b) => Number(b.total_marks || 0) - Number(a.total_marks || 0));
+    const best = Number(sorted[0]?.total_marks || 0);
+    const avg = lastMarksEntries.reduce((sum, e) => sum + Number(e.total_marks || 0), 0) / lastMarksEntries.length;
+    setText("qgenBestScore", `${best.toFixed(1)} / ${getTierCfg().totalMax}`);
+    setText("qgenAvgScore", `${avg.toFixed(1)} / ${getTierCfg().totalMax}`);
+  }
+
+  const count = Array.isArray(questionLabCache) ? questionLabCache.length : 0;
+  setText("qgenQuestionsLoaded", String(count));
+
+  let topTopic = "--";
+  if (count > 0) {
+    const byTopic = {};
+    questionLabCache.forEach((q) => {
+      const key = String(q?.topic || "Unknown").trim() || "Unknown";
+      byTopic[key] = (byTopic[key] || 0) + 1;
+    });
+    topTopic = Object.entries(byTopic).sort((a, b) => b[1] - a[1])[0]?.[0] || "--";
+  }
+  setText("qgenTopTopic", topTopic);
+
+  const recordsEl = document.getElementById("qgenTopRecords");
+  if (!recordsEl) return;
+
+  if (!Array.isArray(lastMarksEntries) || lastMarksEntries.length === 0) {
+    recordsEl.textContent = "No records yet. Save marks and generate questions to build this leaderboard.";
+    return;
+  }
+
+  const topAttempts = [...lastMarksEntries]
+    .sort((a, b) => Number(b.total_marks || 0) - Number(a.total_marks || 0))
+    .slice(0, 3);
+
+  recordsEl.innerHTML = topAttempts.map((entry, index) => {
+    const d = new Date(entry.test_date).toLocaleDateString();
+    const score = Number(entry.total_marks || 0).toFixed(1);
+    return `<div style="padding:8px 0;border-bottom:${index < topAttempts.length - 1 ? "1px solid #e2e8f0" : "none"};">
+      <span style="font-weight:800;color:#1e293b;">#${index + 1}</span>
+      <span style="margin-left:8px;color:#334155;">${escapeHtml(d)}</span>
+      <span style="float:right;font-weight:800;color:#312e81;">${score} / ${getTierCfg().totalMax}</span>
+    </div>`;
+  }).join("");
+}
+
+function refreshCombinedDashboard() {
+  const combinedEl = document.getElementById("combinedAvgScore");
+  const qEl = document.getElementById("combinedQuestionAvg");
+  const rEl = document.getElementById("combinedRecordedAvg");
+  const iEl = document.getElementById("combinedInputAvg");
+  const noteEl = document.getElementById("combinedDashboardNote");
+  if (!combinedEl || !qEl || !rEl || !iEl || !noteEl) return;
+
+  const qAvg = computeQuestionSectionAveragePct();
+  const rAvg = computeRecordedAveragePct();
+  const iAvg = computeCurrentInputAveragePct();
+
+  qEl.textContent = qAvg == null ? "--" : `${qAvg.toFixed(1)}%`;
+  rEl.textContent = rAvg == null ? "--" : `${rAvg.toFixed(1)}%`;
+  iEl.textContent = iAvg == null ? "--" : `${iAvg.toFixed(1)}%`;
+
+  const all = [qAvg, rAvg, iAvg].filter((n) => n != null);
+  if (all.length === 0) {
+    combinedEl.textContent = "--";
+    noteEl.textContent = "Waiting for data from question generator and user inputs.";
+    return;
+  }
+
+  const combined = all.reduce((sum, n) => sum + n, 0) / all.length;
+  combinedEl.textContent = `${combined.toFixed(1)}%`;
+  noteEl.textContent = `Combined average uses ${all.length} active data stream${all.length > 1 ? "s" : ""}: question section, recorded history, and live user input.`;
+}
+
+function attachCombinedDashboardInputListeners() {
+  const ids = ["marksInput", "quantMarks", "englishMarks", "reasoningMarks", "gkMarks", "computerMarks"];
+  ids.forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.combinedBound === "1") return;
+    el.dataset.combinedBound = "1";
+    el.addEventListener("input", refreshCombinedDashboard);
+  });
 }
 
 async function loadQuestionLabItems(options = {}) {
@@ -2553,17 +3168,31 @@ async function loadQuestionLabItems(options = {}) {
     return;
   }
 
-  const { subject, difficulty, topic, count } = getQuestionLabFilters();
-  const params = new URLSearchParams();
-  if (subject) params.set("subject", subject);
-  if (difficulty) params.set("difficulty", difficulty);
-  if (topic) params.set("topic", topic);
-  params.set("limit", String(count));
+  const { sourceMode, subject, difficulty, topic, count } = getQuestionLabFilters();
+  const recentQuestionIds = Array.isArray(questionLabCache)
+    ? questionLabCache.map((item) => String(item?.id || "").trim()).filter(Boolean).slice(0, 120)
+    : [];
 
   setQuestionLabStatus("Loading updated questions...", "info");
 
   try {
-    const response = await fetch(apiUrl(`/api/questions?${params.toString()}`));
+    const body = {
+      mode: sourceMode === "pyq" ? "pyq-smart" : "practice",
+      tier: normalizeTierMode(activeTierMode),
+      scope: subject ? "selective" : "overall",
+      subjects: subject ? [subject] : [],
+      difficulty,
+      topic,
+      practiceCount: count,
+      includeUnreviewed: false,
+      recentQuestionIds
+    };
+
+    const response = await fetch(apiUrl("/api/questions/generate"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
     const data = await response.json();
 
     if (!response.ok || !data.success) {
@@ -2571,8 +3200,29 @@ async function loadQuestionLabItems(options = {}) {
     }
 
     questionLabCache = Array.isArray(data.items) ? data.items : [];
+    resetQuestionLabAttemptState({
+      mode: data.mode,
+      summary: data.summary,
+      warnings: data.warnings,
+      served: data.served
+    });
     renderQuestionLabItems(questionLabCache);
-    setQuestionLabStatus(`Loaded ${questionLabCache.length} questions.`, "success");
+    renderQuestionLabInsights();
+    updateQuestionGeneratorRecords();
+    refreshCombinedDashboard();
+
+    if (questionLabCache.length === 0) {
+      const emptyMsg = (Array.isArray(data.warnings) && data.warnings[0])
+        ? data.warnings[0]
+        : `No approved ${normalizeTierMode(activeTierMode).toUpperCase()} questions match these filters yet.`;
+      setQuestionLabStatus(emptyMsg, "warning");
+      return;
+    }
+
+    const statusMsg = Array.isArray(data.warnings) && data.warnings.length > 0
+      ? `Loaded ${questionLabCache.length} questions. ${data.warnings[0]}`
+      : `Loaded ${questionLabCache.length} fresh questions.`;
+    setQuestionLabStatus(statusMsg, Array.isArray(data.warnings) && data.warnings.length > 0 ? "warning" : "success");
   } catch (err) {
     console.error("loadQuestionLabItems error:", err);
     setQuestionLabStatus("Failed to load questions.", "error");
@@ -2584,14 +3234,31 @@ async function generateMockFromLab() {
     return;
   }
 
-  const { subject, difficulty, count } = getQuestionLabFilters();
+  const { subject, difficulty, count, mockMode, selectedTopics } = getQuestionLabFilters();
+  const recentQuestionIds = Array.isArray(questionLabCache)
+    ? questionLabCache.map((item) => String(item?.id || "").trim()).filter(Boolean).slice(0, 120)
+    : [];
+  if (mockMode === "topic_select" && selectedTopics.length === 0) {
+    setQuestionLabStatus("Select at least one topic for topic-wise mock.", "error");
+    return;
+  }
   setQuestionLabStatus("Generating mock set...", "info");
 
   try {
     const response = await fetch(apiUrl("/api/questions/mocks/generate"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subject, difficulty, count })
+      body: JSON.stringify({
+        tier: normalizeTierMode(activeTierMode),
+        scope: subject ? "selective" : "overall",
+        subjects: subject ? [subject] : [],
+        subject,
+        difficulty,
+        count,
+        mockType: mockMode,
+        selectedTopics,
+        recentQuestionIds
+      })
     });
 
     const data = await response.json();
@@ -2600,8 +3267,29 @@ async function generateMockFromLab() {
     }
 
     questionLabCache = Array.isArray(data.items) ? data.items : [];
+    resetQuestionLabAttemptState({
+      mode: data.mode,
+      summary: data.summary,
+      warnings: data.warnings,
+      served: data.served
+    });
     renderQuestionLabItems(questionLabCache);
-    setQuestionLabStatus(`Mock generated with ${questionLabCache.length} questions.`, "success");
+    renderQuestionLabInsights();
+    updateQuestionGeneratorRecords();
+    refreshCombinedDashboard();
+
+    if (questionLabCache.length === 0) {
+      const emptyMsg = (Array.isArray(data.warnings) && data.warnings[0])
+        ? data.warnings[0]
+        : `No approved ${normalizeTierMode(activeTierMode).toUpperCase()} mock questions are available yet.`;
+      setQuestionLabStatus(emptyMsg, "warning");
+      return;
+    }
+
+    const statusMsg = Array.isArray(data.warnings) && data.warnings.length > 0
+      ? `Mock generated with ${questionLabCache.length} questions. ${data.warnings[0]}`
+      : `Mock generated with ${questionLabCache.length} fresh questions.`;
+    setQuestionLabStatus(statusMsg, Array.isArray(data.warnings) && data.warnings.length > 0 ? "warning" : "success");
   } catch (err) {
     console.error("generateMockFromLab error:", err);
     setQuestionLabStatus("Failed to generate mock set.", "error");
@@ -2775,6 +3463,7 @@ async function saveTopicDrill() {
     if (badge) { badge.style.display = "inline"; setTimeout(function () { badge.style.display = "none"; }, 3000); }
     updateTodayActionPlan(lastMarksEntries);
     updateWeakTopicNote();
+    loadWeakTopicSuggestions();
   } catch (err) {
     console.error("saveTopicDrill error:", err);
     if (status) status.textContent = "Saved locally. Server sync failed.";
@@ -2910,7 +3599,10 @@ async function loadMarksHistory() {
       renderWeeklyReport(buildWeeklyReport(data.entries));
       updateGoalGapBanner(lastMarksEntries);
       updateTodayActionPlan(lastMarksEntries);
+      loadWeakTopicSuggestions();
       loadUserOutcome();
+      updateQuestionGeneratorRecords();
+      refreshCombinedDashboard();
       if (!Array.isArray(data.entries) || data.entries.length === 0) {
         showProgressStatus("Start by adding today's marks.", "info");
       }
@@ -2920,7 +3612,10 @@ async function loadMarksHistory() {
     lastMarksEntries = [];
     updateGoalGapBanner(lastMarksEntries);
     updateTodayActionPlan(lastMarksEntries);
+    loadWeakTopicSuggestions();
     loadUserOutcome();
+    updateQuestionGeneratorRecords();
+    refreshCombinedDashboard();
     showProgressStatus("Could not load progress history.", "error");
   }
 }
@@ -3661,6 +4356,206 @@ function initLiveAdminGrowthPanel() {
   if (saveBtn) {
     saveBtn.addEventListener("click", function () {
       saveLiveSubscriberGoal();
+    });
+  }
+}
+
+function setQuestionAdminStatus(message, isError = false) {
+  const el = document.getElementById("questionAdminStatus");
+  if (!el) return;
+  el.textContent = message || "";
+  el.style.color = isError ? "#b91c1c" : "#334155";
+}
+
+function renderQuestionAdminPreview(items = []) {
+  const listEl = document.getElementById("questionAdminPreviewList");
+  if (!listEl) return;
+  if (!Array.isArray(items) || items.length === 0) {
+    listEl.innerHTML = '<div class="review-item"><div class="review-q">No items to show.</div></div>';
+    return;
+  }
+
+  listEl.innerHTML = items.slice(0, 25).map((item, idx) => {
+    const confidence = Number(item.confidenceScore || 0).toFixed(2);
+    return `
+      <div class="review-item">
+        <div class="review-item-head">
+          <div class="review-meta">#${idx + 1} | ${escapeHtml(item.subject || "na")} | ${escapeHtml(item.topic || "na")} | confidence ${confidence}</div>
+        </div>
+        <div class="review-q">${escapeHtml(String(item.question || "").slice(0, 240))}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function requestQuestionAdmin(path, method = "GET", body = null, isFormData = false) {
+  const adminKey = String(document.getElementById("questionAdminKey")?.value || "").trim();
+  if (!adminKey) throw new Error("Enter admin key");
+
+  const options = {
+    method,
+    headers: {
+      "x-admin-key": adminKey
+    }
+  };
+
+  if (body && method !== "GET") {
+    if (isFormData) {
+      options.body = body;
+    } else {
+      options.headers["Content-Type"] = "application/json";
+      options.body = JSON.stringify(body);
+    }
+  }
+
+  const response = await fetch(apiUrl(path), options);
+  const data = await response.json();
+  if (!response.ok || !data.success) {
+    throw new Error(data.error || "Admin request failed");
+  }
+  return data;
+}
+
+function buildQuestionAdminFormData() {
+  const fileInput = document.getElementById("questionAdminFile");
+  const file = fileInput?.files?.[0] || null;
+  if (!file) throw new Error("Choose a PDF file first");
+
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("examFamily", "ssc");
+  fd.append("subject", String(document.getElementById("questionAdminSubject")?.value || "quant"));
+  fd.append("topic", String(document.getElementById("questionAdminTopic")?.value || "Imported Topic"));
+  fd.append("tier", String(document.getElementById("questionAdminTier")?.value || "tier1"));
+  fd.append("difficulty", "medium");
+  fd.append("questionMode", "objective");
+  fd.append("parserPreset", String(document.getElementById("questionAdminParser")?.value || "standard"));
+  fd.append("useOCR", String(document.getElementById("questionAdminOCR")?.value || "true"));
+  fd.append("ocrPageLimit", String(document.getElementById("questionAdminOCRPages")?.value || "20"));
+  return fd;
+}
+
+async function previewQuestionUpload() {
+  try {
+    setQuestionAdminStatus("Parsing PDF preview...");
+    const fd = buildQuestionAdminFormData();
+    const data = await requestQuestionAdmin("/api/questions/admin/import-pdf/preview", "POST", fd, true);
+    renderQuestionAdminPreview(data.preview || []);
+
+    const stats = document.getElementById("questionAdminStats");
+    if (stats) {
+      stats.innerHTML = `
+        <div class="admin-stat">Extracted: ${Number(data.extractedCount || 0)}</div>
+        <div class="admin-stat">Preset: ${escapeHtml(String(data.parserPreset || "standard"))}</div>
+      `;
+    }
+
+    setQuestionAdminStatus(`Preview ready. Extracted ${Number(data.extractedCount || 0)} items.`);
+  } catch (err) {
+    console.error("previewQuestionUpload error:", err);
+    setQuestionAdminStatus(err.message || "Preview failed", true);
+  }
+}
+
+async function importQuestionUpload() {
+  try {
+    setQuestionAdminStatus("Importing questions to review queue...");
+    const fd = buildQuestionAdminFormData();
+    fd.append("autoApprove", "false");
+    fd.append("reviewThreshold", "0.95");
+    const data = await requestQuestionAdmin("/api/questions/admin/import-pdf", "POST", fd, true);
+
+    const stats = document.getElementById("questionAdminStats");
+    if (stats) {
+      stats.innerHTML = `
+        <div class="admin-stat">Imported: ${Number(data.imported || 0)}</div>
+        <div class="admin-stat">Queued: ${Number(data.queuedForReview || 0)}</div>
+        <div class="admin-stat">Total Bank: ${Number(data.total || 0)}</div>
+      `;
+    }
+
+    setQuestionAdminStatus(`Imported ${Number(data.imported || 0)}. Queued ${Number(data.queuedForReview || 0)} for accuracy review.`);
+    await loadQuestionLabMeta();
+  } catch (err) {
+    console.error("importQuestionUpload error:", err);
+    setQuestionAdminStatus(err.message || "Import failed", true);
+  }
+}
+
+async function loadQuestionReviewQueue() {
+  try {
+    setQuestionAdminStatus("Loading review queue...");
+    const data = await requestQuestionAdmin("/api/questions/admin/review/list?status=needs_review&limit=20", "GET");
+    renderQuestionAdminPreview(data.items || []);
+
+    const stats = document.getElementById("questionAdminStats");
+    if (stats) {
+      stats.innerHTML = `
+        <div class="admin-stat">Review Pending: ${Number(data.totalMatched || 0)}</div>
+        <div class="admin-stat">Loaded: ${Number(data.count || 0)}</div>
+      `;
+    }
+
+    setQuestionAdminStatus(`Loaded ${Number(data.count || 0)} review items.`);
+  } catch (err) {
+    console.error("loadQuestionReviewQueue error:", err);
+    setQuestionAdminStatus(err.message || "Could not load review queue", true);
+  }
+}
+
+async function runQuestionAutoDecision(decision) {
+  try {
+    const isApprove = decision === "approve";
+    const body = {
+      decision,
+      reviewedBy: "auto_admin",
+      minConfidence: isApprove ? 0.9 : undefined,
+      maxConfidence: isApprove ? undefined : 0.15,
+      rejectReason: isApprove ? "" : "Auto-rejected due to very low confidence",
+      limit: 200
+    };
+
+    setQuestionAdminStatus(isApprove ? "Auto-approving high-confidence items..." : "Auto-rejecting very low-confidence items...");
+    const data = await requestQuestionAdmin("/api/questions/admin/review/auto-decision", "POST", body);
+    setQuestionAdminStatus(`${isApprove ? "Approved" : "Rejected"} ${Number(data.updated || 0)} items automatically.`);
+    await loadQuestionReviewQueue();
+  } catch (err) {
+    console.error("runQuestionAutoDecision error:", err);
+    setQuestionAdminStatus(err.message || "Auto decision failed", true);
+  }
+}
+
+function initQuestionAdminPanel() {
+  const panel = document.getElementById("questionAdminPanel");
+  if (!panel) return;
+
+  if (!isLiveAdminModeEnabled()) {
+    panel.classList.add("hidden");
+    return;
+  }
+
+  panel.classList.remove("hidden");
+
+  const previewBtn = document.getElementById("questionAdminPreviewBtn");
+  if (previewBtn) previewBtn.addEventListener("click", previewQuestionUpload);
+
+  const importBtn = document.getElementById("questionAdminImportBtn");
+  if (importBtn) importBtn.addEventListener("click", importQuestionUpload);
+
+  const loadReviewBtn = document.getElementById("questionAdminReviewLoadBtn");
+  if (loadReviewBtn) loadReviewBtn.addEventListener("click", loadQuestionReviewQueue);
+
+  const autoApproveBtn = document.getElementById("questionAdminAutoApproveBtn");
+  if (autoApproveBtn) {
+    autoApproveBtn.addEventListener("click", function () {
+      runQuestionAutoDecision("approve");
+    });
+  }
+
+  const autoRejectBtn = document.getElementById("questionAdminAutoRejectBtn");
+  if (autoRejectBtn) {
+    autoRejectBtn.addEventListener("click", function () {
+      runQuestionAutoDecision("reject");
     });
   }
 }

@@ -385,23 +385,76 @@
     .qlab-shell{
       border-radius:28px;
       border:1px solid #c7d2fe;
-      background:linear-gradient(130deg,#eef2ff 0%,#ffffff 45%,#f8fafc 100%);
-      box-shadow:0 24px 64px rgba(30,41,59,.12);
-      padding:24px;
+      background:linear-gradient(130deg,#eef2ff 0%,#ffffff 50%,#ecfeff 100%);
+      box-shadow:0 30px 80px rgba(30,41,59,.14);
+      padding:28px;
+      position:relative;
+      overflow:hidden;
+    }
+    .qlab-shell::after{
+      content:"";
+      position:absolute;
+      width:340px;
+      height:340px;
+      border-radius:50%;
+      right:-140px;
+      top:-150px;
+      background:radial-gradient(circle, rgba(99,102,241,.16), rgba(14,116,144,.04) 60%, transparent 75%);
+      pointer-events:none;
+    }
+    .qlab-headline{
+      font-size:33px;
+      line-height:1.05;
+      font-weight:900;
+      color:#0f172a;
+      margin:0;
+    }
+    .qlab-subcopy{
+      color:#334155;
+      margin-top:8px;
+      font-size:15px;
+      line-height:1.6;
+      max-width:70ch;
+      font-weight:600;
+    }
+    .qlab-trust-strip{
+      margin-top:14px;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:1;
+    }
+    .qlab-trust-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 11px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+      color:#1e3a8a;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
     }
     .qlab-controls{
       display:grid;
       grid-template-columns:repeat(4,minmax(0,1fr));
       gap:10px;
+      margin-top:14px;
+      position:relative;
+      z-index:1;
     }
     .qlab-controls select,
     .qlab-controls input{
       width:100%;
       border:1px solid #cbd5e1;
-      border-radius:12px;
+      border-radius:14px;
       background:#fff;
-      padding:10px;
+      padding:12px;
       outline:none;
+      font-size:14px;
+      font-weight:600;
     }
     .qlab-controls select:focus,
     .qlab-controls input:focus{
@@ -409,10 +462,58 @@
       box-shadow:0 0 0 3px rgba(99,102,241,.15);
     }
     .qlab-actions{
-      margin-top:10px;
+      margin-top:14px;
       display:flex;
       gap:10px;
       flex-wrap:wrap;
+      position:relative;
+      z-index:1;
+    }
+    .qlab-action-primary{
+      background:linear-gradient(135deg,#4f46e5,#312e81);
+      color:#fff;
+      border:none;
+      box-shadow:0 12px 24px rgba(79,70,229,.3);
+    }
+    .qlab-action-secondary{
+      background:linear-gradient(135deg,#0f172a,#1e293b);
+      color:#fff;
+      border:none;
+      box-shadow:0 12px 24px rgba(15,23,42,.26);
+    }
+    .qlab-traffic-bar{
+      margin-top:14px;
+      border:1px solid #bfdbfe;
+      border-radius:16px;
+      background:linear-gradient(120deg,#eff6ff,#ffffff 50%,#ecfeff);
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:1;
+    }
+    .qlab-traffic-copy{
+      font-size:13px;
+      color:#1e3a8a;
+      font-weight:800;
+      line-height:1.5;
+    }
+    .qlab-traffic-btn{
+      border:none;
+      border-radius:999px;
+      padding:9px 13px;
+      background:#1d4ed8;
+      color:#fff;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.01em;
+      cursor:pointer;
+    }
+    .qlab-traffic-btn:hover{
+      background:#1e40af;
     }
     .qlab-list{
       margin-top:14px;
@@ -444,6 +545,8 @@
       font-weight:700;
       color:#4338ca;
       min-height:20px;
+      position:relative;
+      z-index:1;
     }
 
     /* --- Streak --- */
@@ -755,6 +858,18 @@
 
       <div class="hidden md:flex items-center gap-3">
         <a
+          href="#predictor"
+          class="px-5 py-3 rounded-2xl bg-indigo-600 text-white font-semibold shadow hover:bg-indigo-700 transition"
+        >
+          Open Rank Predictor
+        </a>
+        <a
+          href="#questionlab"
+          class="px-5 py-3 rounded-2xl bg-slate-900 text-white font-semibold shadow hover:bg-black transition"
+        >
+          Open Question Generator
+        </a>
+        <a
           href="#progress"
           class="px-5 py-3 rounded-2xl bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition"
         >
@@ -791,7 +906,7 @@
         </a>
 
         <a href="#questionlab" class="flex items-center justify-center whitespace-nowrap text-base font-semibold px-4 py-2 rounded-xl hover:bg-blue-50">
-          Questions & Mocks
+          Question Generator
         </a>
 
         <a href="#faq" class="flex items-center justify-center whitespace-nowrap text-base font-semibold px-4 py-2 rounded-xl hover:bg-blue-50">
@@ -1536,14 +1651,77 @@
     </div>
   </section>
 
+  <section id="unified-dashboard" class="max-w-6xl mx-auto px-6 pb-6">
+    <div class="rounded-3xl border border-cyan-200 bg-cyan-50/70 p-6 shadow-sm">
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-100 text-cyan-800 text-xs font-bold mb-3">Unified Performance Dashboard</div>
+          <h3 class="text-2xl font-black text-slate-900">Combined Score Intelligence</h3>
+          <p class="text-slate-600 mt-2">Average is computed from question-generator records + your current score inputs, so the dashboard always reflects both practice and prediction context.</p>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-4 gap-3 mt-5">
+        <div class="rounded-2xl border border-cyan-200 bg-white p-4">
+          <div class="text-xs uppercase tracking-wide text-cyan-700 font-bold">Combined Average</div>
+          <div id="combinedAvgScore" class="text-2xl font-black text-slate-900 mt-1">--</div>
+        </div>
+        <div class="rounded-2xl border border-cyan-200 bg-white p-4">
+          <div class="text-xs uppercase tracking-wide text-cyan-700 font-bold">Question Section Avg</div>
+          <div id="combinedQuestionAvg" class="text-2xl font-black text-slate-900 mt-1">--</div>
+        </div>
+        <div class="rounded-2xl border border-cyan-200 bg-white p-4">
+          <div class="text-xs uppercase tracking-wide text-cyan-700 font-bold">Recorded Test Avg</div>
+          <div id="combinedRecordedAvg" class="text-2xl font-black text-slate-900 mt-1">--</div>
+        </div>
+        <div class="rounded-2xl border border-cyan-200 bg-white p-4">
+          <div class="text-xs uppercase tracking-wide text-cyan-700 font-bold">Live User Input Avg</div>
+          <div id="combinedInputAvg" class="text-2xl font-black text-slate-900 mt-1">--</div>
+        </div>
+      </div>
+
+      <div id="combinedDashboardNote" class="mt-4 text-sm font-semibold text-cyan-900">Waiting for data from question generator and user inputs.</div>
+    </div>
+  </section>
+
   <section id="questionlab" class="max-w-6xl mx-auto px-6 py-10">
     <div class="qlab-shell">
       <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
         <div>
-          <h2 class="text-3xl font-black text-slate-900">Question & Mock Lab</h2>
-          <p class="text-slate-600 mt-2">Continuously updated question bank and on-demand mock generation.</p>
+          <h2 class="qlab-headline">Question Generator</h2>
+          <p class="qlab-subcopy">Generate daily SSC-ready sets in seconds: PYQ-based, random mixed, and topic-wise quant tests with clean workflow designed for repeat usage.</p>
+          <div class="qlab-trust-strip">
+            <span class="qlab-trust-pill">✅ Real Pattern</span>
+            <span class="qlab-trust-pill">⚡ Instant Generate</span>
+            <span class="qlab-trust-pill">📈 Daily Practice Friendly</span>
+            <span class="qlab-trust-pill">🎯 Quant Topic Specific</span>
+          </div>
         </div>
-        <span class="text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full bg-indigo-100 text-indigo-700">Update-Ready Engine</span>
+        <span class="text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full bg-indigo-100 text-indigo-700">Daily Traffic Engine</span>
+      </div>
+
+      <div class="grid md:grid-cols-4 gap-3 mb-4">
+        <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
+          <div class="text-xs uppercase tracking-wide text-indigo-700 font-bold">Best Test Record</div>
+          <div id="qgenBestScore" class="text-2xl font-black text-slate-900 mt-1">--</div>
+        </div>
+        <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
+          <div class="text-xs uppercase tracking-wide text-indigo-700 font-bold">Avg Test Record</div>
+          <div id="qgenAvgScore" class="text-2xl font-black text-slate-900 mt-1">--</div>
+        </div>
+        <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
+          <div class="text-xs uppercase tracking-wide text-indigo-700 font-bold">Questions Loaded</div>
+          <div id="qgenQuestionsLoaded" class="text-2xl font-black text-slate-900 mt-1">0</div>
+        </div>
+        <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
+          <div class="text-xs uppercase tracking-wide text-indigo-700 font-bold">Top Topic In Current Set</div>
+          <div id="qgenTopTopic" class="text-lg font-black text-slate-900 mt-1">--</div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-indigo-200 bg-white p-4 mb-4">
+        <div class="text-sm font-extrabold text-indigo-700 uppercase tracking-wide mb-2">Top User Records (Your account)</div>
+        <div id="qgenTopRecords" class="text-sm text-slate-600">No records yet. Save marks and generate questions to build this leaderboard.</div>
       </div>
 
       <div class="qlab-controls">
@@ -1568,8 +1746,13 @@
       </div>
 
       <div class="qlab-actions">
-        <button id="btnLoadQuestions" class="px-5 py-2 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition">Load Questions</button>
-        <button id="btnGenerateMock" class="px-5 py-2 rounded-xl bg-slate-900 text-white font-semibold hover:bg-black transition">Generate Mock</button>
+        <button id="btnLoadQuestions" class="qlab-action-primary px-5 py-2 rounded-xl font-semibold transition">Load Questions</button>
+        <button id="btnGenerateMock" class="qlab-action-secondary px-5 py-2 rounded-xl font-semibold transition">Generate Mock</button>
+      </div>
+
+      <div class="qlab-traffic-bar">
+        <div class="qlab-traffic-copy">Daily growth tip: users who attempt one generated set daily and share their score streak are more likely to return and bring referrals.</div>
+        <button class="qlab-traffic-btn" onclick="document.getElementById('btnGenerateMock')?.click();">Start Today’s Set</button>
       </div>
 
       <div id="questionLabStatus"></div>
