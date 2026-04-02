@@ -1512,7 +1512,8 @@ function updateHookZone(outcome) {
     if (subjectAvgs) {
       // Weights per subject: Quant and Reasoning are high-value for CGL/CHSL
       const weights = { Quant: 1.3, Reasoning: 1.2, GK: 1.0, English: 1.0, Computer: 0.8 };
-      const order = ["Quant", "English", "Reasoning", "GK", "Computer"];
+      const isTier2 = String(outcome.activeTier || activeTierMode) === "tier2";
+      const order = isTier2 ? ["Quant", "English", "Reasoning", "GK", "Computer"] : ["Quant", "English", "Reasoning", "GK"];
       const rows = order.map(s => ({
         label: s,
         avg: subjectAvgs[s] || 0,

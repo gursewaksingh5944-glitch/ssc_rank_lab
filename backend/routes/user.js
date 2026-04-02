@@ -210,13 +210,16 @@ router.get("/:userKey/outcome", (req, res) => {
     const hasHistory = entries.length > 0;
 
     // --- safe score and gap ---
+    // When goal comes from a different tier (e.g. tier2 fallback on tier1 request),
+    // cutoff-based metrics don't apply — only show post name/category.
     const goalTier = normalizeTier(goalProfile?.tier || requestedTier);
+    const tierMismatch = goalProfile && goalTier !== requestedTier;
     // Tier 2 merit is out of 390 (Quant 90 + Reasoning 90 + English 135 + GK 75).
     // Computer (60) is qualifying-only — not in merit total.
     // Tier 1 is out of 200 (4 subjects × 50), qualifying for shortlisting.
-    const scoreScaleMax = goalTier === "tier2" ? 390 : 200;
-    const autoCutoff = Number(goalProfile?.autoCutoff || 0);
-    const safeBuffer = goalTier === "tier2" ? 8 : 5;
+    const scoreScaleMax = requestedTier === "tier2" ? 390 : 200;
+    const autoCutoff = tierMismatch ? 0 : Number(goalProfile?.autoCutoff || 0);
+    const safeBuffer = requestedTier === "tier2" ? 8 : 5;
     const safeScore = autoCutoff > 0 ? Math.min(scoreScaleMax, autoCutoff + safeBuffer) : null;
     const targetPost = String(goalProfile?.targetPost || "").trim() || null;
     const category = String(goalProfile?.category || "UR").toUpperCase();
@@ -279,7 +282,7 @@ router.get("/:userKey/outcome", (req, res) => {
       goalProfile: goalProfile ? {
         targetPost,
         category,
-        tier: goalTier,
+        tier: requestedTier,
         scoreScaleMax,
         autoCutoff: autoCutoff || null,
         safeScore

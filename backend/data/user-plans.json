@@ -1174,6 +1174,21 @@
       "trialEndsAt": "2026-04-04T15:25:19.511Z",
       "hasUsedTrial": true,
       "updatedAt": "2026-04-02T15:25:19.511Z"
+    },
+    "guest_1775145280965_zqdol3km": {
+      "referralCode": "RL12EB6C0685",
+      "updatedAt": "2026-04-02T15:54:41.026Z"
+    },
+    "guest_1775145280966_soafh5gz": {
+      "referralCode": "RL4DE20A6773",
+      "updatedAt": "2026-04-02T15:54:42.596Z"
+    },
+    "guest_1775145280738_796u1e1f": {
+      "trialPlan": 99,
+      "trialStartedAt": "2026-04-02T15:54:42.633Z",
+      "trialEndsAt": "2026-04-04T15:54:42.633Z",
+      "hasUsedTrial": true,
+      "updatedAt": "2026-04-02T15:54:42.633Z"
     }
   },
   "payments": [],
