@@ -1283,6 +1283,11 @@
     .qlab-warning{font-size:12px;line-height:1.5;color:#9a3412;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:8px 10px;}
     .qlab-helper{font-size:12px;color:#475569;line-height:1.6;}
     .qlab-list{margin-top:12px;display:grid;gap:10px;}
+    .qlab-section-header{display:flex;align-items:center;gap:10px;padding:14px 16px;margin-top:8px;background:linear-gradient(135deg,#1e293b,#334155);border-radius:14px;color:#fff;}
+    .qlab-section-header:first-child{margin-top:0;}
+    .qlab-section-num{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;white-space:nowrap;}
+    .qlab-section-title{font-size:14px;font-weight:800;flex:1;}
+    .qlab-section-count{font-size:11px;font-weight:700;color:#94a3b8;white-space:nowrap;}
     .qlab-item{border:1px solid #dbeafe;border-radius:14px;padding:12px;background:#ffffffd9;}
     .qlab-item-head{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
     .qlab-item-qno{font-size:12px;color:#64748b;margin-top:7px;font-weight:700;}
@@ -1532,6 +1537,18 @@
             </div>
           </div>
           <div class="hz-subjects" id="hzSubjectGrid"></div>
+        </div>
+
+        <!-- Primary CTA: Start Mock -->
+        <div style="margin-top:14px;background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);border-radius:18px;padding:20px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:rgba(255,255,255,.06);border-radius:50%;"></div>
+          <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:18px;font-weight:900;color:#fff;">Ready to practice?</div>
+              <div style="font-size:13px;color:#c7d2fe;margin-top:4px;">Take a full mock or sectional test with real PYQ questions.</div>
+            </div>
+            <button id="heroStartMockBtn" type="button" style="padding:12px 28px;border-radius:14px;background:#fff;border:none;color:#4f46e5;font-size:15px;font-weight:900;cursor:pointer;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.15);transition:transform .15s;">Start Full Mock →</button>
+          </div>
         </div>
 
         <!-- Goal Reminder -->
@@ -1873,14 +1890,14 @@
               <div>
                 <div style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;background:linear-gradient(90deg,#4f46e5,#7c3aed);color:#fff;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;">🧪 SSC Question Lab</div>
                 <h2 style="font-size:24px;font-weight:900;color:#fff;margin:10px 0 6px;">Question &amp; Mock Generator</h2>
-                <p style="color:#cbd5e1;font-size:13px;line-height:1.5;max-width:55ch;">Generate SSC-ready practice sets, PYQ-based tests, and full mocks. 4,900+ curated questions.</p>
+                <p style="color:#cbd5e1;font-size:13px;line-height:1.5;max-width:55ch;">Generate SSC-ready practice sets, PYQ-based tests, and full mocks. 9,000+ curated questions.</p>
               </div>
               <span style="display:inline-flex;padding:5px 10px;border-radius:999px;border:1px solid #4ade80;background:rgba(74,222,128,.1);color:#4ade80;font-size:10px;font-weight:800;">✅ FREE</span>
             </div>
 
             <!-- Trust pills -->
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
-              <span style="display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.2);">📝 4,900+ Questions</span>
+              <span style="display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.2);">📝 9,000+ Questions</span>
               <span style="display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.2);">⚡ Instant Generate</span>
               <span style="display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.2);">📈 PYQ + Practice</span>
               <span style="display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.2);">🎯 Topic Specific</span>
@@ -2541,6 +2558,15 @@
         setActivePanel(button.dataset.panel);
       });
     });
+
+    const heroMockBtn = document.getElementById("heroStartMockBtn");
+    if (heroMockBtn) {
+      heroMockBtn.addEventListener("click", () => {
+        setActivePanel("questions");
+        const genBtn = document.getElementById("btnLoadQuestions");
+        if (genBtn) genBtn.click();
+      });
+    }
 
     chartToggleButtons.forEach((button) => {
       button.addEventListener("click", () => {

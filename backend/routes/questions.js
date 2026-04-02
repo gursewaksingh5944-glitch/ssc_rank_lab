@@ -64,6 +64,9 @@ const MOCK_BLUEPRINTS = {
   }
 };
 
+// Real SSC CGL exam section order
+const SECTION_ORDER = ["quant", "reasoning", "english", "gk"];
+
 // Source hint: Testbook SSC CGL topic-wise weightage (Tier 1, 2025 trend ranges).
 // Midpoint weights are used to keep topic proportions realistic during auto-mock generation.
 const SSC_CGL_TOPIC_WEIGHTAGE = {
@@ -886,6 +889,22 @@ function isBrokenPassageQuestion(item) {
   return /^\s*select the most appropriate option to fill in (the )?blank\s*(no\.?|number)?\s*\d/i.test(text);
 }
 
+function isOrphanPassageQuestion(item) {
+  const topic = String(item?.topic || "").toLowerCase();
+  const text = String(item?.question || "").toLowerCase();
+  // Reading Comprehension questions without embedded passage text are unusable
+  if (topic === "reading comprehension") {
+    const hasPassage = item.passage || item.passageText || item.context;
+    if (!hasPassage) return true;
+  }
+  // Questions that reference "the passage" / "the paragraph" but lack context
+  if (/\b(the (given |above |following )?passage|the (given |above |following )?paragraph)\b/.test(text)) {
+    const hasPassage = item.passage || item.passageText || item.context;
+    if (!hasPassage) return true;
+  }
+  return false;
+}
+
 function parseTopicSelections(value) {
   const list = Array.isArray(value) ? value : [];
   const tokens = new Set();
@@ -1215,9 +1234,21 @@ function buildMockByTier(pool, tier, randomFn, options = {}) {
     }
   }
 
+  // Group questions by section in real SSC exam order instead of random shuffle
+  const sectionOrdered = [];
+  for (const subject of SECTION_ORDER) {
+    const sectionItems = selected.filter((q) => q.subject === subject);
+    // Shuffle within each section for variety
+    sectionOrdered.push(...shuffleWithRandom(sectionItems, randomFn));
+  }
+  // Append any questions with subjects not in SECTION_ORDER
+  const orderedIds = new Set(sectionOrdered.map((q) => q.id));
+  const remaining = selected.filter((q) => !orderedIds.has(q.id));
+  sectionOrdered.push(...shuffleWithRandom(remaining, randomFn));
+
   return {
     requested: blueprint.total,
-    selected: shuffleWithRandom(selected, randomFn)
+    selected: sectionOrdered
   };
 }
 
@@ -1284,6 +1315,16 @@ function generateQuestionSet(bank, payload = {}) {
   pool = pool.filter((q) => !isFigureDependentQuestion(q));
   // Filter out broken passage questions (blank-number-only without passage context)
   pool = pool.filter((q) => !isBrokenPassageQuestion(q));
+  // Filter out questions with fewer than 3 options (too broken to use)
+  pool = pool.filter((q) => Array.isArray(q.options) && q.options.length >= 3);
+  // Pad 3-option questions to 4 with "None of these" (standard SSC format)
+  pool.forEach((q) => {
+    if (q.options.length === 3) {
+      q.options = [...q.options, "None of these"];
+    }
+  });
+  // Filter out passage/comprehension questions that lack embedded passage text
+  pool = pool.filter((q) => !isOrphanPassageQuestion(q));
 
   const fallbackPool = [...pool];
   const respond = (result, extra = {}) => attachQuestionSetDiagnostics(result, { tier, ...extra });

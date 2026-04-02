@@ -2868,6 +2868,31 @@ function getQuestionLabAttemptMetrics() {
   return metrics;
 }
 
+function buildSubjectAccuracyBars(metrics) {
+  if (metrics.attempted === 0) {
+    return '<div class="qlab-helper" style="margin-top:8px;">Subject-wise accuracy will appear after you check your answers.</div>';
+  }
+  const SUBJECT_COLORS = { quant: "#0f766e", reasoning: "#ea580c", english: "#7c3aed", gk: "#0891b2", computer: "#6d28d9" };
+  const SUBJECT_LABELS = { quant: "Quantitative Aptitude", reasoning: "Reasoning", english: "English", gk: "General Awareness", computer: "Computer" };
+  const rows = Object.entries(metrics.subjectAccuracy).map(([subject, data]) => {
+    const pct = data.attempted > 0 ? Math.round((data.correct / data.attempted) * 100) : 0;
+    const color = SUBJECT_COLORS[subject] || "#64748b";
+    const label = SUBJECT_LABELS[subject] || subject;
+    const barColor = pct >= 70 ? "#10b981" : pct >= 45 ? "#f59e0b" : "#ef4444";
+    return `<div style="display:grid;grid-template-columns:120px 1fr 55px;align-items:center;gap:8px;">
+      <span style="font-size:12px;font-weight:700;color:${color};">${escapeHtml(label)}</span>
+      <div style="background:#e2e8f0;border-radius:999px;height:8px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;border-radius:999px;background:${barColor};transition:width .3s;"></div>
+      </div>
+      <span style="font-size:12px;font-weight:800;color:#0f172a;text-align:right;">${data.correct}/${data.attempted} (${pct}%)</span>
+    </div>`;
+  }).join("");
+  return `<div style="margin-top:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;">
+    <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#475569;margin-bottom:8px;">Subject-wise Accuracy</div>
+    <div style="display:grid;gap:6px;">${rows}</div>
+  </div>`;
+}
+
 function renderQuestionLabInsights() {
   const el = document.getElementById("questionLabInsights");
   if (!el) return;
@@ -2900,14 +2925,8 @@ function renderQuestionLabInsights() {
     : "--";
   const qualityLabel = qualityBandMap[String(summary?.qualityBand || "good")] || "Good";
   const setCoverage = summary ? `${Math.round(Number(summary.coverageRatio || 0) * 100)}%` : "--";
-  const pyqShare = summary && summary.pyqSharePct != null ? `${summary.pyqSharePct}%` : "--";
   const scoreText = metrics.attempted > 0 ? `${metrics.score.toFixed(2)}` : "--";
   const accuracyText = metrics.attempted > 0 ? `${metrics.accuracyPct.toFixed(1)}%` : "--";
-  const subjectAccuracyText = metrics.attempted > 0
-    ? Object.entries(metrics.subjectAccuracy)
-      .map(([subject, row]) => `${subject}: ${row.attempted > 0 ? ((row.correct / row.attempted) * 100).toFixed(0) : 0}%`)
-      .join(" • ")
-    : "Attempted subject accuracy will appear here after you check the set.";
   const warningHtml = warnings.length > 0
     ? `<div class="qlab-warning-list">${warnings.map((msg) => `<div class="qlab-warning">⚠️ ${escapeHtml(msg)}</div>`).join("")}</div>`
     : `<div class="qlab-helper">Answers stay hidden until you reveal them. Use this as a real mock, not a passive reading session.</div>`;
@@ -2934,13 +2953,9 @@ function renderQuestionLabInsights() {
         <div class="qlab-insight-k">Coverage</div>
         <div class="qlab-insight-v">${escapeHtml(setCoverage)}</div>
       </div>
-      <div class="qlab-insight-card">
-        <div class="qlab-insight-k">PYQ Share</div>
-        <div class="qlab-insight-v">${escapeHtml(pyqShare)}</div>
-      </div>
     </div>
     <div class="qlab-helper" style="margin-top:10px;"><strong>Set mix:</strong> ${escapeHtml(subjectMix)}</div>
-    <div class="qlab-helper" style="margin-top:6px;"><strong>Subject accuracy:</strong> ${escapeHtml(subjectAccuracyText)}</div>
+    ${buildSubjectAccuracyBars(metrics)}
     ${warningHtml}
   `;
 
@@ -3000,9 +3015,16 @@ function renderQuestionLabItems(items = []) {
     return;
   }
 
-  container.innerHTML = items.map((item, idx) => {
+  const SECTION_ORDER = ["quant", "reasoning", "english", "gk"];
+  const SECTION_LABELS = { quant: "Quantitative Aptitude", reasoning: "General Intelligence & Reasoning", english: "English Language & Comprehension", gk: "General Awareness" };
+
+  // Detect section changes to insert headers
+  let currentSection = null;
+  let globalIdx = 0;
+
+  const html = items.map((item) => {
     const options = Array.isArray(item.options) ? item.options : [];
-    const questionId = String(item?.id || `q_${idx}`);
+    const questionId = String(item?.id || `q_${globalIdx}`);
     const selectedIndex = Object.prototype.hasOwnProperty.call(questionLabSelections, questionId)
       ? Number(questionLabSelections[questionId])
       : null;
@@ -3018,29 +3040,41 @@ function renderQuestionLabItems(items = []) {
       return `<button type="button" class="${classes.join(" ")}" data-qid="${encodeURIComponent(questionId)}" data-idx="${i}">${String.fromCharCode(65 + i)}. ${escapeHtml(opt)}${answerTag}</button>`;
     }).join("");
 
-    const yearText = item.year ? `Year ${item.year}` : "Year N/A";
-    const batchText = item.batch || item.shift || item?.source?.batch || item?.source?.shift || "Batch N/A";
-    const sourceText = item.isPYQ ? "PYQ" : "Random";
+    const yearText = item.year ? `Year ${item.year}` : "";
+    const batchText = item.batch || item.shift || item?.source?.batch || item?.source?.shift || "";
     const explanationText = questionLabAnswersVisible
       ? (item.explanation || "No explanation added yet.")
       : "Explanation stays hidden until you reveal/check the answers.";
 
-    return `
+    globalIdx++;
+
+    // Insert section header when subject changes
+    let sectionHeader = "";
+    const itemSubject = String(item.subject || "").toLowerCase();
+    if (itemSubject !== currentSection) {
+      currentSection = itemSubject;
+      const sectionLabel = SECTION_LABELS[itemSubject] || itemSubject.toUpperCase();
+      const sectionNum = SECTION_ORDER.indexOf(itemSubject) + 1;
+      const sectionCount = items.filter((q) => String(q.subject || "").toLowerCase() === itemSubject).length;
+      sectionHeader = `<div class="qlab-section-header"><span class="qlab-section-num">Section ${sectionNum > 0 ? sectionNum : ""}</span><span class="qlab-section-title">${escapeHtml(sectionLabel)}</span><span class="qlab-section-count">${sectionCount} Questions</span></div>`;
+    }
+
+    return `${sectionHeader}
       <div class="qlab-item">
         <div class="qlab-item-head">
-          <span class="qlab-chip">${escapeHtml(item.subject || "subject")}</span>
           <span class="qlab-chip">${escapeHtml(item.topic || "topic")}</span>
-          <span class="qlab-chip">${escapeHtml(sourceText)}</span>
-          <span class="qlab-chip">${escapeHtml(yearText)}</span>
-          <span class="qlab-chip">${escapeHtml(String(batchText))}</span>
+          ${yearText ? `<span class="qlab-chip">${escapeHtml(yearText)}</span>` : ""}
+          ${batchText ? `<span class="qlab-chip">${escapeHtml(String(batchText))}</span>` : ""}
         </div>
-        <div class="qlab-item-qno">Q${idx + 1}</div>
+        <div class="qlab-item-qno">Q${globalIdx}</div>
         <div class="qlab-item-question">${escapeHtml(item.question || "")}</div>
         <div class="qlab-options">${optionRows}</div>
         <div class="qlab-explain ${questionLabAnswersVisible ? "" : "is-hidden"}">${escapeHtml(explanationText)}</div>
       </div>
     `;
   }).join("");
+
+  container.innerHTML = html;
 }
 
 function computeCurrentInputAveragePct() {
@@ -3088,8 +3122,7 @@ function computeQuestionSectionAveragePct() {
     return Math.max(0, Math.min(100, avgConfidence * 100));
   }
 
-  const pyqCount = questionLabCache.filter((q) => q && q.isPYQ === true).length;
-  return Math.max(0, Math.min(100, (pyqCount / questionLabCache.length) * 100));
+  return null;
 }
 
 function updateQuestionGeneratorRecords() {
