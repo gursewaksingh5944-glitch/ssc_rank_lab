@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const weakSuggestRefreshBtn = document.getElementById("weakSuggestRefreshBtn");
   if (weakSuggestRefreshBtn) {
     weakSuggestRefreshBtn.addEventListener("click", function () {
-      loadWeakTopicSuggestions();
+      updateTodayActionPlan(lastMarksEntries);
     });
   }
 
@@ -804,6 +804,7 @@ async function handleRegister() {
     localStorage.setItem("sscranklab_user_name", data.name);
     hideAuthModal();
     updateAuthUI();
+    updateSidebarProfile();
     loadMarksHistory();
   } catch (err) {
     status.style.color = "#dc2626";
@@ -851,6 +852,7 @@ async function handleLogin() {
     localStorage.setItem("sscranklab_user_name", data.name);
     hideAuthModal();
     updateAuthUI();
+    updateSidebarProfile();
     loadMarksHistory();
   } catch (err) {
     status.style.color = "#dc2626";
@@ -901,6 +903,44 @@ function checkAuthOnLoad() {
     showAuthModal();
   }
   updateAuthUI();
+  updateSidebarProfile();
+}
+
+function updateSidebarProfile() {
+  const nameEl = document.getElementById("sidebarUserName");
+  const metaEl = document.getElementById("sidebarUserMeta");
+  if (!nameEl || !metaEl) return;
+
+  const storedName = localStorage.getItem("sscranklab_user_name");
+  const storedEmail = localStorage.getItem("sscranklab_user_email");
+
+  if (storedName) {
+    nameEl.textContent = storedName;
+  } else if (storedEmail) {
+    nameEl.textContent = storedEmail;
+  } else {
+    nameEl.textContent = "Guest";
+  }
+
+  // Meta line: goal post + streak (updated later by updateSidebarMeta)
+  const post = goalProfile?.targetPost;
+  if (post) {
+    metaEl.textContent = post;
+  } else {
+    metaEl.textContent = "Set your goal to get started";
+  }
+}
+
+function updateSidebarMeta() {
+  const metaEl = document.getElementById("sidebarUserMeta");
+  if (!metaEl) return;
+  const post = goalProfile?.targetPost;
+  const entries = lastMarksEntries || [];
+  const streakInfo = computeStreak(entries);
+  const parts = [];
+  if (post) parts.push(post);
+  if (streakInfo.streak > 0) parts.push(streakInfo.streak + " day streak");
+  metaEl.textContent = parts.length > 0 ? parts.join(" | ") : "Set your goal to get started";
 }
 
 function saveUnlockedPlan(plan) {
@@ -1152,6 +1192,8 @@ function updateTopGoalFrame() {
     reminderMain.textContent = `${post} • ${tier} • Target ${target}`;
     reminderSub.textContent = `Auto cutoff ${cutoff} • ${category} • ${examText}`;
   }
+
+  updateSidebarProfile();
 }
 
 function computeOverallAverageScore(entries) {
@@ -1214,14 +1256,14 @@ function updateTodayActionPlan(entries = []) {
 
   listEl.innerHTML = [
     topTopic
-      ? "Focus: " + escapeHtml(topTopic) + " \u2014 " + weakTopics[0].totalMistakes + " mistakes in " + weakTopics[0].sessions + " test" + (weakTopics[0].sessions !== 1 ? "s" : "") + ". Review concepts and redo similar questions."
+      ? "<strong>🎯 Weak Topic:</strong> " + escapeHtml(topTopic) + " — " + weakTopics[0].totalMistakes + " mistakes in " + weakTopics[0].sessions + " test" + (weakTopics[0].sessions !== 1 ? "s" : "") + ". Review concepts and redo similar questions."
       : "Solve 20 targeted " + escapeHtml(first) + " questions and analyze mistakes.",
     secondTopic
-      ? "Practice: " + escapeHtml(secondTopic) + " with timed questions to build accuracy and speed."
+      ? "<strong>📌 Also Practice:</strong> " + escapeHtml(secondTopic) + " with timed questions to build accuracy and speed."
       : "Run 2 timed mini-mocks focused on " + escapeHtml(second) + " accuracy and speed.",
     goalScore > 0
       ? "Maintain revision so your overall average moves from " + overallAvg.toFixed(1) + " toward goal " + Math.round(goalScore) + "."
-      : "Set target post to activate cutoff + 5 safe-zone planning."
+      : "Set target post to activate cutoff + safe-zone planning."
   ].map((item) => `<li>${item}</li>`).join("");
 }
 
@@ -2457,11 +2499,13 @@ function showProgressStatus(message, type = "info") {
 function updateProgressSummary(entries) {
   const latestEl = document.getElementById("latestTotalStat");
   const avg7El = document.getElementById("avg7Stat");
+  const cutoffEl = document.getElementById("dashboardCutoff");
   if (!latestEl || !avg7El) return;
 
   if (!Array.isArray(entries) || entries.length === 0) {
     latestEl.textContent = "--";
     avg7El.textContent = "--";
+    if (cutoffEl) cutoffEl.textContent = "--";
     return;
   }
 
@@ -2472,6 +2516,12 @@ function updateProgressSummary(entries) {
 
   latestEl.textContent = Number.isFinite(latest) ? latest.toFixed(1) : "--";
   avg7El.textContent = Number.isFinite(avg7) ? avg7.toFixed(1) : "--";
+
+  // Show cutoff from goal profile
+  if (cutoffEl) {
+    const cutoff = Number(goalProfile?.autoCutoff || 0);
+    cutoffEl.textContent = cutoff > 0 ? String(Math.round(cutoff)) : "--";
+  }
 }
 
 function setBenchmarkStatus(message, type = "info") {
@@ -3725,7 +3775,6 @@ async function saveTopicDrill() {
     if (badge) { badge.style.display = "inline"; setTimeout(function () { badge.style.display = "none"; }, 3000); }
     updateTodayActionPlan(lastMarksEntries);
     updateWeakTopicNote();
-    loadWeakTopicSuggestions();
   } catch (err) {
     console.error("saveTopicDrill error:", err);
     if (status) status.textContent = "Saved locally. Server sync failed.";
@@ -3861,7 +3910,6 @@ async function loadMarksHistory() {
       renderWeeklyReport(buildWeeklyReport(data.entries));
       updateGoalGapBanner(lastMarksEntries);
       updateTodayActionPlan(lastMarksEntries);
-      loadWeakTopicSuggestions();
       loadUserOutcome();
       updateQuestionGeneratorRecords();
       refreshCombinedDashboard();
@@ -3874,7 +3922,6 @@ async function loadMarksHistory() {
     lastMarksEntries = [];
     updateGoalGapBanner(lastMarksEntries);
     updateTodayActionPlan(lastMarksEntries);
-    loadWeakTopicSuggestions();
     loadUserOutcome();
     updateQuestionGeneratorRecords();
     refreshCombinedDashboard();
@@ -4263,6 +4310,8 @@ function updateStreakDisplay(entries) {
   } else {
     el.innerHTML = "";
   }
+
+  updateSidebarMeta();
 }
 
 // ============================================================

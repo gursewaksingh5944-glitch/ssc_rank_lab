@@ -1458,9 +1458,8 @@
     <aside class="sidebar">
       <div class="brand"><span class="brand-mark">SR</span><span class="brand-text">SSCRankLab</span></div>
       <div class="identity">
-        <h3>Rahul Singh</h3>
-        <p>SSC#4821 | 14 day streak</p>
-        <div class="private-note">Target post is private and visible only to you by default.</div>
+        <h3 id="sidebarUserName">Guest</h3>
+        <p id="sidebarUserMeta">Set your goal to get started</p>
       </div>
 
       <div class="nav">
@@ -1586,6 +1585,7 @@
         <div class="quick-stats-row" style="margin-top:11px;">
           <div class="quick-stat-box"><div class="k">Latest Total</div><div class="v" id="latestTotalStat">--</div></div>
           <div class="quick-stat-box"><div class="k">7-Day Average</div><div class="v" id="avg7Stat">--</div></div>
+          <div class="quick-stat-box"><div class="k">Safe Zone Cutoff</div><div class="v" id="dashboardCutoff">--</div></div>
           <div class="quick-stat-box"><div class="k">Streak</div><div id="streakDisplay" style="margin-top:5px;"></div></div>
         </div>
 
@@ -1599,15 +1599,7 @@
           </div>
         </div>
 
-        <div id="weakSuggestBox" style="margin-top:11px;border:1px solid #dbeafe;border-radius:16px;background:linear-gradient(125deg,#eff6ff,#ffffff 55%,#ecfeff);padding:12px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-            <div style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:#1e3a8a;">Daily Weak-Topic Suggestions</div>
-            <button id="weakSuggestRefreshBtn" type="button" style="border:1px solid #bfdbfe;background:#ffffff;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:800;color:#1d4ed8;cursor:pointer;">Refresh 5</button>
-          </div>
-          <div style="margin-top:6px;font-size:12px;color:#475569;font-weight:700;">Based on your weak topics analysis, solve these 5 today.</div>
-          <div id="weakSuggestStatus" style="margin-top:7px;font-size:12px;font-weight:700;color:#1e40af;min-height:16px;"></div>
-          <div id="weakSuggestList" style="margin-top:8px;display:grid;gap:8px;"></div>
-        </div>
+
 
         <!-- Performance Dashboard -->
         <div id="perf-dashboard" style="margin-top:14px;border-radius:20px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#ffffff 0%,#f8fafc 50%,#f0f9ff 100%);padding:18px;">
@@ -2238,11 +2230,8 @@
           <label for="goalExamDate">Exam Month</label>
           <input type="month" id="goalExamDate" />
         </div>
-        <div>
-          <label for="goalAutoCutoff">Auto Cutoff (From Data)</label>
-          <input type="number" id="goalAutoCutoff" readonly placeholder="Select post + category" />
-        </div>
       </div>
+      <input type="hidden" id="goalAutoCutoff" value="0" />
       <input type="hidden" id="goalTier" value="tier2" />
       <input type="hidden" id="goalStudyHours" value="6" />
       <input type="hidden" id="goalTargetScore" value="0" />
