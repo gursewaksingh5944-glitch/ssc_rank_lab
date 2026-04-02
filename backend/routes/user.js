@@ -207,7 +207,8 @@ router.get("/:userKey/outcome", (req, res) => {
       : {};
     const legacyGoal = profile?.goal || null;
     const goalProfile = goalsByTier[requestedTier] ||
-      (legacyGoal && normalizeTier(legacyGoal.tier || "tier1") === requestedTier ? legacyGoal : null);
+      goalsByTier["tier2"] ||
+      (legacyGoal ? legacyGoal : null);
 
     const entries = readTestEntries(userKey, requestedTier);
     const hasHistory = entries.length > 0;

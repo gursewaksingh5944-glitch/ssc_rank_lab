@@ -96,7 +96,10 @@ function computePlanMrr(profile = {}) {
 
 function writeStore(data) {
   ensureStoreFile();
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+  const tmpPath = filePath + ".tmp";
+  const json = JSON.stringify(data, null, 2);
+  fs.writeFileSync(tmpPath, json, "utf8");
+  fs.renameSync(tmpPath, filePath);
 }
 
 function getUnlockedPlan(userKey) {
