@@ -1246,11 +1246,14 @@ function updateTodayActionPlan(entries = []) {
   const weakest = [...subjects].sort((a, b) => a.value - b.value).slice(0, 2);
   const overallAvg = computeOverallAverageScore(entries);
   const goalTier = String(goalProfile?.tier || "tier1").toLowerCase();
+  const currentTier = String(activeTierMode || "tier1").toLowerCase();
+  // Only show cutoff-based metrics when goal tier matches the active tier
+  const tierMatch = goalTier === currentTier;
   // Tier 2 merit is out of 390 (excluding qualifying Computer subject)
   // Tier 1 is out of 200 (4 subjects × 50, qualifying for Tier 2 shortlisting)
-  const scoreCap = goalTier === "tier2" ? 390 : 200;
-  const buffer = goalTier === "tier2" ? 8 : 5;
-  const goalScore = Number(goalProfile?.autoCutoff || 0) > 0 ? Math.min(scoreCap, Number(goalProfile.autoCutoff || 0) + buffer) : 0;
+  const scoreCap = currentTier === "tier2" ? 390 : 200;
+  const buffer = currentTier === "tier2" ? 8 : 5;
+  const goalScore = tierMatch && Number(goalProfile?.autoCutoff || 0) > 0 ? Math.min(scoreCap, Number(goalProfile.autoCutoff || 0) + buffer) : 0;
   const marksAway = goalScore > 0 ? Math.max(0, Number((goalScore - overallAvg).toFixed(1))) : 0;
 
   let expectedGain = 1.0;
@@ -1392,13 +1395,18 @@ function updateHookZone(outcome) {
     if (headlineIcon) headlineIcon.textContent = "📊";
     headlineText.textContent = `${post} — add today's marks to unlock your selection forecast`;
     if (setupBtn) setupBtn.classList.add("hidden");
-  } else if (marksAway === 0) {
+  } else if (marksAway != null && marksAway === 0) {
     if (headlineIcon) headlineIcon.textContent = "✅";
     headlineText.textContent = `You're inside the safe zone for ${post} — keep the momentum!`;
     if (setupBtn) setupBtn.classList.add("hidden");
-  } else {
+  } else if (marksAway != null && marksAway > 0) {
     if (headlineIcon) headlineIcon.textContent = "🚨";
     headlineText.textContent = `You're ${marksAway} marks away from ${post} — here's exactly what to do:`;
+    if (setupBtn) setupBtn.classList.add("hidden");
+  } else {
+    // Goal set + history exists but no cutoff data for this tier (e.g. tier1 view with tier2 goal)
+    if (headlineIcon) headlineIcon.textContent = "📊";
+    headlineText.textContent = `${post} — switch to Tier 2 to see your selection forecast`;
     if (setupBtn) setupBtn.classList.add("hidden");
   }
 

@@ -1189,6 +1189,33 @@
       "trialEndsAt": "2026-04-04T15:54:42.633Z",
       "hasUsedTrial": true,
       "updatedAt": "2026-04-02T15:54:42.633Z"
+    },
+    "guest_1775145702256_v8cdl1d4": {
+      "referralCode": "RL9103BD8BAC",
+      "updatedAt": "2026-04-02T16:01:42.446Z"
+    },
+    "guest_1775145702278_2amiu3ve": {
+      "referralCode": "RL3BF8444C2E",
+      "updatedAt": "2026-04-02T16:01:43.976Z",
+      "trialPlan": 99,
+      "trialStartedAt": "2026-04-02T16:01:43.976Z",
+      "trialEndsAt": "2026-04-04T16:01:43.976Z",
+      "hasUsedTrial": true
+    },
+    "guest_1775145702269_9ymasz3y": {
+      "referralCode": "RLA2B6A01E14",
+      "updatedAt": "2026-04-02T16:01:42.467Z"
+    },
+    "guest_1775145702254_s8b4xiro": {
+      "referralCode": "RL10E5E7FF98",
+      "updatedAt": "2026-04-02T16:01:44.037Z"
+    },
+    "guest_1775145702256_jeg05rc9": {
+      "trialPlan": 99,
+      "trialStartedAt": "2026-04-02T16:01:44.059Z",
+      "trialEndsAt": "2026-04-04T16:01:44.059Z",
+      "hasUsedTrial": true,
+      "updatedAt": "2026-04-02T16:01:44.059Z"
     }
   },
   "payments": [],
