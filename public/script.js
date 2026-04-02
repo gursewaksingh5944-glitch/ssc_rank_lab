@@ -2699,7 +2699,7 @@ async function loadBenchmarkProfile() {
     topicDrillByTierCache = profile.topicDrillByTier && typeof profile.topicDrillByTier === "object" ? profile.topicDrillByTier : {};
 
     const legacyGoal = profile.goal || null;    const legacyGoalTier = normalizeTierMode(legacyGoal?.tier || "tier1");
-    goalProfile = goalsByTierCache[activeTierMode] || (legacyGoal && legacyGoalTier === activeTierMode ? legacyGoal : null);
+    goalProfile = goalsByTierCache[activeTierMode] || goalsByTierCache["tier2"] || (legacyGoal && legacyGoalTier === activeTierMode ? legacyGoal : null);
 
     const legacyBenchmark = profile.benchmark || null;
     benchmarkProfile = benchmarksByTierCache[activeTierMode] || (activeTierMode === "tier1" ? legacyBenchmark : null);
@@ -4174,7 +4174,7 @@ function showGoalModal() {
     setVal("goalTargetScore", goalProfile.targetScore);
   } else {
     const tierEl = document.getElementById("goalTier");
-    if (tierEl) tierEl.value = activeTierMode;
+    if (tierEl) tierEl.value = "tier2";
   }
   applyGoalAutoCutoff();
   modal.classList.remove("hidden");
@@ -4200,8 +4200,12 @@ async function saveGoalProfile() {
   // Auto-derive: SSC CGL posts are allocated on Tier 2 scores
   const tier = "tier2";
   const studyHours = 6;
-  // Target score: cutoff + 10 marks buffer, or 200 if no cutoff
-  const targetScore = Number.isFinite(autoCutoff) && autoCutoff > 0 ? Math.round(autoCutoff + 10) : 200;
+  // Target score: read from form (user may have edited), fallback to cutoff + 20 buffer
+  const targetScoreEl = document.getElementById("goalTargetScore");
+  const formTarget = Number(targetScoreEl?.value || 0);
+  const targetScore = Number.isFinite(formTarget) && formTarget > 0
+    ? Math.min(390, formTarget)
+    : (Number.isFinite(autoCutoff) && autoCutoff > 0 ? Math.min(390, Math.round(autoCutoff + 20)) : 200);
 
   const examAllowed = ["ssc_cgl", "ssc_chsl", "ssc_mts", "ssc_cpo"];
   const categoryAllowed = ["UR", "OBC", "SC", "ST", "EWS"];
@@ -4269,7 +4273,7 @@ async function saveGoalProfile() {
     goalsByTierCache = profile.goalsByTier && typeof profile.goalsByTier === "object"
       ? profile.goalsByTier
       : goalsByTierCache;
-    goalProfile = goalsByTierCache[activeTierMode] || null;
+    goalProfile = goalsByTierCache[normalizedTier] || goalsByTierCache[activeTierMode] || null;
     updateTopGoalFrame();
     updateGoalGapBanner(lastMarksEntries);
     updateTodayActionPlan(lastMarksEntries);
