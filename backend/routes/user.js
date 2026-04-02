@@ -1,5 +1,4 @@
 const express = require("express");
-const fs = require("fs");
 const path = require("path");
 const {
   getUserProfile,
@@ -7,10 +6,9 @@ const {
   deleteUserProfile,
   getUnlockedPlan
 } = require("../utils/planStore");
+const testStore = require("../utils/testStore");
 
 const router = express.Router();
-
-const TEST_STORE_PATH = path.join(__dirname, "..", "data", "test-entries.json");
 
 function normalizeUserKey(value) {
   return String(value || "").trim().toLowerCase();
@@ -27,10 +25,8 @@ function normalizeTier(value) {
 
 function readTestEntries(userKey, tier = "tier1") {
   try {
-    if (!fs.existsSync(TEST_STORE_PATH)) return [];
-    const raw = fs.readFileSync(TEST_STORE_PATH, "utf8");
-    const parsed = JSON.parse(raw || "{}");
-    const entriesRaw = Array.isArray(parsed.users?.[userKey]) ? parsed.users[userKey] : [];
+    const store = testStore.readStore();
+    const entriesRaw = Array.isArray(store.users?.[userKey]) ? store.users[userKey] : [];
     const normalizedTier = normalizeTier(tier);
     const entries = entriesRaw.filter((item) => normalizeTier(item?.tier || "tier1") === normalizedTier);
     return [...entries].sort((a, b) => String(b.test_date).localeCompare(String(a.test_date)));

@@ -18,10 +18,13 @@ if (cluster.isPrimary && WORKERS > 1) {
   });
 } else {
   // Worker (or single-process mode) runs the Express server
-  startServer();
+  startServer().catch((err) => {
+    console.error("Server startup failed:", err);
+    process.exit(1);
+  });
 }
 
-function startServer() {
+async function startServer() {
 
 const path = require("path");
 const express = require("express");
@@ -141,10 +144,12 @@ app.get("/debug-headers", (req, res) => {
 // HEALTH CHECK
 // ===============================
 app.get("/health", (req, res) => {
+  const dbMod = require("./utils/db");
   res.json({
     ok: true,
     message: "Backend running",
-    paymentLive: true
+    paymentLive: true,
+    storage: dbMod.isDbAvailable() ? "postgresql" : "file"
   });
 });
 
@@ -229,13 +234,28 @@ app.use((err, req, res, _next) => {
 
 
 // ===============================
-// START SERVER
+// DATABASE INIT + START SERVER
 // ===============================
+const db = require("./utils/db");
+const { loadFromDb: loadPlanStore } = require("./utils/planStore");
+const { loadFromDb: loadTestEntries } = require("./utils/testStore");
+const { loadSocialFromDb } = require("./routes/social");
+
+try {
+  await db.initDb();
+  await loadPlanStore();
+  await loadTestEntries();
+  await loadSocialFromDb();
+} catch (err) {
+  console.error("DB init warning (continuing with file storage):", err.message);
+}
+
 const server = app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`✅ Health: /health`);
   console.log(`✅ Robots: /robots.txt`);
   console.log(`✅ Sitemap: /sitemap.xml`);
+  console.log(`✅ Storage: ${db.isDbAvailable() ? "PostgreSQL (persistent)" : "File-based (ephemeral)"}`);
 });
 
 
@@ -244,7 +264,8 @@ const server = app.listen(PORT, () => {
 // ===============================
 function shutdown(signal) {
   console.log(`\n${signal} received. Shutting down gracefully...`);
-  server.close(() => {
+  server.close(async () => {
+    await db.closePool().catch(() => {});
     console.log("Server closed.");
     process.exit(0);
   });

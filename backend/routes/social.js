@@ -1,9 +1,11 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const db = require("../utils/db");
 
 const router = express.Router();
 
+const STORE_KEY = "social_data";
 const dataDir = path.join(__dirname, "..", "data");
 const storePath = path.join(dataDir, "social-data.json");
 
@@ -11,6 +13,9 @@ const DEFAULT_GROUP_LIMIT = 20;
 const MAX_GROUP_LIMIT = 100;
 const MAX_CHAT_MESSAGES_PER_GROUP = 500;
 const MAX_NOTIFICATIONS_PER_USER = 100;
+
+// In-memory cache
+let _memoryStore = null;
 
 function ensureStoreFile() {
   if (!fs.existsSync(dataDir)) {
@@ -26,19 +31,26 @@ function ensureStoreFile() {
   }
 }
 
+function normalizeShape(parsed) {
+  if (!parsed || typeof parsed !== "object") {
+    return { groups: [], notificationsByUser: {} };
+  }
+  if (!Array.isArray(parsed.groups)) parsed.groups = [];
+  if (!parsed.notificationsByUser || typeof parsed.notificationsByUser !== "object") {
+    parsed.notificationsByUser = {};
+  }
+  return parsed;
+}
+
 function readStore() {
+  if (_memoryStore) return _memoryStore;
+
   ensureStoreFile();
   try {
     const raw = fs.readFileSync(storePath, "utf8");
     const parsed = JSON.parse(raw || "{}");
-    if (!parsed || typeof parsed !== "object") {
-      return { groups: [], notificationsByUser: {} };
-    }
-    if (!Array.isArray(parsed.groups)) parsed.groups = [];
-    if (!parsed.notificationsByUser || typeof parsed.notificationsByUser !== "object") {
-      parsed.notificationsByUser = {};
-    }
-    return parsed;
+    _memoryStore = normalizeShape(parsed);
+    return _memoryStore;
   } catch (error) {
     console.error("social store read error:", error);
     return { groups: [], notificationsByUser: {} };
@@ -46,8 +58,32 @@ function readStore() {
 }
 
 function writeStore(data) {
+  _memoryStore = data;
+
   ensureStoreFile();
-  fs.writeFileSync(storePath, JSON.stringify(data, null, 2), "utf8");
+  try {
+    const tmpPath = storePath + ".tmp";
+    fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2), "utf8");
+    fs.renameSync(tmpPath, storePath);
+  } catch (err) {
+    console.error("social store file write error:", err.message);
+  }
+
+  db.persistStore(STORE_KEY, data);
+}
+
+async function loadSocialFromDb() {
+  const data = await db.loadStore(STORE_KEY);
+  if (data) {
+    _memoryStore = normalizeShape(data);
+    console.log(`  socialData: loaded ${_memoryStore.groups.length} groups from DB`);
+  } else {
+    readStore();
+    if (_memoryStore && _memoryStore.groups.length > 0) {
+      db.persistStore(STORE_KEY, _memoryStore);
+      console.log("  socialData: seeded DB from local file");
+    }
+  }
 }
 
 function normalizeUserKey(value) {
@@ -657,3 +693,4 @@ router.post("/notifications/:userKey/read-all", (req, res) => {
 });
 
 module.exports = router;
+module.exports.loadSocialFromDb = loadSocialFromDb;

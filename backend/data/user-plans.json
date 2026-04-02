@@ -1163,6 +1163,17 @@
     "guest_1775137290542_rwcwaiz9": {
       "referralCode": "RLE759AAAEC5",
       "updatedAt": "2026-04-02T13:41:30.631Z"
+    },
+    "guest_1775143517609_l7c8e2bt": {
+      "referralCode": "RL939C566993",
+      "updatedAt": "2026-04-02T15:25:17.677Z"
+    },
+    "guest_1775143517740_9nlkra4e": {
+      "trialPlan": 99,
+      "trialStartedAt": "2026-04-02T15:25:19.511Z",
+      "trialEndsAt": "2026-04-04T15:25:19.511Z",
+      "hasUsedTrial": true,
+      "updatedAt": "2026-04-02T15:25:19.511Z"
     }
   },
   "payments": [],

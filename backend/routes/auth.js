@@ -1,11 +1,8 @@
 const express = require("express");
 const { getUserProfile, setUserProfile } = require("../utils/planStore");
-const fs = require("fs");
-const path = require("path");
+const testStore = require("../utils/testStore");
 
 const router = express.Router();
-
-const TEST_STORE_PATH = path.join(__dirname, "..", "data", "test-entries.json");
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
@@ -13,17 +10,6 @@ function normalizeEmail(email) {
 
 function emailToUserKey(email) {
   return `user_${normalizeEmail(email).replace(/[^a-z0-9]/g, "_")}`;
-}
-
-function readTestStore() {
-  try {
-    if (!fs.existsSync(TEST_STORE_PATH)) return { users: {} };
-    return JSON.parse(fs.readFileSync(TEST_STORE_PATH, "utf8") || "{}");
-  } catch { return { users: {} }; }
-}
-
-function writeTestStore(data) {
-  fs.writeFileSync(TEST_STORE_PATH, JSON.stringify(data, null, 2), "utf8");
 }
 
 /**
@@ -126,7 +112,7 @@ router.post("/migrate", (req, res) => {
     }
 
     // Migrate test entries
-    const store = readTestStore();
+    const store = testStore.readStore();
     const oldEntries = store.users[oldKey];
     if (oldEntries && Array.isArray(oldEntries) && oldEntries.length > 0) {
       const existingNew = store.users[newKey] || [];
@@ -141,7 +127,7 @@ router.post("/migrate", (req, res) => {
       }
       store.users[newKey] = merged.slice(-120); // keep 120 limit
       delete store.users[oldKey];
-      writeTestStore(store);
+      testStore.writeStore(store);
     }
 
     // Migrate user profile (merge, don't overwrite registered fields)

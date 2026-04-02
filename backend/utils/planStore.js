@@ -1,7 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const db = require("./db");
 
+const STORE_KEY = "user_plans";
 const TRIAL_DURATION_MS = 2 * 24 * 60 * 60 * 1000;
 const DEFAULT_SUBSCRIBER_GOAL = 100000;
 const PLAN_MRR_RUPEES = {
@@ -11,6 +13,9 @@ const PLAN_MRR_RUPEES = {
 
 const dataDir = path.join(__dirname, "..", "data");
 const filePath = path.join(dataDir, "user-plans.json");
+
+// In-memory cache — loaded from DB on startup, falls back to file
+let _memoryStore = null;
 
 function ensureStoreFile() {
   if (!fs.existsSync(dataDir)) {
@@ -34,29 +39,49 @@ function normalizeSubscriberGoal(value) {
   return Math.round(Math.min(parsed, 100000000));
 }
 
-function readStore() {
-  ensureStoreFile();
+function normalizeStoreShape(parsed) {
+  return {
+    users: parsed && parsed.users && typeof parsed.users === "object" ? parsed.users : {},
+    payments: parsed && Array.isArray(parsed.payments) ? parsed.payments : [],
+    referrals: parsed && Array.isArray(parsed.referrals) ? parsed.referrals : [],
+    settings: parsed && parsed.settings && typeof parsed.settings === "object"
+      ? parsed.settings
+      : { subscriberGoal: DEFAULT_SUBSCRIBER_GOAL }
+  };
+}
 
+function readStore() {
+  if (_memoryStore) return _memoryStore;
+
+  // Fallback: load from file (used before DB init or when DB unavailable)
+  ensureStoreFile();
   try {
     const raw = fs.readFileSync(filePath, "utf8");
     const parsed = JSON.parse(raw || "{}");
-
-    return {
-      users: parsed.users && typeof parsed.users === "object" ? parsed.users : {},
-      payments: Array.isArray(parsed.payments) ? parsed.payments : [],
-      referrals: Array.isArray(parsed.referrals) ? parsed.referrals : [],
-      settings: parsed.settings && typeof parsed.settings === "object"
-        ? parsed.settings
-        : { subscriberGoal: DEFAULT_SUBSCRIBER_GOAL }
-    };
+    _memoryStore = normalizeStoreShape(parsed);
+    return _memoryStore;
   } catch (err) {
     console.error("planStore read error:", err);
-    return {
-      users: {},
-      payments: [],
-      referrals: [],
-      settings: { subscriberGoal: DEFAULT_SUBSCRIBER_GOAL }
-    };
+    return normalizeStoreShape(null);
+  }
+}
+
+/**
+ * Load store from PostgreSQL on startup. Falls back to file if DB unavailable.
+ * Call this once from server.js before accepting requests.
+ */
+async function loadFromDb() {
+  const data = await db.loadStore(STORE_KEY);
+  if (data) {
+    _memoryStore = normalizeStoreShape(data);
+    console.log(`  planStore: loaded ${Object.keys(_memoryStore.users).length} users from DB`);
+  } else {
+    // DB empty or unavailable — seed from file if it exists
+    readStore();
+    if (_memoryStore && Object.keys(_memoryStore.users).length > 0) {
+      db.persistStore(STORE_KEY, _memoryStore);
+      console.log("  planStore: seeded DB from local file");
+    }
   }
 }
 
@@ -95,11 +120,22 @@ function computePlanMrr(profile = {}) {
 }
 
 function writeStore(data) {
+  // Update in-memory cache
+  _memoryStore = data;
+
+  // Persist to file (local backup / dev fallback)
   ensureStoreFile();
-  const tmpPath = filePath + ".tmp";
-  const json = JSON.stringify(data, null, 2);
-  fs.writeFileSync(tmpPath, json, "utf8");
-  fs.renameSync(tmpPath, filePath);
+  try {
+    const tmpPath = filePath + ".tmp";
+    const json = JSON.stringify(data, null, 2);
+    fs.writeFileSync(tmpPath, json, "utf8");
+    fs.renameSync(tmpPath, filePath);
+  } catch (err) {
+    console.error("planStore file write error:", err.message);
+  }
+
+  // Persist to PostgreSQL (async, fire-and-forget)
+  db.persistStore(STORE_KEY, data);
 }
 
 function getUnlockedPlan(userKey) {
@@ -465,6 +501,7 @@ function deleteUserProfile(userKey) {
 }
 
 module.exports = {
+  loadFromDb,
   getUnlockedPlan,
   getEffectiveAccessPlan,
   getTrialInfo,

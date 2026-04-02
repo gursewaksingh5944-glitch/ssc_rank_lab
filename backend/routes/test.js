@@ -1,20 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const fs = require("fs");
-const path = require("path");
-
-const dataDir = path.join(__dirname, "..", "data");
-const filePath = path.join(dataDir, "test-entries.json");
-
-function ensureStoreFile() {
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-
-  if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, JSON.stringify({ users: {} }, null, 2), "utf8");
-  }
-}
+const { readStore, writeStore, loadFromDb: loadTestEntriesFromDb } = require("../utils/testStore");
 
 function normalizeUserKey(value) {
   return String(value || "").trim().toLowerCase();
@@ -23,24 +9,6 @@ function normalizeUserKey(value) {
 function normalizeTier(value) {
   const tier = String(value || "tier1").trim().toLowerCase();
   return tier === "tier2" ? "tier2" : "tier1";
-}
-
-function readStore() {
-  ensureStoreFile();
-
-  try {
-    const raw = fs.readFileSync(filePath, "utf8");
-    const parsed = JSON.parse(raw || "{}");
-    return parsed && typeof parsed === "object" ? parsed : { users: {} };
-  } catch (err) {
-    console.error("test store read error:", err);
-    return { users: {} };
-  }
-}
-
-function writeStore(data) {
-  ensureStoreFile();
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
 }
 
 function toMarks(value, max) {
@@ -345,3 +313,4 @@ router.get("/:userKey/analytics", (req, res) => {
 });
 
 module.exports = router;
+module.exports.loadTestEntriesFromDb = loadTestEntriesFromDb;
