@@ -909,6 +909,7 @@ function checkAuthOnLoad() {
 function updateSidebarProfile() {
   const nameEl = document.getElementById("sidebarUserName");
   const metaEl = document.getElementById("sidebarUserMeta");
+  const postBadge = document.getElementById("sidebarPostBadge");
   if (!nameEl || !metaEl) return;
 
   const storedName = localStorage.getItem("sscranklab_user_name");
@@ -922,25 +923,44 @@ function updateSidebarProfile() {
     nameEl.textContent = "Guest";
   }
 
-  // Meta line: goal post + streak (updated later by updateSidebarMeta)
+  // Show target post as bold badge above name
   const post = goalProfile?.targetPost;
-  if (post) {
-    metaEl.textContent = post;
-  } else {
-    metaEl.textContent = "Set your goal to get started";
+  if (postBadge) {
+    if (post) {
+      postBadge.textContent = "\uD83C\uDFAF " + post;
+      postBadge.style.display = "block";
+    } else {
+      postBadge.style.display = "none";
+    }
   }
+
+  // Meta line: category + exam month
+  const category = goalProfile?.category;
+  const examDate = goalProfile?.examDate;
+  const parts = [];
+  if (category) parts.push(category);
+  if (examDate) {
+    const d = new Date(examDate + "-01T00:00:00");
+    if (!Number.isNaN(d.getTime())) parts.push(d.toLocaleDateString("en-IN", { month: "short", year: "numeric" }));
+  }
+  metaEl.textContent = parts.length > 0 ? parts.join(" \u2022 ") : "Set your goal to get started";
 }
 
 function updateSidebarMeta() {
   const metaEl = document.getElementById("sidebarUserMeta");
   if (!metaEl) return;
-  const post = goalProfile?.targetPost;
+  const category = goalProfile?.category;
+  const examDate = goalProfile?.examDate;
   const entries = lastMarksEntries || [];
   const streakInfo = computeStreak(entries);
   const parts = [];
-  if (post) parts.push(post);
-  if (streakInfo.streak > 0) parts.push(streakInfo.streak + " day streak");
-  metaEl.textContent = parts.length > 0 ? parts.join(" | ") : "Set your goal to get started";
+  if (category) parts.push(category);
+  if (examDate) {
+    const d = new Date(examDate + "-01T00:00:00");
+    if (!Number.isNaN(d.getTime())) parts.push(d.toLocaleDateString("en-IN", { month: "short", year: "numeric" }));
+  }
+  if (streakInfo.streak > 0) parts.push("\uD83D\uDD25 " + streakInfo.streak + " day streak");
+  metaEl.textContent = parts.length > 0 ? parts.join(" \u2022 ") : "Set your goal to get started";
 }
 
 function saveUnlockedPlan(plan) {
