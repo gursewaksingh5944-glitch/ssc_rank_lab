@@ -58,6 +58,22 @@ const EXAM_CONFIG = {
 
 const CATEGORIES = ["UR", "OBC", "SC", "ST", "EWS"];
 
+// ── Cache for static exam data files (cutoffs don't change at runtime) ──
+const _goalsCache = new Map();
+
+function readCachedJSON(fpath) {
+  try {
+    const stat = fs.statSync(fpath);
+    const cached = _goalsCache.get(fpath);
+    if (cached && cached.mtimeMs === stat.mtimeMs) return cached.data;
+    const data = JSON.parse(fs.readFileSync(fpath, "utf8"));
+    _goalsCache.set(fpath, { data, mtimeMs: stat.mtimeMs });
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 function clampScore(value, max = 250) {
   const n = Number(value);
   if (!Number.isFinite(n)) return null;
@@ -66,8 +82,7 @@ function clampScore(value, max = 250) {
 
 function loadLatestTier1Cutoff() {
   try {
-    const raw = fs.readFileSync(historicalPath, "utf8");
-    const parsed = JSON.parse(raw || "[]");
+    const parsed = readCachedJSON(historicalPath);
     if (!Array.isArray(parsed) || parsed.length === 0) {
       return {
         year: null,
@@ -95,8 +110,7 @@ function loadLatestTier1Cutoff() {
 
 function loadCglTier2OverallCutoff() {
   try {
-    const raw = fs.readFileSync(cglTier2OverallPath, "utf8");
-    const parsed = JSON.parse(raw || "{}");
+    const parsed = readCachedJSON(cglTier2OverallPath) || {};
     return {
       year: Number(parsed.cycle_year || null),
       overall: parsed.overall_cutoffs || { UR: 287, OBC: 271, SC: 252, ST: 241, EWS: 265 }
@@ -112,8 +126,7 @@ function loadCglTier2OverallCutoff() {
 
 function loadCglTier2PostwiseMap() {
   try {
-    const raw = fs.readFileSync(cglTier2PostWisePath, "utf8");
-    const parsed = JSON.parse(raw || "{}");
+    const parsed = readCachedJSON(cglTier2PostWisePath) || {};
     const posts = Array.isArray(parsed.posts) ? parsed.posts : [];
 
     const findPost = (predicate) => posts.find((item) => predicate(String(item.post_name || "")));
@@ -178,8 +191,7 @@ function getRecentAverageMarks(userKey, limit = 14) {
 
   try {
     if (!fs.existsSync(testEntriesPath)) return null;
-    const raw = fs.readFileSync(testEntriesPath, "utf8");
-    const parsed = JSON.parse(raw || "{}");
+    const parsed = readCachedJSON(testEntriesPath) || {};
     const rows = Array.isArray(parsed.users?.[normalized]) ? parsed.users[normalized] : [];
     if (!rows.length) return null;
 

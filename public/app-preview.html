@@ -1445,6 +1445,7 @@
 
       <div class="nav">
         <button class="active" data-panel="home">Home</button>
+        <button data-panel="questions">Questions</button>
         <button data-panel="progress">My Progress</button>
         <button data-panel="groups">Groups</button>
         <button data-panel="tools">Tools</button>
@@ -1573,6 +1574,40 @@
           <div style="margin-top:6px;font-size:12px;color:#475569;font-weight:700;">Based on your weak topics analysis, solve these 5 today.</div>
           <div id="weakSuggestStatus" style="margin-top:7px;font-size:12px;font-weight:700;color:#1e40af;min-height:16px;"></div>
           <div id="weakSuggestList" style="margin-top:8px;display:grid;gap:8px;"></div>
+        </div>
+
+        <!-- Performance Dashboard -->
+        <div id="perf-dashboard" style="margin-top:14px;border-radius:20px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#ffffff 0%,#f8fafc 50%,#f0f9ff 100%);padding:18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+            <div>
+              <div style="display:inline-flex;padding:4px 10px;border-radius:999px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;">Performance Overview</div>
+              <div style="font-size:18px;font-weight:900;color:#0f172a;margin-top:6px;">Your Preparation Dashboard</div>
+              <div style="font-size:12px;color:#64748b;font-weight:600;margin-top:2px;">Combined average across daily entries, question lab, and mock tests.</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px;">
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:10px;text-align:center;">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#166534;">Combined Avg</div>
+              <div id="combinedAvgScore" style="font-size:20px;font-weight:900;color:#0f172a;margin-top:3px;font-family:'Space Grotesk',sans-serif;">--</div>
+            </div>
+            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:10px;text-align:center;">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#1e40af;">Question Lab Avg</div>
+              <div id="combinedQuestionAvg" style="font-size:20px;font-weight:900;color:#0f172a;margin-top:3px;font-family:'Space Grotesk',sans-serif;">--</div>
+            </div>
+            <div style="background:#fdf4ff;border:1px solid #e9d5ff;border-radius:14px;padding:10px;text-align:center;">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#7e22ce;">Recorded Avg</div>
+              <div id="combinedRecordedAvg" style="font-size:20px;font-weight:900;color:#0f172a;margin-top:3px;font-family:'Space Grotesk',sans-serif;">--</div>
+            </div>
+            <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:10px;text-align:center;">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#9a3412;">Input Avg</div>
+              <div id="combinedInputAvg" style="font-size:20px;font-weight:900;color:#0f172a;margin-top:3px;font-family:'Space Grotesk',sans-serif;">--</div>
+            </div>
+            <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:14px;padding:10px;text-align:center;">
+              <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#0369a1;">Total Tests</div>
+              <div id="combinedTotalTests" style="font-size:20px;font-weight:900;color:#0f172a;margin-top:3px;font-family:'Space Grotesk',sans-serif;">0</div>
+            </div>
+          </div>
+          <div id="combinedDashboardNote" style="font-size:12px;font-weight:600;color:#64748b;">Start adding daily marks or generating questions to see your dashboard.</div>
         </div>
       </section>
 
@@ -1781,7 +1816,7 @@
 
       <section id="tools" class="panel">
         <h2>Tools</h2>
-        <p class="subtitle">Rank prediction, question practice, and mock generation in one place.</p>
+        <p class="subtitle">Rank prediction and decision support tools.</p>
 
         <!-- Rank Predictor -->
         <div id="predictorTier1Notice" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;padding:22px 20px;margin-bottom:0;">
@@ -1827,51 +1862,86 @@
           </div>
           <div id="rankResult" style="margin-top:12px;min-height:60px;"></div>
         </div><!-- end predictorTier2Box -->
+      </section>
 
-        <!-- Question Lab -->
-        <div class="qlab-shell">
-          <div class="qlab-head">
-            <div>
-              <h3 class="qlab-title">🧪 Question &amp; Mock Lab</h3>
-              <p class="qlab-sub">Filter by subject and topic — then practice or generate a mock.</p>
+      <!-- ===================== QUESTIONS — Premium Standalone Panel ===================== -->
+      <section id="questions" class="panel">
+        <div style="position:relative;border-radius:24px;background:linear-gradient(140deg,#1e1b4b 0%,#312e81 40%,#1e293b 100%);padding:24px;overflow:hidden;margin-bottom:16px;">
+          <div style="position:absolute;width:350px;height:350px;border-radius:50%;right:-100px;top:-160px;background:radial-gradient(circle,rgba(99,102,241,.25),transparent 70%);pointer-events:none;"></div>
+          <div style="position:relative;z-index:1;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+              <div>
+                <div style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;background:linear-gradient(90deg,#4f46e5,#7c3aed);color:#fff;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;">🧪 SSC Question Lab</div>
+                <h2 style="font-size:24px;font-weight:900;color:#fff;margin:10px 0 6px;">Question &amp; Mock Generator</h2>
+                <p style="color:#cbd5e1;font-size:13px;line-height:1.5;max-width:55ch;">Generate SSC-ready practice sets, PYQ-based tests, and full mocks. 4,900+ curated questions.</p>
+              </div>
+              <span style="display:inline-flex;padding:5px 10px;border-radius:999px;border:1px solid #4ade80;background:rgba(74,222,128,.1);color:#4ade80;font-size:10px;font-weight:800;">✅ FREE</span>
+            </div>
+
+            <!-- Trust pills -->
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+              <span style="display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.2);">📝 4,900+ Questions</span>
+              <span style="display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.2);">⚡ Instant Generate</span>
+              <span style="display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.2);">📈 PYQ + Practice</span>
+              <span style="display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.2);">🎯 Topic Specific</span>
+            </div>
+
+            <!-- Stats -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">
+              <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px;text-align:center;">
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;">Best Score</div>
+                <div id="qgenBestScore" style="font-size:18px;font-weight:900;color:#fff;margin-top:3px;font-family:'Space Grotesk',sans-serif;">--</div>
+              </div>
+              <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px;text-align:center;">
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;">Avg Score</div>
+                <div id="qgenAvgScore" style="font-size:18px;font-weight:900;color:#fff;margin-top:3px;font-family:'Space Grotesk',sans-serif;">--</div>
+              </div>
+              <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px;text-align:center;">
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;">Questions</div>
+                <div id="qgenQuestionsLoaded" style="font-size:18px;font-weight:900;color:#fff;margin-top:3px;font-family:'Space Grotesk',sans-serif;">0</div>
+              </div>
+              <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px;text-align:center;">
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;">Top Topic</div>
+                <div id="qgenTopTopic" style="font-size:14px;font-weight:900;color:#fff;margin-top:3px;">--</div>
+              </div>
+            </div>
+
+            <!-- Top records -->
+            <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px;margin-bottom:14px;">
+              <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#a5b4fc;margin-bottom:6px;">Your Top Records</div>
+              <div id="qgenTopRecords" style="font-size:12px;color:#cbd5e1;">No records yet. Generate questions and start practicing.</div>
             </div>
           </div>
-          <div class="qlab-controls">
-            <select id="qlabSourceMode">
-              <option value="random">Random Questions</option>
-              <option value="pyq">PYQ Questions</option>
+        </div>
+
+        <!-- Question Lab Controls (light section) -->
+        <div class="qlab-shell">
+          <div class="qlab-controls" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;">
+            <select id="qlabTier">
+              <option value="tier1">Tier 1</option>
+              <option value="tier2">Tier 2</option>
             </select>
-            <select id="qlabSubject">
-              <option value="">All Subjects</option>
+            <select id="qlabTestType">
+              <option value="full">Full Mock</option>
+              <option value="sectional">Sectional (25 Qs)</option>
+            </select>
+            <select id="qlabSubject" style="display:none;">
               <option value="quant">Quant</option>
               <option value="english">English</option>
               <option value="reasoning">Reasoning</option>
               <option value="gk">GK</option>
-              <option value="computer">Computer</option>
             </select>
-            <select id="qlabDifficulty">
-              <option value="">All Difficulty</option>
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-            <input id="qlabTopic" type="text" placeholder="Filter by topic" />
-            <input id="qlabCount" type="number" min="5" max="50" value="10" placeholder="Count" />
-          </div>
-          <div class="qlab-mode-row">
-            <label for="qlabMockMode">Mock Mode</label>
-            <select id="qlabMockMode" style="max-width:300px;">
-              <option value="full_ssc">Full SSC-based Mock (PYQ proportion)</option>
-              <option value="topic_select">Topic-wise Selected Mock</option>
+            <select id="qlabSourceMode">
+              <option value="pyq" selected>PYQ Questions</option>
+              <option value="random">Random Mix</option>
             </select>
           </div>
-          <div id="qlabTopicChecklistWrap" class="qlab-topic-wrap">
-            <div class="qlab-topic-title">Select Topics From Syllabus</div>
+          <div id="qlabTopicChecklistWrap" class="qlab-topic-wrap" style="display:none;">
+            <div class="qlab-topic-title">Select Topics (Optional — leave empty for full sectional)</div>
             <div id="qlabTopicChecklist" class="qlab-topic-grid"></div>
           </div>
           <div class="qlab-actions">
-            <button id="btnLoadQuestions" class="qlab-btn primary">Load Questions</button>
-            <button id="btnGenerateMock" class="qlab-btn dark">Generate Mock</button>
+            <button id="btnLoadQuestions" class="qlab-btn primary">Generate</button>
             <button id="btnCheckQuestionLab" class="qlab-btn success">Check My Performance</button>
             <button id="btnToggleQuestionLabAnswers" class="qlab-btn secondary">Reveal Answers</button>
           </div>
@@ -1882,6 +1952,39 @@
           <div id="questionLabList" class="qlab-list"></div>
         </div>
 
+        <!-- Mock Results Dashboard -->
+        <div id="mockResultsDashboard" style="margin-top:16px;display:none;">
+          <div style="border-radius:20px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#fafafa 0%,#f0f9ff 100%);padding:18px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+              <div>
+                <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#1e40af;">Mock Test Results</div>
+                <div style="font-size:18px;font-weight:900;color:#0f172a;margin-top:4px;">Your Practice History</div>
+              </div>
+              <span id="mockTotalTests" style="display:inline-flex;padding:4px 10px;border-radius:999px;border:1px solid #bfdbfe;background:#eff6ff;color:#1e40af;font-size:11px;font-weight:800;">0 tests</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
+              <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:10px;text-align:center;">
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#166534;">Avg Accuracy</div>
+                <div id="mockAvgAccuracy" style="font-size:18px;font-weight:900;color:#16a34a;margin-top:3px;">--</div>
+              </div>
+              <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:10px;text-align:center;">
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#92400e;">Best Accuracy</div>
+                <div id="mockBestAccuracy" style="font-size:18px;font-weight:900;color:#d97706;margin-top:3px;">--</div>
+              </div>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:10px;text-align:center;">
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;">Total Attempted</div>
+                <div id="mockTotalAttempted" style="font-size:18px;font-weight:900;color:#0f172a;margin-top:3px;">0</div>
+              </div>
+              <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:10px;text-align:center;">
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#991b1b;">Weak Subject</div>
+                <div id="mockWeakSubject" style="font-size:14px;font-weight:900;color:#dc2626;margin-top:3px;">--</div>
+              </div>
+            </div>
+            <div id="mockResultsList"></div>
+          </div>
+        </div>
+
+        <!-- Admin Panel (hidden by default) -->
         <div id="questionAdminPanel" class="admin-shell hidden">
           <h3 style="margin:0;font-size:16px;font-weight:900;color:#1e293b;">Admin Only — Question Upload</h3>
           <p style="margin:6px 0 0;font-size:12px;color:#64748b;font-weight:700;">Upload topic-wise PDFs now. Everything enters review first for answer accuracy.</p>
@@ -1943,7 +2046,6 @@
           <div id="questionAdminStats" class="admin-stats"></div>
           <div id="questionAdminPreviewList" class="review-list"></div>
         </div>
-
       </section>
 
       <section id="plans" class="panel">
@@ -2021,6 +2123,7 @@
 
   <nav class="mobile-nav" id="mobileNav">
     <button class="active" data-panel="home">Home</button>
+    <button data-panel="questions">Questions</button>
     <button data-panel="progress">Progress</button>
     <button data-panel="groups">Groups</button>
     <button data-panel="tools">Tools</button>

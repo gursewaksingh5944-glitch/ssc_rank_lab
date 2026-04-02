@@ -56,11 +56,10 @@ const MOCK_BLUEPRINTS = {
   tier2: {
     total: 130,
     distribution: {
-      quant: 35,
+      quant: 30,
       reasoning: 30,
-      english: 30,
-      gk: 20,
-      computer: 15
+      english: 45,
+      gk: 25
     }
   }
 };
@@ -259,17 +258,23 @@ function ensureFile() {
   }
 }
 
+// ── In-memory question bank cache (avoids re-parsing 8.7 MB per request) ──
+let _qbCache = null;
+let _qbMtime = 0;
+
 function readBank() {
   ensureFile();
 
   try {
+    const stat = fs.statSync(filePath);
+    if (_qbCache && stat.mtimeMs === _qbMtime) return _qbCache;
+
     const raw = fs.readFileSync(filePath, "utf8");
     const parsed = JSON.parse(raw || "{}");
     const questions = Array.isArray(parsed.questions) ? parsed.questions : [];
-    return {
-      updatedAt: parsed.updatedAt || null,
-      questions
-    };
+    _qbCache = { updatedAt: parsed.updatedAt || null, questions };
+    _qbMtime = stat.mtimeMs;
+    return _qbCache;
   } catch (err) {
     console.error("question bank read error:", err);
     return { updatedAt: null, questions: [] };
@@ -283,6 +288,9 @@ function writeBank(bank) {
     questions: Array.isArray(bank.questions) ? bank.questions : []
   };
   fs.writeFileSync(filePath, JSON.stringify(next, null, 2), "utf8");
+  // Invalidate cache so next readBank() picks up the write
+  _qbCache = null;
+  _qbMtime = 0;
   return next;
 }
 
@@ -867,6 +875,17 @@ function isExactAnswerQuestion(item) {
   return true;
 }
 
+function isFigureDependentQuestion(item) {
+  const text = String(item?.question || "").toLowerCase();
+  return /\b(in the (given|following|adjoining) (figure|diagram)|from the figure|as shown in the figure|refer.{0,10}figure|the following figure|given figure|see the figure|in the figure)\b/.test(text);
+}
+
+function isBrokenPassageQuestion(item) {
+  const text = String(item?.question || "").trim();
+  if (text.length > 120) return false;
+  return /^\s*select the most appropriate option to fill in (the )?blank\s*(no\.?|number)?\s*\d/i.test(text);
+}
+
 function parseTopicSelections(value) {
   const list = Array.isArray(value) ? value : [];
   const tokens = new Set();
@@ -1211,7 +1230,7 @@ function generateQuestionSet(bank, payload = {}) {
   const difficulty = normalize(payload.difficulty);
   const challengeCount = Math.max(1, Math.min(10, toInt(payload.challengeCount, 5)));
   const requestedCountInput = payload.count ?? payload.practiceCount ?? payload.limit;
-  const practiceCount = Math.max(5, Math.min(100, toInt(requestedCountInput, 30)));
+  const practiceCount = Math.max(5, Math.min(150, toInt(requestedCountInput, 30)));
   const requestedSubjects = Array.isArray(payload.subjects)
     ? payload.subjects.map(normalizeSubject).filter(Boolean)
     : [];
@@ -1219,6 +1238,8 @@ function generateQuestionSet(bank, payload = {}) {
   const topicFilter = normalize(payload.topic);
   const selectedTopics = parseTopicSelections(payload.selectedTopics);
   const mockType = normalize(payload.mockType) || "full_ssc";
+  const testType = normalize(payload.testType) || "";
+  const sourceMode = normalize(payload.sourceMode) || "pyq";
   const enforceExactAnswers = String(payload.enforceExactAnswers || "true").trim() !== "false";
   const recentQuestionIds = new Set(
     Array.isArray(payload.recentQuestionIds)
@@ -1259,6 +1280,11 @@ function generateQuestionSet(bank, payload = {}) {
     pool = pool.filter((q) => isExactAnswerQuestion(q));
   }
 
+  // Filter out figure-dependent questions (no images available)
+  pool = pool.filter((q) => !isFigureDependentQuestion(q));
+  // Filter out broken passage questions (blank-number-only without passage context)
+  pool = pool.filter((q) => !isBrokenPassageQuestion(q));
+
   const fallbackPool = [...pool];
   const respond = (result, extra = {}) => attachQuestionSetDiagnostics(result, { tier, ...extra });
 
@@ -1290,8 +1316,43 @@ function generateQuestionSet(bank, payload = {}) {
   }
 
   const rng = Math.random;
+  const preferPYQ = sourceMode === "pyq";
+
   if (mode === "mock") {
     const isCustomTopicSelection = selectedTopics.size > 0 || Boolean(topicFilter);
+
+    // Sectional mode: exactly 25 questions from one subject
+    if (testType === "sectional" || mockType === "sectional") {
+      const sectionalCount = 25;
+      const subject = requestedSubjects[0] || "quant";
+      const subjectPool = pool.filter((q) => q.subject === subject);
+      let selected;
+
+      if (subject === "quant" && !isCustomTopicSelection) {
+        selected = pickTopicWeightedUnique(subjectPool, sectionalCount, "quant", rng, { preferPYQ });
+      } else if (preferPYQ) {
+        selected = pickWeightedUnique(subjectPool, sectionalCount, rng);
+      } else {
+        selected = pickRandomUnique(subjectPool, sectionalCount, rng);
+      }
+
+      if (selected.length < sectionalCount && fallbackPool.length > pool.length) {
+        const remain = fallbackPool.filter((q) => q.subject === subject && !selected.some((s) => s.id === q.id));
+        selected = [...selected, ...pickRandomUnique(remain, sectionalCount - selected.length, rng)];
+      }
+      selected = shuffleWithRandom(selected.slice(0, sectionalCount), rng);
+      return respond({
+        mode,
+        tier,
+        testType: "sectional",
+        mockType: "sectional",
+        subject,
+        requested: sectionalCount,
+        served: selected.length,
+        items: selected,
+        excludedRecentCount: recentQuestionIds.size
+      });
+    }
 
     if (mockType === "topic_select") {
       const topicRequested = Math.max(10, practiceCount);
@@ -1317,10 +1378,10 @@ function generateQuestionSet(bank, payload = {}) {
 
     if (!isCustomTopicSelection && isQuantOnlyMock) {
       const requested = Math.max(10, practiceCount);
-      let selected = pickTopicWeightedUnique(pool, requested, "quant", rng, { preferPYQ: true });
+      let selected = pickTopicWeightedUnique(pool, requested, "quant", rng, { preferPYQ });
       if (selected.length < requested && fallbackPool.length > pool.length) {
         const remain = fallbackPool.filter((q) => q.subject === "quant" && !selected.some((x) => x.id === q.id));
-        selected = [...selected, ...pickTopicWeightedUnique(remain, requested - selected.length, "quant", rng, { preferPYQ: true })];
+        selected = [...selected, ...pickTopicWeightedUnique(remain, requested - selected.length, "quant", rng, { preferPYQ })];
       }
       selected = shuffleWithRandom(selected.slice(0, requested), rng);
       return respond({
@@ -1335,9 +1396,10 @@ function generateQuestionSet(bank, payload = {}) {
       });
     }
 
-    let built = buildMockByTier(pool, tier, rng, { preferPYQ: true, useTopicWeightage: !isCustomTopicSelection });
+    // Full mock — use blueprint distribution
+    let built = buildMockByTier(pool, tier, rng, { preferPYQ, useTopicWeightage: !isCustomTopicSelection });
     if (built.selected.length < built.requested && fallbackPool.length > pool.length) {
-      built = buildMockByTier(fallbackPool, tier, rng, { preferPYQ: true, useTopicWeightage: !isCustomTopicSelection });
+      built = buildMockByTier(fallbackPool, tier, rng, { preferPYQ, useTopicWeightage: !isCustomTopicSelection });
     }
     return respond({
       mode,

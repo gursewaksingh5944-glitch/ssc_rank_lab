@@ -656,6 +656,18 @@
       .qlab-controls{
         grid-template-columns:1fr;
       }
+      #questionlab .qlab-controls{
+        grid-template-columns:1fr !important;
+      }
+      #questionlab [style*="grid-template-columns:repeat(4"]{
+        grid-template-columns:repeat(2,1fr) !important;
+      }
+      #perf-dashboard [style*="grid-template-columns:repeat(5"]{
+        grid-template-columns:repeat(2,1fr) !important;
+      }
+      #mockResultsDashboard [style*="grid-template-columns:repeat(4"]{
+        grid-template-columns:repeat(2,1fr) !important;
+      }
       .goal-form-grid{
         grid-template-columns:1fr;
       }
@@ -692,7 +704,7 @@
     }
 
     /* =====================================================
-       HOOK ZONE — Selection Intelligence Panel (dark)
+       HOOK ZONE â€” Selection Intelligence Panel (dark)
        ===================================================== */
     #hook-zone{background:#0f172a;border-bottom:1px solid #1e293b;}
     .hz-inner{max-width:1140px;margin:0 auto;padding:22px 16px 18px;}
@@ -802,16 +814,16 @@
       <div class="flex items-center justify-between mb-1">
         <div>
           <div class="text-xs font-bold uppercase tracking-wide text-purple-700">Premium Monthly Plan</div>
-          <h3 class="text-2xl font-black text-gray-900 mt-1">Unlock Everything for ₹99/month</h3>
+          <h3 class="text-2xl font-black text-gray-900 mt-1">Unlock Everything for â‚¹99/month</h3>
         </div>
         <button id="closeUpgradeModal" class="text-gray-300 hover:text-gray-600 text-3xl leading-none ml-4">&times;</button>
       </div>
       <div class="text-sm text-gray-500 mb-5">Daily tracker + full rank intelligence in one subscription. Start with 2 days free.</div>
 
       <div class="bg-amber-50 border border-amber-300 rounded-2xl p-4 mb-5">
-        <div class="text-sm font-extrabold text-amber-800">🎁 Try 2 Days FREE — No Card Needed</div>
-        <div class="text-sm text-amber-700 mt-1">Unlock every premium feature instantly. Continue with ₹99/month after trial.</div>
-        <button id="upgradeModalTrialBtn" class="mt-3 w-full px-4 py-2 rounded-xl bg-amber-500 text-white font-bold hover:bg-amber-600 transition text-sm">Start Free 2-Day Trial →</button>
+        <div class="text-sm font-extrabold text-amber-800">ðŸŽ Try 2 Days FREE â€” No Card Needed</div>
+        <div class="text-sm text-amber-700 mt-1">Unlock every premium feature instantly. Continue with â‚¹99/month after trial.</div>
+        <button id="upgradeModalTrialBtn" class="mt-3 w-full px-4 py-2 rounded-xl bg-amber-500 text-white font-bold hover:bg-amber-600 transition text-sm">Start Free 2-Day Trial â†’</button>
       </div>
 
       <div class="relative my-4">
@@ -820,20 +832,20 @@
       </div>
 
       <div class="grid grid-cols-2 gap-2 mb-5 text-xs font-semibold text-gray-700">
-        <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-3 flex items-center gap-2">📊 Daily Marks Tracker</div>
-        <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-3 flex items-center gap-2">🎯 Auto Cutoff by Post</div>
-        <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-3 flex items-center gap-2">🔥 Streaks &amp; Benchmarks</div>
-        <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-3 flex items-center gap-2">📅 Weekly Report Card</div>
-        <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">📈 Full Rank Prediction</div>
-        <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">🏅 Category Rank</div>
-        <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">💯 Percentile Analysis</div>
-        <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">🧠 What-if Rank Jumps</div>
-        <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">🏆 Post Selection Chances</div>
-        <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">🗂 Competition Density</div>
+        <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-3 flex items-center gap-2">ðŸ“Š Daily Marks Tracker</div>
+        <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-3 flex items-center gap-2">ðŸŽ¯ Auto Cutoff by Post</div>
+        <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-3 flex items-center gap-2">ðŸ”¥ Streaks &amp; Benchmarks</div>
+        <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-3 flex items-center gap-2">ðŸ“… Weekly Report Card</div>
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">ðŸ“ˆ Full Rank Prediction</div>
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">ðŸ… Category Rank</div>
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">ðŸ’¯ Percentile Analysis</div>
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">ðŸ§  What-if Rank Jumps</div>
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">ðŸ† Post Selection Chances</div>
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center gap-2">ðŸ—‚ Competition Density</div>
       </div>
 
-      <button id="upgradeModalPayBtn" class="w-full px-5 py-4 rounded-2xl bg-purple-700 text-white font-black text-base shadow-lg hover:bg-purple-800 transition">Subscribe ₹99/month via Razorpay →</button>
-      <div class="mt-3 text-center text-xs text-gray-400">Secure payment via Razorpay • Cancel anytime</div>
+      <button id="upgradeModalPayBtn" class="w-full px-5 py-4 rounded-2xl bg-purple-700 text-white font-black text-base shadow-lg hover:bg-purple-800 transition">Subscribe â‚¹99/month via Razorpay â†’</button>
+      <div class="mt-3 text-center text-xs text-gray-400">Secure payment via Razorpay â€¢ Cancel anytime</div>
     </div>
   </div>
 
@@ -914,7 +926,7 @@
         </a>
 
         <button id="navOpenGoal" class="flex items-center justify-center whitespace-nowrap text-base font-semibold px-4 py-2 rounded-xl bg-amber-100 text-amber-700 hover:bg-amber-200 transition">
-          🎯 Setup Goal
+          ðŸŽ¯ Setup Goal
         </button>
 
         <a href="#beta" class="flex items-center justify-center whitespace-nowrap text-base font-semibold px-4 py-2 rounded-xl bg-emerald-100 text-emerald-700">
@@ -927,58 +939,219 @@
   <!-- Features Showcase Strip -->
   <section class="max-w-7xl mx-auto px-6 pt-4 pb-1">
     <div class="flex flex-wrap gap-2 items-center justify-center">
-      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-cyan-100 text-cyan-800 text-xs font-bold border border-cyan-200">📊 Daily Marks Tracker</span>
-      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-cyan-100 text-cyan-800 text-xs font-bold border border-cyan-200">🎯 Post-aligned Cutoff</span>
-      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-cyan-100 text-cyan-800 text-xs font-bold border border-cyan-200">🔥 Streaks &amp; Benchmarks</span>
-      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200">🎁 2-Day Free Trial</span>
-      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold border border-purple-200">📈 Full Rank Prediction</span>
-      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold border border-purple-200">🏅 Category Rank</span>
-      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold border border-purple-200">💯 Percentile</span>
-      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold border border-purple-200">🧠 What-if Jumps</span>
-      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold border border-purple-200">🏆 Post Chances</span>
-      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold border border-indigo-200">📅 Weekly Report Card</span>
-      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold border border-indigo-200">🧪 Question Lab</span>
-      <button id="getAllFeaturesTopBtn" class="js-unlock-plan inline-flex items-center gap-1 px-4 py-1.5 rounded-full bg-purple-700 text-white text-xs font-black border border-purple-800 hover:bg-purple-800 transition" data-plan="99" onclick="if (typeof openUpgradeModal === 'function') { openUpgradeModal(); }">⚡ Get All Features ₹99/mo</button>
+      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-cyan-100 text-cyan-800 text-xs font-bold border border-cyan-200">ðŸ“Š Daily Marks Tracker</span>
+      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-cyan-100 text-cyan-800 text-xs font-bold border border-cyan-200">ðŸŽ¯ Post-aligned Cutoff</span>
+      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-cyan-100 text-cyan-800 text-xs font-bold border border-cyan-200">ðŸ”¥ Streaks &amp; Benchmarks</span>
+      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200">ðŸŽ 2-Day Free Trial</span>
+      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold border border-purple-200">ðŸ“ˆ Full Rank Prediction</span>
+      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold border border-purple-200">ðŸ… Category Rank</span>
+      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold border border-purple-200">ðŸ’¯ Percentile</span>
+      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold border border-purple-200">ðŸ§  What-if Jumps</span>
+      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold border border-purple-200">ðŸ† Post Chances</span>
+      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold border border-indigo-200">ðŸ“… Weekly Report Card</span>
+      <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold border border-indigo-200">ðŸ§ª Question Lab</span>
+      <button id="getAllFeaturesTopBtn" class="js-unlock-plan inline-flex items-center gap-1 px-4 py-1.5 rounded-full bg-purple-700 text-white text-xs font-black border border-purple-800 hover:bg-purple-800 transition" data-plan="99" onclick="if (typeof openUpgradeModal === 'function') { openUpgradeModal(); }">âš¡ Get All Features â‚¹99/mo</button>
+    </div>
+  </section>
+
+  <!-- ===================== QUESTION GENERATOR — Premium Standalone ===================== -->
+  <section id="questionlab" class="max-w-6xl mx-auto px-6 pt-8 pb-4">
+    <div style="position:relative;border-radius:32px;border:2px solid #818cf8;background:linear-gradient(140deg,#1e1b4b 0%,#312e81 40%,#1e293b 100%);box-shadow:0 32px 80px rgba(99,102,241,.25);padding:32px;overflow:hidden;">
+      <!-- Glow orb -->
+      <div style="position:absolute;width:400px;height:400px;border-radius:50%;right:-120px;top:-180px;background:radial-gradient(circle,rgba(99,102,241,.3),rgba(139,92,246,.1) 60%,transparent 75%);pointer-events:none;"></div>
+
+      <div style="position:relative;z-index:1;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px;">
+          <div>
+            <div style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:linear-gradient(90deg,#4f46e5,#7c3aed);color:#fff;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;">🧪 SSC Question Lab</div>
+            <h2 style="font-size:36px;line-height:1.1;font-weight:900;color:#fff;margin:14px 0 8px;">Question Generator</h2>
+            <p style="color:#cbd5e1;font-size:15px;line-height:1.6;max-width:65ch;">Generate SSC-ready practice sets instantly — PYQ-based, random mixed, topic-wise, and full mock tests. 4,900+ curated questions with real exam patterns.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+            <span style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:999px;border:1px solid #4ade80;background:rgba(74,222,128,.12);color:#4ade80;font-size:11px;font-weight:800;">✅ FREE Access</span>
+          </div>
+        </div>
+
+        <!-- Trust pills -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;font-size:11px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.25);">📝 4,900+ Questions</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;font-size:11px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.25);">⚡ Instant Generate</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;font-size:11px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.25);">📈 PYQ + Practice</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;font-size:11px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.25);">🎯 Topic Specific</span>
+        </div>
+
+        <!-- Stats strip -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
+          <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px;text-align:center;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;">Best Score</div>
+            <div id="qgenBestScore" style="font-size:22px;font-weight:900;color:#fff;margin-top:4px;font-family:'Space Grotesk',sans-serif;">--</div>
+          </div>
+          <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px;text-align:center;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;">Avg Score</div>
+            <div id="qgenAvgScore" style="font-size:22px;font-weight:900;color:#fff;margin-top:4px;font-family:'Space Grotesk',sans-serif;">--</div>
+          </div>
+          <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px;text-align:center;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;">Questions Loaded</div>
+            <div id="qgenQuestionsLoaded" style="font-size:22px;font-weight:900;color:#fff;margin-top:4px;font-family:'Space Grotesk',sans-serif;">0</div>
+          </div>
+          <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px;text-align:center;">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;">Top Topic</div>
+            <div id="qgenTopTopic" style="font-size:16px;font-weight:900;color:#fff;margin-top:4px;">--</div>
+          </div>
+        </div>
+
+        <!-- Top records -->
+        <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:14px;margin-bottom:16px;">
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#a5b4fc;margin-bottom:8px;">Your Top Records</div>
+          <div id="qgenTopRecords" style="font-size:13px;color:#cbd5e1;">No records yet. Generate questions and start practicing to build your leaderboard.</div>
+        </div>
+
+        <!-- Controls -->
+        <div class="qlab-controls" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px;">
+          <select id="qlabTier" style="background:#1e293b;border:1px solid #475569;color:#f1f5f9;border-radius:14px;padding:12px;font-weight:600;">
+            <option value="tier1">Tier 1</option>
+            <option value="tier2">Tier 2</option>
+          </select>
+          <select id="qlabTestType" style="background:#1e293b;border:1px solid #475569;color:#f1f5f9;border-radius:14px;padding:12px;font-weight:600;">
+            <option value="full">Full Mock</option>
+            <option value="sectional">Sectional (25 Qs)</option>
+          </select>
+          <select id="qlabSubject" style="display:none;background:#1e293b;border:1px solid #475569;color:#f1f5f9;border-radius:14px;padding:12px;font-weight:600;">
+            <option value="quant">Quant</option>
+            <option value="english">English</option>
+            <option value="reasoning">Reasoning</option>
+            <option value="gk">GK</option>
+          </select>
+          <select id="qlabSourceMode" style="background:#1e293b;border:1px solid #475569;color:#f1f5f9;border-radius:14px;padding:12px;font-weight:600;">
+            <option value="pyq" selected>PYQ Questions</option>
+            <option value="random">Random Mix</option>
+          </select>
+        </div>
+        <div id="qlabTopicChecklistWrap" class="qlab-topic-wrap" style="display:none;">
+          <div class="qlab-topic-title" style="color:#a5b4fc;">Select Topics (Optional — leave empty for full sectional)</div>
+          <div id="qlabTopicChecklist" class="qlab-topic-grid"></div>
+        </div>
+
+        <!-- Action buttons -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+          <button id="btnLoadQuestions" style="padding:12px 28px;border-radius:16px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(99,102,241,.4);transition:all .2s;">Generate</button>
+          <button id="btnCheckQuestionLab" style="padding:12px 28px;border-radius:16px;border:1px solid #475569;background:transparent;color:#e2e8f0;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;">Check Performance</button>
+          <button id="btnToggleQuestionLabAnswers" style="padding:12px 28px;border-radius:16px;border:1px solid #475569;background:transparent;color:#e2e8f0;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;">Show Answers</button>
+        </div>
+
+        <div id="questionLabStatus" style="min-height:20px;font-size:13px;font-weight:700;color:#a5b4fc;"></div>
+        <div id="questionLabList" class="qlab-list"></div>
+
+        <!-- Mock Results Dashboard -->
+        <div id="mockResultsDashboard" style="margin-top:20px;display:none;">
+          <div style="border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(255,255,255,.06);padding:18px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+              <div>
+                <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#a5b4fc;">Mock Test Results</div>
+                <div style="font-size:20px;font-weight:900;color:#fff;margin-top:4px;">Your Practice History</div>
+              </div>
+              <span id="mockTotalTests" style="display:inline-flex;padding:5px 12px;border-radius:999px;border:1px solid #4338ca;background:rgba(67,56,202,.25);color:#c7d2fe;font-size:12px;font-weight:800;">0 tests</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+              <div style="background:rgba(255,255,255,.06);border-radius:14px;padding:10px;text-align:center;">
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;">Avg Accuracy</div>
+                <div id="mockAvgAccuracy" style="font-size:20px;font-weight:900;color:#4ade80;margin-top:3px;">--</div>
+              </div>
+              <div style="background:rgba(255,255,255,.06);border-radius:14px;padding:10px;text-align:center;">
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;">Best Accuracy</div>
+                <div id="mockBestAccuracy" style="font-size:20px;font-weight:900;color:#fbbf24;margin-top:3px;">--</div>
+              </div>
+              <div style="background:rgba(255,255,255,.06);border-radius:14px;padding:10px;text-align:center;">
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;">Total Attempted</div>
+                <div id="mockTotalAttempted" style="font-size:20px;font-weight:900;color:#fff;margin-top:3px;">0</div>
+              </div>
+              <div style="background:rgba(255,255,255,.06);border-radius:14px;padding:10px;text-align:center;">
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;">Weak Subject</div>
+                <div id="mockWeakSubject" style="font-size:16px;font-weight:900;color:#f87171;margin-top:3px;">--</div>
+              </div>
+            </div>
+            <div id="mockResultsList" style="max-height:300px;overflow-y:auto;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PERFORMANCE DASHBOARD ===================== -->
+  <section id="perf-dashboard" class="max-w-6xl mx-auto px-6 pt-4 pb-2">
+    <div style="border-radius:24px;border:1px solid #e2e8f0;background:linear-gradient(135deg,#ffffff 0%,#f8fafc 50%,#f0f9ff 100%);box-shadow:0 8px 32px rgba(0,0,0,.06);padding:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+        <div>
+          <div style="display:inline-flex;padding:5px 12px;border-radius:999px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;">Performance Overview</div>
+          <h3 style="font-size:22px;font-weight:900;color:#0f172a;margin:8px 0 4px;">Your Preparation Dashboard</h3>
+          <p style="font-size:13px;color:#64748b;font-weight:600;">Combined average across all your daily entries, question lab sessions, and mock tests.</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px;">
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:16px;padding:14px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#166534;">Combined Avg</div>
+          <div id="combinedAvgScore" style="font-size:24px;font-weight:900;color:#0f172a;margin-top:4px;font-family:'Space Grotesk',sans-serif;">--</div>
+        </div>
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:16px;padding:14px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#1e40af;">Question Lab Avg</div>
+          <div id="combinedQuestionAvg" style="font-size:24px;font-weight:900;color:#0f172a;margin-top:4px;font-family:'Space Grotesk',sans-serif;">--</div>
+        </div>
+        <div style="background:#fdf4ff;border:1px solid #e9d5ff;border-radius:16px;padding:14px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#7e22ce;">Recorded Avg</div>
+          <div id="combinedRecordedAvg" style="font-size:24px;font-weight:900;color:#0f172a;margin-top:4px;font-family:'Space Grotesk',sans-serif;">--</div>
+        </div>
+        <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:16px;padding:14px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#9a3412;">Input Avg</div>
+          <div id="combinedInputAvg" style="font-size:24px;font-weight:900;color:#0f172a;margin-top:4px;font-family:'Space Grotesk',sans-serif;">--</div>
+        </div>
+        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:16px;padding:14px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#0369a1;">Total Tests</div>
+          <div id="combinedTotalTests" style="font-size:24px;font-weight:900;color:#0f172a;margin-top:4px;font-family:'Space Grotesk',sans-serif;">0</div>
+        </div>
+      </div>
+
+      <div id="combinedDashboardNote" style="font-size:13px;font-weight:600;color:#64748b;">Start adding daily marks or generating questions to see your performance overview.</div>
     </div>
   </section>
 
   <!-- Smart notification toast -->
   <div id="hzNotifToast" role="alert" aria-live="polite">
     <div style="display:flex;align-items:flex-start;gap:10px;">
-      <span class="hz-notif-icon" id="hzNotifIcon">🔥</span>
+      <span class="hz-notif-icon" id="hzNotifIcon">ðŸ”¥</span>
       <span class="hz-notif-msg" id="hzNotifMsg"></span>
       <button class="hz-notif-close" id="hzNotifClose" aria-label="Close">&times;</button>
     </div>
   </div>
 
-  <!-- HOOK ZONE: Selection Intelligence — dark, outcome-first -->
+  <!-- HOOK ZONE: Selection Intelligence â€” dark, outcome-first -->
   <section id="hook-zone" aria-label="Selection forecast">
     <div class="hz-inner">
       <!-- Headline -->
       <div class="hz-headline">
-        <span id="hookHeadlineIcon">🎯</span>
+        <span id="hookHeadlineIcon">ðŸŽ¯</span>
         <span id="hookHeadlineText">Loading your selection forecast...</span>
-        <button class="hz-setup-btn hidden" id="hookSetupGoalBtn">Setup Goal →</button>
+        <button class="hz-setup-btn hidden" id="hookSetupGoalBtn">Setup Goal â†’</button>
       </div>
 
       <!-- Urgency Bar -->
       <div class="hz-urgency" id="hzUrgencyBar">
-        <span class="hz-urgency-icon" id="hzUrgencyIcon">⏳</span>
+        <span class="hz-urgency-icon" id="hzUrgencyIcon">â³</span>
         <span class="hz-urgency-text" id="hzUrgencyText">Set your goal post to see your urgency status.</span>
       </div>
 
       <!-- 3 Core Cards -->
       <div class="hz-cards">
-        <!-- Gap Card — flagship, ENORMOUS gradient number -->
+        <!-- Gap Card â€” flagship, ENORMOUS gradient number -->
         <div class="hz-card" id="hzGapCard">
-          <div class="hz-card-eyebrow">⚠️ &nbsp;Marks to Safe Zone</div>
+          <div class="hz-card-eyebrow">âš ï¸ &nbsp;Marks to Safe Zone</div>
           <div style="display:flex;align-items:flex-end;gap:4px;">
             <span class="hz-gap-hero" id="hzMarksAway">--</span>
             <span class="hz-gap-unit" id="hzMarksUnit">marks</span>
           </div>
           <div class="hz-card-meta" style="margin-top:12px;">
             Safe Score &nbsp;<strong style="color:#f1f5f9;"><span id="hzSafeScore">--</span></strong>
-            &nbsp;·&nbsp;
+            &nbsp;Â·&nbsp;
             Cutoff &nbsp;<strong style="color:#94a3b8;"><span id="hzCutoffVal">--</span></strong>
           </div>
           <div class="hz-card-sub">Your overall avg: <span id="hzYourAvg">--</span></div>
@@ -986,7 +1159,7 @@
 
         <!-- Selection Chance Card -->
         <div class="hz-card">
-          <div class="hz-card-eyebrow">🎯 &nbsp;Selection Chance</div>
+          <div class="hz-card-eyebrow">ðŸŽ¯ &nbsp;Selection Chance</div>
           <div class="hz-big-num hz-chance-mid" id="hzSelChance">--</div>
           <div class="hz-card-zone" id="hzZoneLabel" style="color:#94a3b8;"></div>
           <div id="hzConfidenceChip" class="hz-confidence low" style="display:none;"></div>
@@ -995,7 +1168,7 @@
 
         <!-- Daily Gain Card -->
         <div class="hz-card">
-          <div class="hz-card-eyebrow">📈 &nbsp;Daily Gain Trend</div>
+          <div class="hz-card-eyebrow">ðŸ“ˆ &nbsp;Daily Gain Trend</div>
           <div class="hz-big-gain" id="hzDailyGain">--</div>
           <div class="hz-card-meta">marks / day</div>
           <div class="hz-card-sub" id="hzDaysToGoal">-- days to safe zone</div>
@@ -1004,10 +1177,10 @@
 
       <!-- What-If Simulator -->
       <div class="hz-whatif" id="hzWhatifBox">
-        <div class="hz-whatif-label">🔮 &nbsp;What-If Simulator — if I score X today, what happens?</div>
+        <div class="hz-whatif-label">ðŸ”® &nbsp;What-If Simulator â€” if I score X today, what happens?</div>
         <div class="hz-whatif-row">
           <input type="number" class="hz-whatif-input" id="hzWhatifInput" placeholder="Try: 145" min="0" max="250" aria-label="Simulate score" />
-          <button class="hz-whatif-btn" id="hzWhatifBtn">Simulate →</button>
+          <button class="hz-whatif-btn" id="hzWhatifBtn">Simulate â†’</button>
           <span class="hz-whatif-result" id="hzWhatifResult"></span>
         </div>
       </div>
@@ -1020,12 +1193,12 @@
   <section class="max-w-7xl mx-auto px-6 pt-6 pb-2">
     <div class="bg-white border border-amber-200 rounded-3xl p-5 shadow-lg">
           <h2 class="text-2xl md:text-3xl font-black text-gray-900 mt-1">Daily Progress Tracker + Monthly Premium Intelligence</h2>
-          <p class="text-gray-600 mt-2 max-w-3xl">Start with your daily tracker, activate a 2-day trial, and continue with one clear monthly plan (₹99) that includes full rank prediction and post-level insights.</p>
+          <p class="text-gray-600 mt-2 max-w-3xl">Start with your daily tracker, activate a 2-day trial, and continue with one clear monthly plan (â‚¹99) that includes full rank prediction and post-level insights.</p>
         </div>
         <div class="flex gap-3 flex-wrap">
           <a href="#progress" class="px-5 py-3 rounded-2xl bg-cyan-600 text-white font-semibold shadow hover:bg-cyan-700 transition">Open Daily Progress</a>
           <button id="startTrialBtn" class="px-5 py-3 rounded-2xl bg-amber-500 text-white font-bold hover:bg-amber-600 transition">Start 2-Day Free Trial</button>
-          <button id="heroBuyBtn" type="button" class="js-direct-buy-now px-5 py-3 rounded-2xl bg-purple-700 text-white font-black shadow hover:bg-purple-800 transition">Buy Premium Now ₹99</button>
+          <button id="heroBuyBtn" type="button" class="js-direct-buy-now px-5 py-3 rounded-2xl bg-purple-700 text-white font-black shadow hover:bg-purple-800 transition">Buy Premium Now â‚¹99</button>
         </div>
       </div>
 
@@ -1036,7 +1209,7 @@
       <div id="goalReminderWrap" class="goal-reminder-shell hidden">
         <div class="goal-reminder-badge">
           <div class="goal-reminder-left">
-            <span class="goal-reminder-icon">🎯</span>
+            <span class="goal-reminder-icon">ðŸŽ¯</span>
             <div class="goal-reminder-text">
               <div class="goal-reminder-title">Goal Reminder</div>
               <div id="goalReminderMain" class="goal-reminder-meta">Your selected goal will appear here</div>
@@ -1213,7 +1386,7 @@
       <h4>Rank Predictor Box</h4>
       <span class="badge" id="sidePlanBadge">Free</span>
     </div>
-    <div class="text-xs text-slate-500 mt-1">Use anytime for free basics. Premium features open with trial/₹99 plan.</div>
+    <div class="text-xs text-slate-500 mt-1">Use anytime for free basics. Premium features open with trial/â‚¹99 plan.</div>
 
     <div class="mt-2 text-xs font-bold text-slate-700 uppercase">Free Features</div>
     <ul>
@@ -1236,8 +1409,8 @@
     <div class="grid lg:grid-cols-2 gap-10 items-center">
       <div>
         <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-sm font-semibold mb-5">
-          <span>📊</span>
-          <span>Real SSC data • category-aware • vacancy-linked insights</span>
+          <span>ðŸ“Š</span>
+          <span>Real SSC data â€¢ category-aware â€¢ vacancy-linked insights</span>
         </div>
 
         <h2 class="text-4xl md:text-5xl font-black leading-tight text-gray-900">
@@ -1311,7 +1484,7 @@
                   onclick="if (typeof openUpgradeModal === 'function') { openUpgradeModal(); }"
                   data-plan="99"
                 >
-                  Unlock Monthly ₹99
+                  Unlock Monthly â‚¹99
                 </button>
               </div>
               <p class="text-sm text-gray-500">Category Rank</p>
@@ -1327,7 +1500,7 @@
                   onclick="if (typeof openUpgradeModal === 'function') { openUpgradeModal(); }"
                   data-plan="99"
                 >
-                  Unlock Monthly ₹99
+                  Unlock Monthly â‚¹99
                 </button>
               </div>
               <p class="text-sm text-gray-500">Percentile</p>
@@ -1343,11 +1516,11 @@
                   onclick="if (typeof openUpgradeModal === 'function') { openUpgradeModal(); }"
                   data-plan="99"
                 >
-                  Unlock Monthly ₹99
+                  Unlock Monthly â‚¹99
                 </button>
               </div>
               <p class="text-sm text-gray-500">Post Chances</p>
-              <p class="text-2xl font-black text-gray-400 mt-2">Inspector • High</p>
+              <p class="text-2xl font-black text-gray-400 mt-2">Inspector â€¢ High</p>
               <p class="text-sm text-gray-400 mt-1">Advanced decision layer</p>
             </div>
           </div>
@@ -1369,11 +1542,11 @@
       <div class="grid md:grid-cols-1 gap-4">
         <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
           <div class="text-sm font-extrabold text-indigo-800 uppercase">Single Monthly Plan</div>
-          <div class="text-sm text-indigo-700 mt-2">₹99/month includes full rank prediction, category rank, percentile, what-if jumps, post chances, and premium daily insight layers.</div>
+          <div class="text-sm text-indigo-700 mt-2">â‚¹99/month includes full rank prediction, category rank, percentile, what-if jumps, post chances, and premium daily insight layers.</div>
         </div>
       </div>
       <div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-800 text-sm font-semibold">
-        Trial-first funnel: Start 2-day free access from the top banner, then continue on ₹99 monthly for uninterrupted premium usage.
+        Trial-first funnel: Start 2-day free access from the top banner, then continue on â‚¹99 monthly for uninterrupted premium usage.
       </div>
     </div>
   </section>
@@ -1384,14 +1557,14 @@
       <div class="flex items-start justify-between gap-6 flex-wrap mb-8">
         <div>
           <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-sm font-semibold mb-4">
-            <span>⚡</span>
+            <span>âš¡</span>
             <span>AI-assisted, data-driven SSC prediction engine</span>
           </div>
 
           <h2 class="text-3xl md:text-4xl font-black text-gray-900">Rank Prediction Service</h2>
 
           <p class="text-gray-600 mt-3 max-w-2xl">
-            This module is included in the ₹99 monthly premium plan and is designed for serious rank and final post decisions.
+            This module is included in the â‚¹99 monthly premium plan and is designed for serious rank and final post decisions.
             Activate trial first, then continue monthly for full insights.
           </p>
         </div>
@@ -1437,12 +1610,12 @@
         </button>
 
         <div class="text-sm text-gray-500" id="planStatusText">
-          Start 2-day trial from the top banner, then continue with ₹99/month.
+          Start 2-day trial from the top banner, then continue with â‚¹99/month.
         </div>
       </div>
 
       <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-5 mb-8">
-        <div class="text-sm font-semibold text-indigo-800 mb-1">₹99 Monthly Plan Includes</div>
+        <div class="text-sm font-semibold text-indigo-800 mb-1">â‚¹99 Monthly Plan Includes</div>
         <div class="text-sm text-indigo-700">Estimated rank, category rank, percentile, overall seat position, score zone, what-if rank jumps, competition density, and post chances.</div>
       </div>
 
@@ -1485,7 +1658,7 @@
     <div class="spotlight-shell">
       <div class="spotlight-grid">
         <div>
-          <span class="spotlight-pill">SaaS Core • Daily Benchmark Lab + Rank Prediction</span>
+          <span class="spotlight-pill">SaaS Core â€¢ Daily Benchmark Lab + Rank Prediction</span>
           <h2 class="spotlight-title">Your SSC Execution OS: daily accountability + final rank clarity.</h2>
           <p class="spotlight-copy">
             SSCRankLab now combines two growth engines in one product: daily prep retention and final rank decision intelligence.
@@ -1516,7 +1689,7 @@
         <div class="legacy-card">
           <h3>Rank Prediction in Monthly Plan</h3>
           <p>
-            Daily prep stays front and center, while rank prediction now runs as a fully included service inside the ₹99 monthly plan.
+            Daily prep stays front and center, while rank prediction now runs as a fully included service inside the â‚¹99 monthly plan.
           </p>
           <ul class="legacy-list">
             <li>Category-aware rank estimation</li>
@@ -1550,10 +1723,10 @@
         <div class="bg-emerald-50 border p-8 rounded-3xl shadow-sm">
           <h2 class="logo-font text-3xl font-bold mb-4">Why aspirants use SSCRankLab</h2>
           <div class="space-y-3 text-gray-800 text-lg">
-            <p>⚡ Rank estimates from historical SSC patterns</p>
-            <p>📈 Category-wise performance visibility</p>
-            <p>🎯 Percentile, competition zone, and post decision insights</p>
-            <p>💰 Free quick check + premium post decision support</p>
+            <p>âš¡ Rank estimates from historical SSC patterns</p>
+            <p>ðŸ“ˆ Category-wise performance visibility</p>
+            <p>ðŸŽ¯ Percentile, competition zone, and post decision insights</p>
+            <p>ðŸ’° Free quick check + premium post decision support</p>
           </div>
         </div>
 
@@ -1562,7 +1735,7 @@
 
           <div class="relative z-10">
             <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-sm font-semibold mb-4">
-              <span>📊</span>
+              <span>ðŸ“Š</span>
               <span>Data-Driven Prediction Engine</span>
             </div>
 
@@ -1578,14 +1751,14 @@
 
             <div class="grid sm:grid-cols-2 gap-3 mb-5">
               <div class="bg-white/80 border rounded-2xl p-4">
-                <div class="text-sm font-semibold text-gray-800 mb-1">✅ Uses Real Inputs</div>
+                <div class="text-sm font-semibold text-gray-800 mb-1">âœ… Uses Real Inputs</div>
                 <div class="text-sm text-gray-600">
                   Historical cutoffs, vacancy data, score distribution, and category trends.
                 </div>
               </div>
 
               <div class="bg-white/80 border rounded-2xl p-4">
-                <div class="text-sm font-semibold text-gray-800 mb-1">🤖 Smart Modeling</div>
+                <div class="text-sm font-semibold text-gray-800 mb-1">ðŸ¤– Smart Modeling</div>
                 <div class="text-sm text-gray-600">
                   AI-assisted analytical modeling to estimate rank, percentile, and chances.
                 </div>
@@ -1651,115 +1824,6 @@
     </div>
   </section>
 
-  <section id="unified-dashboard" class="max-w-6xl mx-auto px-6 pb-6">
-    <div class="rounded-3xl border border-cyan-200 bg-cyan-50/70 p-6 shadow-sm">
-      <div class="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-100 text-cyan-800 text-xs font-bold mb-3">Unified Performance Dashboard</div>
-          <h3 class="text-2xl font-black text-slate-900">Combined Score Intelligence</h3>
-          <p class="text-slate-600 mt-2">Average is computed from question-generator records + your current score inputs, so the dashboard always reflects both practice and prediction context.</p>
-        </div>
-      </div>
-
-      <div class="grid md:grid-cols-4 gap-3 mt-5">
-        <div class="rounded-2xl border border-cyan-200 bg-white p-4">
-          <div class="text-xs uppercase tracking-wide text-cyan-700 font-bold">Combined Average</div>
-          <div id="combinedAvgScore" class="text-2xl font-black text-slate-900 mt-1">--</div>
-        </div>
-        <div class="rounded-2xl border border-cyan-200 bg-white p-4">
-          <div class="text-xs uppercase tracking-wide text-cyan-700 font-bold">Question Section Avg</div>
-          <div id="combinedQuestionAvg" class="text-2xl font-black text-slate-900 mt-1">--</div>
-        </div>
-        <div class="rounded-2xl border border-cyan-200 bg-white p-4">
-          <div class="text-xs uppercase tracking-wide text-cyan-700 font-bold">Recorded Test Avg</div>
-          <div id="combinedRecordedAvg" class="text-2xl font-black text-slate-900 mt-1">--</div>
-        </div>
-        <div class="rounded-2xl border border-cyan-200 bg-white p-4">
-          <div class="text-xs uppercase tracking-wide text-cyan-700 font-bold">Live User Input Avg</div>
-          <div id="combinedInputAvg" class="text-2xl font-black text-slate-900 mt-1">--</div>
-        </div>
-      </div>
-
-      <div id="combinedDashboardNote" class="mt-4 text-sm font-semibold text-cyan-900">Waiting for data from question generator and user inputs.</div>
-    </div>
-  </section>
-
-  <section id="questionlab" class="max-w-6xl mx-auto px-6 py-10">
-    <div class="qlab-shell">
-      <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
-        <div>
-          <h2 class="qlab-headline">Question Generator</h2>
-          <p class="qlab-subcopy">Generate daily SSC-ready sets in seconds: PYQ-based, random mixed, and topic-wise quant tests with clean workflow designed for repeat usage.</p>
-          <div class="qlab-trust-strip">
-            <span class="qlab-trust-pill">✅ Real Pattern</span>
-            <span class="qlab-trust-pill">⚡ Instant Generate</span>
-            <span class="qlab-trust-pill">📈 Daily Practice Friendly</span>
-            <span class="qlab-trust-pill">🎯 Quant Topic Specific</span>
-          </div>
-        </div>
-        <span class="text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full bg-indigo-100 text-indigo-700">Daily Traffic Engine</span>
-      </div>
-
-      <div class="grid md:grid-cols-4 gap-3 mb-4">
-        <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
-          <div class="text-xs uppercase tracking-wide text-indigo-700 font-bold">Best Test Record</div>
-          <div id="qgenBestScore" class="text-2xl font-black text-slate-900 mt-1">--</div>
-        </div>
-        <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
-          <div class="text-xs uppercase tracking-wide text-indigo-700 font-bold">Avg Test Record</div>
-          <div id="qgenAvgScore" class="text-2xl font-black text-slate-900 mt-1">--</div>
-        </div>
-        <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
-          <div class="text-xs uppercase tracking-wide text-indigo-700 font-bold">Questions Loaded</div>
-          <div id="qgenQuestionsLoaded" class="text-2xl font-black text-slate-900 mt-1">0</div>
-        </div>
-        <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
-          <div class="text-xs uppercase tracking-wide text-indigo-700 font-bold">Top Topic In Current Set</div>
-          <div id="qgenTopTopic" class="text-lg font-black text-slate-900 mt-1">--</div>
-        </div>
-      </div>
-
-      <div class="rounded-2xl border border-indigo-200 bg-white p-4 mb-4">
-        <div class="text-sm font-extrabold text-indigo-700 uppercase tracking-wide mb-2">Top User Records (Your account)</div>
-        <div id="qgenTopRecords" class="text-sm text-slate-600">No records yet. Save marks and generate questions to build this leaderboard.</div>
-      </div>
-
-      <div class="qlab-controls">
-        <select id="qlabSubject">
-          <option value="">All Subjects</option>
-          <option value="quant">Quant</option>
-          <option value="english">English</option>
-          <option value="reasoning">Reasoning</option>
-          <option value="gk">GK</option>
-          <option value="computer">Computer</option>
-        </select>
-
-        <select id="qlabDifficulty">
-          <option value="">All Difficulty</option>
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-        </select>
-
-        <input id="qlabTopic" type="text" placeholder="Filter by topic" />
-        <input id="qlabCount" type="number" min="5" max="50" value="10" placeholder="Count" />
-      </div>
-
-      <div class="qlab-actions">
-        <button id="btnLoadQuestions" class="qlab-action-primary px-5 py-2 rounded-xl font-semibold transition">Load Questions</button>
-        <button id="btnGenerateMock" class="qlab-action-secondary px-5 py-2 rounded-xl font-semibold transition">Generate Mock</button>
-      </div>
-
-      <div class="qlab-traffic-bar">
-        <div class="qlab-traffic-copy">Daily growth tip: users who attempt one generated set daily and share their score streak are more likely to return and bring referrals.</div>
-        <button class="qlab-traffic-btn" onclick="document.getElementById('btnGenerateMock')?.click();">Start Today’s Set</button>
-      </div>
-
-      <div id="questionLabStatus"></div>
-      <div id="questionLabList" class="qlab-list"></div>
-    </div>
-  </section>
-
   <!-- Pricing -->
   <section id="pricing" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
     <div class="bg-white/75 backdrop-blur-sm border border-gray-100 p-8 rounded-3xl shadow-2xl">
@@ -1776,7 +1840,7 @@
           type="button"
           class="js-open-trial-buy px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold shadow hover:shadow-xl transition"
         >
-          Try Now →
+          Try Now â†’
         </button>
       </div>
 
@@ -1784,27 +1848,27 @@
         <div class="p-6 rounded-3xl border-2 border-purple-300 bg-purple-50 shadow-xl relative">
           <div class="absolute -top-3 left-6 px-3 py-1 rounded-full bg-purple-700 text-white text-xs font-bold">Monthly Plan</div>
           <div class="text-sm font-extrabold text-purple-700 uppercase">Premium Daily Service</div>
-          <div class="text-4xl font-black text-gray-900 mt-2">₹99 <span class="text-lg font-semibold text-purple-700">/month</span></div>
+          <div class="text-4xl font-black text-gray-900 mt-2">â‚¹99 <span class="text-lg font-semibold text-purple-700">/month</span></div>
 
           <p class="text-sm text-gray-600 mt-2">One clear subscription for daily tracking + complete rank intelligence.</p>
 
           <div class="mt-4 mb-2 text-xs font-bold text-cyan-700 uppercase tracking-wide">Daily Prep Features</div>
           <ul class="space-y-1.5 text-gray-700 text-sm">
-            <li>✅ Daily marks tracker with subject-wise splits</li>
-            <li>✅ Streak tracking &amp; benchmark gap alerts</li>
-            <li>✅ Auto cutoff mapped to your target post</li>
-            <li>✅ Weekly report card &amp; progress charts</li>
-            <li>✅ Question lab &amp; on-demand mock generator</li>
+            <li>âœ… Daily marks tracker with subject-wise splits</li>
+            <li>âœ… Streak tracking &amp; benchmark gap alerts</li>
+            <li>âœ… Auto cutoff mapped to your target post</li>
+            <li>âœ… Weekly report card &amp; progress charts</li>
+            <li>âœ… Question lab &amp; on-demand mock generator</li>
           </ul>
 
           <div class="mt-4 mb-2 text-xs font-bold text-purple-700 uppercase tracking-wide">Rank Intelligence Features</div>
           <ul class="space-y-1.5 text-gray-700 text-sm">
-            <li>✅ Full Rank Prediction Service</li>
-            <li>✅ Category Rank + Percentile</li>
-            <li>✅ Overall seat position + score zone</li>
-            <li>✅ What-if rank jump (+2, +5 marks)</li>
-            <li>✅ Competition density insights</li>
-            <li>✅ Post chances using vacancy-aware logic</li>
+            <li>âœ… Full Rank Prediction Service</li>
+            <li>âœ… Category Rank + Percentile</li>
+            <li>âœ… Overall seat position + score zone</li>
+            <li>âœ… What-if rank jump (+2, +5 marks)</li>
+            <li>âœ… Competition density insights</li>
+            <li>âœ… Post chances using vacancy-aware logic</li>
           </ul>
 
           <div class="mt-6 text-sm text-purple-800 font-semibold">2-day free trial available before paid continuation.</div>
@@ -1815,27 +1879,27 @@
               id="pricingTrialBtn"
               class="w-full px-5 py-3 rounded-2xl bg-amber-500 text-white font-bold shadow hover:bg-amber-600 transition"
             >
-              Start 2-Day Free Trial →
+              Start 2-Day Free Trial â†’
             </button>
             <button
               id="pricingBuyBtn"
               type="button"
               class="js-direct-buy-now w-full px-5 py-3 rounded-2xl bg-purple-600 text-white font-semibold shadow hover:bg-purple-700 transition"
             >
-              Subscribe ₹99/month via Razorpay
+              Subscribe â‚¹99/month via Razorpay
             </button>
           </div>
         </div>
       </div>
 
       <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-900 text-sm font-semibold">
-        Trial-first funnel: Start free for 2 days, experience full rank intelligence, then lock premium at ₹99/month.
+        Trial-first funnel: Start free for 2 days, experience full rank intelligence, then lock premium at â‚¹99/month.
       </div>
 
       <div class="mt-4 rounded-2xl border border-purple-200 bg-purple-50 p-4">
         <div class="text-sm font-extrabold text-purple-800">Want instant access without waiting?</div>
         <div class="text-sm text-purple-700 mt-1">Direct premium checkout is enabled below. One click, secure Razorpay, full unlock.</div>
-        <button id="instantBuyBtn" type="button" class="js-direct-buy-now mt-3 w-full sm:w-auto px-5 py-3 rounded-2xl bg-purple-700 text-white font-black shadow hover:bg-purple-800 transition">Buy Premium Instantly ₹99</button>
+        <button id="instantBuyBtn" type="button" class="js-direct-buy-now mt-3 w-full sm:w-auto px-5 py-3 rounded-2xl bg-purple-700 text-white font-black shadow hover:bg-purple-800 transition">Buy Premium Instantly â‚¹99</button>
       </div>
 
       <div id="liveAdminGrowthPanel" class="hidden mt-6 rounded-2xl border border-slate-300 bg-slate-50 p-4">
@@ -1882,7 +1946,7 @@
         </div>
 
         <div class="rounded-2xl border bg-slate-50 p-5">
-          <h3 class="font-bold text-lg text-gray-900">What does ₹99 unlock?</h3>
+          <h3 class="font-bold text-lg text-gray-900">What does â‚¹99 unlock?</h3>
           <p class="text-gray-600 mt-2">
             It is the complete monthly service: daily premium usage, full rank prediction, post intelligence,
             and advanced decision support such as overall seat position and what-if jumps.
@@ -1922,7 +1986,7 @@
 
   <!-- Footer -->
   <footer class="bg-gray-900 text-white py-12 text-center">
-    <p>© 2026 SSCRankLab</p>
+    <p>Â© 2026 SSCRankLab</p>
   </footer>
 
   <!-- Goal Onboarding Modal -->
@@ -1930,7 +1994,7 @@
     <div class="goal-modal-inner">
       <div class="flex items-center justify-between mb-4">
         <div>
-          <h2 class="text-2xl font-black text-gray-900">🎯 Set Your Goal Pipeline</h2>
+          <h2 class="text-2xl font-black text-gray-900">ðŸŽ¯ Set Your Goal Pipeline</h2>
           <p class="text-gray-500 mt-1 text-sm">Auto-link your target post with cutoff baseline from existing project data.</p>
         </div>
         <button id="closeGoalModal" class="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-lg font-bold transition">&times;</button>
@@ -1966,7 +2030,7 @@
         <div>
           <label for="goalTargetPost">Dream Post</label>
           <select id="goalTargetPost">
-            <option value="">— Select —</option>
+            <option value="">â€” Select â€”</option>
             <option value="Inspector Income Tax">Inspector Income Tax</option>
             <option value="Sub-Inspector CBI">Sub-Inspector CBI</option>
             <option value="Inspector Customs">Inspector Customs</option>
@@ -2011,12 +2075,12 @@
     }
 
     function shareWhatsApp(){
-      let text = "I predicted my SSC rank using SSCRankLab 🔥 Check yours: https://sscranklab.com/";
+      let text = "I predicted my SSC rank using SSCRankLab ðŸ”¥ Check yours: https://sscranklab.com/";
       openWhatsAppShare(text);
     }
 
     function shareTelegram(){
-      let text = "I predicted my SSC rank using SSCRankLab 🔥 Check yours: https://sscranklab.com/";
+      let text = "I predicted my SSC rank using SSCRankLab ðŸ”¥ Check yours: https://sscranklab.com/";
       window.open("https://t.me/share/url?url=https://sscranklab.com/&text=" + encodeURIComponent(text));
     }
 

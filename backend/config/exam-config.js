@@ -12,7 +12,7 @@ const SSC_EXAM_CONFIG = {
         code: "gk",
         questions: 25,
         timeAllotted: 15,
-        marks: 25,
+        marks: 50,
         negativeMarks: -0.5,
         order: 1
       },
@@ -21,7 +21,7 @@ const SSC_EXAM_CONFIG = {
         code: "reasoning",
         questions: 25,
         timeAllotted: 15,
-        marks: 25,
+        marks: 50,
         negativeMarks: -0.5,
         order: 2
       },
@@ -30,7 +30,7 @@ const SSC_EXAM_CONFIG = {
         code: "quant",
         questions: 25,
         timeAllotted: 15,
-        marks: 25,
+        marks: 50,
         negativeMarks: -0.5,
         order: 3
       },
@@ -39,12 +39,12 @@ const SSC_EXAM_CONFIG = {
         code: "english",
         questions: 25,
         timeAllotted: 15,
-        marks: 25,
+        marks: 50,
         negativeMarks: -0.5,
         order: 4
       }
     },
-    totalMarks: 100,
+    totalMarks: 200,
     passingPercentage: 40,
     difficulty: {
       easy: 0.30,
@@ -54,48 +54,58 @@ const SSC_EXAM_CONFIG = {
   },
 
   tier2: {
-    name: "SSC CGL Tier-2",
-    totalQuestions: 120,
-    totalTime: 120, // minutes
+    name: "SSC CGL Tier-2 Paper 1",
+    totalQuestions: 130,
+    totalTime: 135, // minutes (Session 1: 120min + Session 2: 15min computer)
     sections: {
       quantitative: {
-        label: "Quantitative Abilities",
+        label: "Mathematical Abilities",
         code: "quant",
-        questions: 40,
-        timeAllotted: 40,
-        marks: 40,
+        questions: 30,
+        timeAllotted: 30,
+        marks: 90,
         negativeMarks: -1,
         order: 1
+      },
+      reasoning: {
+        label: "Reasoning & General Intelligence",
+        code: "reasoning",
+        questions: 30,
+        timeAllotted: 30,
+        marks: 90,
+        negativeMarks: -1,
+        order: 2
       },
       english: {
         label: "English Language & Comprehension",
         code: "english",
-        questions: 40,
-        timeAllotted: 40,
-        marks: 40,
-        negativeMarks: -1,
-        order: 2
-      },
-      statistics: {
-        label: "Statistics (Optional)",
-        code: "gk",
-        questions: 20,
-        timeAllotted: 20,
-        marks: 20,
+        questions: 45,
+        timeAllotted: 30,
+        marks: 135,
         negativeMarks: -1,
         order: 3
       },
-      accounting: {
-        label: "Accounting (Optional)",
+      general_awareness: {
+        label: "General Awareness",
         code: "gk",
-        questions: 20,
-        timeAllotted: 20,
-        marks: 20,
+        questions: 25,
+        timeAllotted: 30,
+        marks: 75,
         negativeMarks: -1,
         order: 4
+      },
+      computer: {
+        label: "Computer Knowledge (Qualifying)",
+        code: "computer",
+        questions: 20,
+        timeAllotted: 15,
+        marks: 60,
+        negativeMarks: -1,
+        qualifying: true,
+        order: 5
       }
     },
-    totalMarks: 120,
+    totalMarks: 390,
     passingPercentage: 40,
     difficulty: {
       easy: 0.20,

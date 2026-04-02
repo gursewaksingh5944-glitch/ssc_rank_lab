@@ -58,19 +58,28 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  const qlabTestTypeEl = document.getElementById("qlabTestType");
+  if (qlabTestTypeEl) {
+    qlabTestTypeEl.addEventListener("change", updateQLAbControlVisibility);
+  }
+
   const qlabSubjectEl = document.getElementById("qlabSubject");
   if (qlabSubjectEl) {
-    qlabSubjectEl.addEventListener("change", renderQuestionLabTopicChecklist);
+    qlabSubjectEl.addEventListener("change", function () {
+      updateQLAbControlVisibility();
+      renderQuestionLabTopicChecklist();
+    });
   }
 
-  const qlabMockModeEl = document.getElementById("qlabMockMode");
-  if (qlabMockModeEl) {
-    qlabMockModeEl.addEventListener("change", updateTopicChecklistVisibility);
-  }
-
-  const generateMockBtn = document.getElementById("btnGenerateMock");
-  if (generateMockBtn) {
-    generateMockBtn.addEventListener("click", generateMockFromLab);
+  const qlabTierEl = document.getElementById("qlabTier");
+  if (qlabTierEl) {
+    qlabTierEl.addEventListener("change", function () {
+      const newTier = qlabTierEl.value || "tier1";
+      activeTierMode = normalizeTierMode(newTier);
+      setStoredTierMode(activeTierMode);
+      applyTierModeButtons();
+      renderQuestionLabTopicChecklist();
+    });
   }
 
   const questionLabListEl = document.getElementById("questionLabList");
@@ -476,6 +485,10 @@ function applyTierModeButtons() {
   const tier2Btn = document.getElementById("tierModeBtnTier2");
   if (tier1Btn) tier1Btn.classList.toggle("active", activeTierMode === "tier1");
   if (tier2Btn) tier2Btn.classList.toggle("active", activeTierMode === "tier2");
+
+  // Sync question lab tier dropdown
+  const qlabTierEl = document.getElementById("qlabTier");
+  if (qlabTierEl) qlabTierEl.value = activeTierMode;
 
   // Rank predictor is Tier 2 only — hide when Tier 1 is active
   const predictorBox = document.getElementById("predictorTier2Box");
@@ -2686,25 +2699,34 @@ async function loadWeakTopicSuggestions() {
 }
 
 function getQuestionLabFilters() {
-  const sourceMode = String(document.getElementById("qlabSourceMode")?.value || "random").trim();
-  const mockMode = String(document.getElementById("qlabMockMode")?.value || "full_ssc").trim();
-  const subject = String(document.getElementById("qlabSubject")?.value || "").trim();
-  const difficulty = String(document.getElementById("qlabDifficulty")?.value || "").trim();
-  const topic = String(document.getElementById("qlabTopic")?.value || "").trim();
-  const count = Math.max(5, Math.min(50, Number(document.getElementById("qlabCount")?.value || 10)));
+  const sourceMode = String(document.getElementById("qlabSourceMode")?.value || "pyq").trim();
+  const tier = String(document.getElementById("qlabTier")?.value || normalizeTierMode(activeTierMode)).trim();
+  const testType = String(document.getElementById("qlabTestType")?.value || "full").trim();
+  const subject = testType === "sectional" ? String(document.getElementById("qlabSubject")?.value || "quant").trim() : "";
   const selectedTopics = Array.from(document.querySelectorAll(".qlab-topic-check:checked"))
     .map((el) => String(el.value || "").trim())
     .filter(Boolean);
 
-  return { sourceMode, mockMode, subject, difficulty, topic, count, selectedTopics };
+  return { sourceMode, tier, testType, subject, selectedTopics };
+}
+
+function updateQLAbControlVisibility() {
+  const testType = String(document.getElementById("qlabTestType")?.value || "full").trim();
+  const subjectEl = document.getElementById("qlabSubject");
+  const topicWrap = document.getElementById("qlabTopicChecklistWrap");
+
+  if (subjectEl) {
+    subjectEl.style.display = testType === "sectional" ? "" : "none";
+  }
+
+  const subject = String(subjectEl?.value || "").trim();
+  if (topicWrap) {
+    topicWrap.style.display = (testType === "sectional" && subject === "quant") ? "block" : "none";
+  }
 }
 
 function updateTopicChecklistVisibility() {
-  const mode = String(document.getElementById("qlabMockMode")?.value || "full_ssc").trim();
-  const wrap = document.getElementById("qlabTopicChecklistWrap");
-  if (wrap) {
-    wrap.style.display = mode === "topic_select" ? "block" : "none";
-  }
+  updateQLAbControlVisibility();
 }
 
 function renderQuestionLabTopicChecklist() {
@@ -3130,6 +3152,7 @@ function refreshCombinedDashboard() {
   const rEl = document.getElementById("combinedRecordedAvg");
   const iEl = document.getElementById("combinedInputAvg");
   const noteEl = document.getElementById("combinedDashboardNote");
+  const totalTestsEl = document.getElementById("combinedTotalTests");
   if (!combinedEl || !qEl || !rEl || !iEl || !noteEl) return;
 
   const qAvg = computeQuestionSectionAveragePct();
@@ -3140,16 +3163,22 @@ function refreshCombinedDashboard() {
   rEl.textContent = rAvg == null ? "--" : `${rAvg.toFixed(1)}%`;
   iEl.textContent = iAvg == null ? "--" : `${iAvg.toFixed(1)}%`;
 
+  const totalTests = Array.isArray(lastMarksEntries) ? lastMarksEntries.length : 0;
+  if (totalTestsEl) totalTestsEl.textContent = String(totalTests);
+
   const all = [qAvg, rAvg, iAvg].filter((n) => n != null);
   if (all.length === 0) {
     combinedEl.textContent = "--";
-    noteEl.textContent = "Waiting for data from question generator and user inputs.";
+    noteEl.textContent = "Start adding daily marks or generating questions to see your performance overview.";
     return;
   }
 
   const combined = all.reduce((sum, n) => sum + n, 0) / all.length;
   combinedEl.textContent = `${combined.toFixed(1)}%`;
-  noteEl.textContent = `Combined average uses ${all.length} active data stream${all.length > 1 ? "s" : ""}: question section, recorded history, and live user input.`;
+  noteEl.textContent = `Combined from ${all.length} source${all.length > 1 ? "s" : ""} · ${totalTests} recorded test${totalTests !== 1 ? "s" : ""}`;
+
+  // Update mock results dashboard
+  refreshMockResultsDashboard();
 }
 
 function attachCombinedDashboardInputListeners() {
@@ -3162,33 +3191,111 @@ function attachCombinedDashboardInputListeners() {
   });
 }
 
+function refreshMockResultsDashboard() {
+  const dashboard = document.getElementById("mockResultsDashboard");
+  if (!dashboard) return;
+
+  const entries = Array.isArray(lastMarksEntries) ? lastMarksEntries : [];
+  if (entries.length === 0) {
+    dashboard.style.display = "none";
+    return;
+  }
+
+  dashboard.style.display = "block";
+  const tierCfg = getTierCfg();
+  const maxMarks = tierCfg.totalMax || 200;
+
+  // Compute stats
+  const accuracies = entries.map((e) => {
+    const total = Number(e.total_marks || 0);
+    return (total / maxMarks) * 100;
+  });
+  const avgAcc = accuracies.reduce((s, n) => s + n, 0) / accuracies.length;
+  const bestAcc = Math.max(...accuracies);
+  const totalAttempted = entries.length;
+
+  // Find weak subject
+  const subjectAvgs = {};
+  tierCfg.subjects.forEach((sub) => {
+    const vals = entries.map((e) => Number(e[sub.dbKey] || 0));
+    const avg = vals.reduce((s, n) => s + n, 0) / vals.length;
+    subjectAvgs[sub.label] = (avg / sub.max) * 100;
+  });
+  const weakSubject = Object.entries(subjectAvgs).sort((a, b) => a[1] - b[1])[0];
+
+  // Update stats
+  const setT = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setT("mockTotalTests", `${totalAttempted} test${totalAttempted !== 1 ? "s" : ""}`);
+  setT("mockAvgAccuracy", `${avgAcc.toFixed(1)}%`);
+  setT("mockBestAccuracy", `${bestAcc.toFixed(1)}%`);
+  setT("mockTotalAttempted", String(totalAttempted));
+  setT("mockWeakSubject", weakSubject ? weakSubject[0] : "--");
+
+  // Render recent results list
+  const listEl = document.getElementById("mockResultsList");
+  if (!listEl) return;
+
+  const recent = [...entries]
+    .sort((a, b) => new Date(b.test_date) - new Date(a.test_date))
+    .slice(0, 8);
+
+  listEl.innerHTML = recent.map((entry, i) => {
+    const d = new Date(entry.test_date).toLocaleDateString();
+    const total = Number(entry.total_marks || 0);
+    const pct = ((total / maxMarks) * 100).toFixed(1);
+    const barColor = pct >= 70 ? "#4ade80" : pct >= 50 ? "#fbbf24" : "#f87171";
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;${i < recent.length - 1 ? "border-bottom:1px solid rgba(255,255,255,.08);" : ""}">
+      <span style="font-size:12px;color:#94a3b8;font-weight:700;min-width:70px;">${escapeHtml(d)}</span>
+      <div style="flex:1;background:rgba(255,255,255,.08);border-radius:999px;height:8px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;border-radius:999px;background:${barColor};transition:width .3s;"></div>
+      </div>
+      <span style="font-size:13px;font-weight:800;color:#fff;min-width:80px;text-align:right;">${total.toFixed(1)} / ${maxMarks}</span>
+      <span style="font-size:12px;font-weight:700;color:${barColor};min-width:45px;text-align:right;">${pct}%</span>
+    </div>`;
+  }).join("");
+}
+
 async function loadQuestionLabItems(options = {}) {
   const interactive = options.interactive !== false;
   if (interactive && !(await ensurePremiumAccess("Question Lab loading"))) {
     return;
   }
 
-  const { sourceMode, subject, difficulty, topic, count } = getQuestionLabFilters();
+  const { sourceMode, tier, testType, subject, selectedTopics } = getQuestionLabFilters();
   const recentQuestionIds = Array.isArray(questionLabCache)
     ? questionLabCache.map((item) => String(item?.id || "").trim()).filter(Boolean).slice(0, 120)
     : [];
 
-  setQuestionLabStatus("Loading updated questions...", "info");
+  const isFull = testType === "full";
+  const tierNorm = normalizeTierMode(tier || activeTierMode);
+  const label = isFull ? `Full Mock (${tierNorm === "tier2" ? "130" : "100"}Q)` : `${subject || "Quant"} Sectional (25Q)`;
+  setQuestionLabStatus(`Generating ${label}...`, "info");
 
   try {
     const body = {
-      mode: sourceMode === "pyq" ? "pyq-smart" : "practice",
-      tier: normalizeTierMode(activeTierMode),
-      scope: subject ? "selective" : "overall",
-      subjects: subject ? [subject] : [],
-      difficulty,
-      topic,
-      practiceCount: count,
+      tier: tierNorm,
+      testType,
+      sourceMode,
       includeUnreviewed: false,
       recentQuestionIds
     };
 
-    const response = await fetch(apiUrl("/api/questions/generate"), {
+    if (isFull) {
+      body.mode = "mock";
+      body.mockType = "full_ssc";
+      body.scope = "overall";
+    } else {
+      body.mode = "mock";
+      body.mockType = "sectional";
+      body.scope = "selective";
+      body.subjects = [subject || "quant"];
+      body.count = 25;
+      if (selectedTopics.length > 0) {
+        body.selectedTopics = selectedTopics;
+      }
+    }
+
+    const response = await fetch(apiUrl("/api/questions/mocks/generate"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
@@ -3196,7 +3303,7 @@ async function loadQuestionLabItems(options = {}) {
     const data = await response.json();
 
     if (!response.ok || !data.success) {
-      throw new Error(data.error || "Could not load questions");
+      throw new Error(data.error || "Could not generate questions");
     }
 
     questionLabCache = Array.isArray(data.items) ? data.items : [];
@@ -3214,86 +3321,24 @@ async function loadQuestionLabItems(options = {}) {
     if (questionLabCache.length === 0) {
       const emptyMsg = (Array.isArray(data.warnings) && data.warnings[0])
         ? data.warnings[0]
-        : `No approved ${normalizeTierMode(activeTierMode).toUpperCase()} questions match these filters yet.`;
+        : `No approved ${tierNorm.toUpperCase()} questions match these filters yet.`;
       setQuestionLabStatus(emptyMsg, "warning");
       return;
     }
 
     const statusMsg = Array.isArray(data.warnings) && data.warnings.length > 0
-      ? `Loaded ${questionLabCache.length} questions. ${data.warnings[0]}`
-      : `Loaded ${questionLabCache.length} fresh questions.`;
+      ? `Generated ${questionLabCache.length} questions. ${data.warnings[0]}`
+      : `Generated ${questionLabCache.length} fresh ${isFull ? "mock" : "sectional"} questions.`;
     setQuestionLabStatus(statusMsg, Array.isArray(data.warnings) && data.warnings.length > 0 ? "warning" : "success");
   } catch (err) {
     console.error("loadQuestionLabItems error:", err);
-    setQuestionLabStatus("Failed to load questions.", "error");
+    setQuestionLabStatus("Failed to generate questions.", "error");
   }
 }
 
+// Legacy alias kept for any leftover references
 async function generateMockFromLab() {
-  if (!(await ensurePremiumAccess("Mock generation"))) {
-    return;
-  }
-
-  const { subject, difficulty, count, mockMode, selectedTopics } = getQuestionLabFilters();
-  const recentQuestionIds = Array.isArray(questionLabCache)
-    ? questionLabCache.map((item) => String(item?.id || "").trim()).filter(Boolean).slice(0, 120)
-    : [];
-  if (mockMode === "topic_select" && selectedTopics.length === 0) {
-    setQuestionLabStatus("Select at least one topic for topic-wise mock.", "error");
-    return;
-  }
-  setQuestionLabStatus("Generating mock set...", "info");
-
-  try {
-    const response = await fetch(apiUrl("/api/questions/mocks/generate"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tier: normalizeTierMode(activeTierMode),
-        scope: subject ? "selective" : "overall",
-        subjects: subject ? [subject] : [],
-        subject,
-        difficulty,
-        count,
-        mockType: mockMode,
-        selectedTopics,
-        recentQuestionIds
-      })
-    });
-
-    const data = await response.json();
-    if (!response.ok || !data.success) {
-      throw new Error(data.error || "Could not generate mock");
-    }
-
-    questionLabCache = Array.isArray(data.items) ? data.items : [];
-    resetQuestionLabAttemptState({
-      mode: data.mode,
-      summary: data.summary,
-      warnings: data.warnings,
-      served: data.served
-    });
-    renderQuestionLabItems(questionLabCache);
-    renderQuestionLabInsights();
-    updateQuestionGeneratorRecords();
-    refreshCombinedDashboard();
-
-    if (questionLabCache.length === 0) {
-      const emptyMsg = (Array.isArray(data.warnings) && data.warnings[0])
-        ? data.warnings[0]
-        : `No approved ${normalizeTierMode(activeTierMode).toUpperCase()} mock questions are available yet.`;
-      setQuestionLabStatus(emptyMsg, "warning");
-      return;
-    }
-
-    const statusMsg = Array.isArray(data.warnings) && data.warnings.length > 0
-      ? `Mock generated with ${questionLabCache.length} questions. ${data.warnings[0]}`
-      : `Mock generated with ${questionLabCache.length} fresh questions.`;
-    setQuestionLabStatus(statusMsg, Array.isArray(data.warnings) && data.warnings.length > 0 ? "warning" : "success");
-  } catch (err) {
-    console.error("generateMockFromLab error:", err);
-    setQuestionLabStatus("Failed to generate mock set.", "error");
-  }
+  return loadQuestionLabItems({ interactive: true });
 }
 
 // Progress Tracker Functions
