@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   ensureUserKey();
+  checkAuthOnLoad();
   captureReferralCodeFromUrl();
   restoreUnlockedPlan();
   initCharts();
@@ -717,6 +718,189 @@ function getUserKey() {
     console.error("getUserKey error:", err);
     return ensureUserKey();
   }
+}
+
+/* ---------------------------------------------------------------
+   AUTH SYSTEM
+--------------------------------------------------------------- */
+function isAuthenticated() {
+  return !!localStorage.getItem("sscranklab_user_email");
+}
+
+function showAuthModal() {
+  const modal = document.getElementById("authModal");
+  if (modal) modal.classList.remove("hidden");
+}
+
+function hideAuthModal() {
+  const modal = document.getElementById("authModal");
+  if (modal) modal.classList.add("hidden");
+}
+
+function initAuthModal() {
+  const registerBtn = document.getElementById("authRegisterBtn");
+  const loginBtn = document.getElementById("authLoginBtn");
+  const guestBtn = document.getElementById("authGuestBtn");
+  const guestBtn2 = document.getElementById("authGuestBtn2");
+  const showLogin = document.getElementById("authShowLogin");
+  const showRegister = document.getElementById("authShowRegister");
+  const registerView = document.getElementById("authRegisterView");
+  const loginView = document.getElementById("authLoginView");
+
+  if (showLogin) showLogin.addEventListener("click", function () {
+    registerView.style.display = "none";
+    loginView.style.display = "block";
+  });
+  if (showRegister) showRegister.addEventListener("click", function () {
+    loginView.style.display = "none";
+    registerView.style.display = "block";
+  });
+
+  if (registerBtn) registerBtn.addEventListener("click", handleRegister);
+  if (loginBtn) loginBtn.addEventListener("click", handleLogin);
+  if (guestBtn) guestBtn.addEventListener("click", handleGuestContinue);
+  if (guestBtn2) guestBtn2.addEventListener("click", handleGuestContinue);
+}
+
+async function handleRegister() {
+  const name = (document.getElementById("authName").value || "").trim();
+  const email = (document.getElementById("authEmail").value || "").trim();
+  const status = document.getElementById("authRegisterStatus");
+
+  if (!name || name.length < 2) { status.textContent = "Please enter your name."; return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { status.textContent = "Please enter a valid email."; return; }
+
+  status.textContent = "";
+  status.style.color = "#2563eb";
+  status.textContent = "Creating account...";
+
+  try {
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      status.style.color = "#dc2626";
+      status.textContent = data.error || "Registration failed.";
+      return;
+    }
+
+    // Migrate guest data to new account
+    const oldKey = localStorage.getItem("sscranklab_user_key");
+    if (oldKey && oldKey.startsWith("guest_") && oldKey !== data.userKey) {
+      try {
+        await fetch("/api/auth/migrate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ oldUserKey: oldKey, newUserKey: data.userKey })
+        });
+      } catch (e) { console.warn("Migration error:", e); }
+    }
+
+    localStorage.setItem("sscranklab_user_key", data.userKey);
+    localStorage.setItem("sscranklab_user_email", data.email);
+    localStorage.setItem("sscranklab_user_name", data.name);
+    hideAuthModal();
+    updateAuthUI();
+    loadMarksHistory();
+  } catch (err) {
+    status.style.color = "#dc2626";
+    status.textContent = "Network error. Please try again.";
+  }
+}
+
+async function handleLogin() {
+  const email = (document.getElementById("authLoginEmail").value || "").trim();
+  const status = document.getElementById("authLoginStatus");
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { status.textContent = "Please enter a valid email."; return; }
+
+  status.textContent = "";
+  status.style.color = "#2563eb";
+  status.textContent = "Logging in...";
+
+  try {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      status.style.color = "#dc2626";
+      status.textContent = data.error || "Login failed.";
+      return;
+    }
+
+    // Migrate guest data if applicable
+    const oldKey = localStorage.getItem("sscranklab_user_key");
+    if (oldKey && oldKey.startsWith("guest_") && oldKey !== data.userKey) {
+      try {
+        await fetch("/api/auth/migrate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ oldUserKey: oldKey, newUserKey: data.userKey })
+        });
+      } catch (e) { console.warn("Migration error:", e); }
+    }
+
+    localStorage.setItem("sscranklab_user_key", data.userKey);
+    localStorage.setItem("sscranklab_user_email", data.email);
+    localStorage.setItem("sscranklab_user_name", data.name);
+    hideAuthModal();
+    updateAuthUI();
+    loadMarksHistory();
+  } catch (err) {
+    status.style.color = "#dc2626";
+    status.textContent = "Network error. Please try again.";
+  }
+}
+
+function handleGuestContinue() {
+  ensureUserKey();
+  localStorage.setItem("sscranklab_auth_skipped", "true");
+  hideAuthModal();
+}
+
+function handleLogout() {
+  localStorage.removeItem("sscranklab_user_email");
+  localStorage.removeItem("sscranklab_user_name");
+  localStorage.removeItem("sscranklab_auth_skipped");
+  // Generate a new guest key
+  const newKey = "guest_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
+  localStorage.setItem("sscranklab_user_key", newKey);
+  updateAuthUI();
+  showAuthModal();
+}
+
+function updateAuthUI() {
+  const name = localStorage.getItem("sscranklab_user_name");
+  const email = localStorage.getItem("sscranklab_user_email");
+  const authInfo = document.getElementById("authUserInfo");
+  if (authInfo) {
+    if (email) {
+      authInfo.innerHTML = '<span style="font-size:13px;color:#374151;font-weight:600;">' +
+        (name || email) + '</span> <a id="logoutBtn" style="font-size:12px;color:#dc2626;cursor:pointer;font-weight:700;margin-left:8px;">Logout</a>';
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
+    } else {
+      authInfo.innerHTML = '<a id="loginPromptBtn" style="font-size:13px;color:#2563eb;cursor:pointer;font-weight:700;">Sign in</a>';
+      const loginPromptBtn = document.getElementById("loginPromptBtn");
+      if (loginPromptBtn) loginPromptBtn.addEventListener("click", showAuthModal);
+    }
+  }
+}
+
+function checkAuthOnLoad() {
+  initAuthModal();
+  const hasEmail = isAuthenticated();
+  const skipped = localStorage.getItem("sscranklab_auth_skipped");
+  if (!hasEmail && !skipped) {
+    showAuthModal();
+  }
+  updateAuthUI();
 }
 
 function saveUnlockedPlan(plan) {
@@ -3941,16 +4125,18 @@ async function saveGoalProfile() {
   const userKey = getUserKey();
   const statusEl = document.getElementById("goalModalStatus");
   const examFamily = document.getElementById("goalExamFamily")?.value || "ssc_cgl";
-  const tier = document.getElementById("goalTier")?.value || "tier1";
   const category = document.getElementById("goalCategory")?.value || "UR";
   const targetPost = document.getElementById("goalTargetPost")?.value || "";
   const examDate = document.getElementById("goalExamDate")?.value || "";
-  const studyHours = Number(document.getElementById("goalStudyHours")?.value || 0);
-  const targetScore = Number(document.getElementById("goalTargetScore")?.value || 0);
   const autoCutoff = Number(document.getElementById("goalAutoCutoff")?.value || 0);
 
+  // Auto-derive: SSC CGL posts are allocated on Tier 2 scores
+  const tier = "tier2";
+  const studyHours = 6;
+  // Target score: cutoff + 10 marks buffer, or 200 if no cutoff
+  const targetScore = Number.isFinite(autoCutoff) && autoCutoff > 0 ? Math.round(autoCutoff + 10) : 200;
+
   const examAllowed = ["ssc_cgl", "ssc_chsl", "ssc_mts", "ssc_cpo"];
-  const tierAllowed = ["tier1", "tier2"];
   const categoryAllowed = ["UR", "OBC", "SC", "ST", "EWS"];
 
   if (!examAllowed.includes(examFamily)) {
@@ -3969,42 +4155,9 @@ async function saveGoalProfile() {
     return;
   }
 
-  if (!tierAllowed.includes(tier)) {
-    if (statusEl) {
-      statusEl.textContent = "Invalid tier selection.";
-      statusEl.style.color = "#b91c1c";
-    }
-    return;
-  }
-
   if (!targetPost || String(targetPost).length > 80) {
     if (statusEl) {
       statusEl.textContent = "Please select a valid target post.";
-      statusEl.style.color = "#b91c1c";
-    }
-    return;
-  }
-
-  if (!Number.isFinite(studyHours) || studyHours < 1 || studyHours > 16) {
-    if (statusEl) {
-      statusEl.textContent = "Study hours must be between 1 and 16.";
-      statusEl.style.color = "#b91c1c";
-    }
-    return;
-  }
-
-  const targetMaxByTier = tier === "tier2" ? 390 : 200;
-  if (!Number.isFinite(targetScore) || targetScore < 60 || targetScore > targetMaxByTier) {
-    if (statusEl) {
-      statusEl.textContent = `Target score must be between 60 and ${targetMaxByTier}.`;
-      statusEl.style.color = "#b91c1c";
-    }
-    return;
-  }
-
-  if (Number.isFinite(autoCutoff) && autoCutoff > 0 && targetScore < autoCutoff) {
-    if (statusEl) {
-      statusEl.textContent = `Target score is too low for selected post/category. Keep it at or above cutoff (${Math.round(autoCutoff)}).`;
       statusEl.style.color = "#b91c1c";
     }
     return;

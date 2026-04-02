@@ -86,6 +86,7 @@ async function gotoApp(page) {
   await stubThirdPartyAssets(page);
   await page.addInitScript(() => {
     localStorage.setItem("sscranklab_goal_dismissed", "1");
+    localStorage.setItem("sscranklab_auth_skipped", "true");
   });
   await page.goto("/");
   await expect(page.locator("h1")).toContainText("Individual + Group Dashboard");

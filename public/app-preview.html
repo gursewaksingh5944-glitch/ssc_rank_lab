@@ -1026,6 +1026,21 @@
     .goal-form-grid select,.goal-form-grid input{width:100%;border:1px solid #d1d5db;border-radius:12px;padding:10px 12px;font-size:14px;outline:none;}
     .goal-form-grid select:focus,.goal-form-grid input:focus{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(59,130,246,.15);}
 
+    /* Auth Modal */
+    .auth-modal-overlay{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);}
+    .auth-modal-inner{background:#fff;border-radius:24px;box-shadow:0 32px 80px rgba(0,0,0,.25);padding:36px;max-width:440px;width:100%;margin:0 16px;}
+    .auth-modal-inner h2{margin:0 0 4px;font-size:22px;font-weight:900;color:#111827;}
+    .auth-modal-inner p{margin:0 0 20px;font-size:13px;color:#6b7280;}
+    .auth-input{width:100%;border:1.5px solid #d1d5db;border-radius:14px;padding:12px 14px;font-size:15px;outline:none;box-sizing:border-box;margin-bottom:12px;}
+    .auth-input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15);}
+    .auth-btn-primary{width:100%;padding:13px;border-radius:14px;background:#2563eb;border:none;color:#fff;font-size:15px;font-weight:800;cursor:pointer;margin-bottom:10px;}
+    .auth-btn-primary:hover{background:#1d4ed8;}
+    .auth-btn-secondary{width:100%;padding:11px;border-radius:14px;background:#f3f4f6;border:none;color:#374151;font-size:14px;font-weight:700;cursor:pointer;}
+    .auth-btn-secondary:hover{background:#e5e7eb;}
+    .auth-toggle{text-align:center;margin-top:14px;font-size:13px;color:#6b7280;}
+    .auth-toggle a{color:#2563eb;font-weight:700;cursor:pointer;text-decoration:none;}
+    .auth-status{min-height:18px;font-size:13px;font-weight:700;margin-bottom:10px;}
+
     /* Upgrade Modal */
     .upgrade-modal-overlay{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);}
     .upgrade-modal-inner{background:#fff;border-radius:24px;box-shadow:0 32px 80px rgba(0,0,0,.25);padding:28px;max-width:480px;width:100%;margin:0 16px;max-height:90vh;overflow-y:auto;}
@@ -1453,7 +1468,7 @@
         <button data-panel="questions">Questions</button>
         <button data-panel="progress">My Progress</button>
         <button data-panel="groups">Groups</button>
-        <button data-panel="tools">Tools</button>
+        <button data-panel="tools">Rank Predictor</button>
         <button data-panel="plans">Plans</button>
       </div>
 
@@ -1474,6 +1489,7 @@
           <h1>Individual + Group Dashboard</h1>
         </div>
         <div class="top-actions">
+          <span id="authUserInfo" style="display:flex;align-items:center;"></span>
           <div class="tier-switch" aria-label="Tier mode switch">
             <button id="tierModeBtnTier1" type="button" class="active">Tier 1</button>
             <button id="tierModeBtnTier2" type="button">Tier 2</button>
@@ -1832,8 +1848,8 @@
       </section>
 
       <section id="tools" class="panel">
-        <h2>Tools</h2>
-        <p class="subtitle">Rank prediction and decision support tools.</p>
+        <h2>Rank Predictor</h2>
+        <p class="subtitle">Predict your SSC CGL rank and post allocation chances.</p>
 
         <!-- Rank Predictor -->
         <div id="predictorTier1Notice" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;padding:22px 20px;margin-bottom:0;">
@@ -1933,8 +1949,8 @@
 
         <!-- Question Lab Controls (light section) -->
         <div class="qlab-shell">
-          <div class="qlab-controls" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;">
-            <select id="qlabTier">
+          <div class="qlab-controls" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;">
+            <select id="qlabTier" style="display:none;">
               <option value="tier1">Tier 1</option>
               <option value="tier2">Tier 2</option>
             </select>
@@ -2143,9 +2159,36 @@
     <button data-panel="questions">Questions</button>
     <button data-panel="progress">Progress</button>
     <button data-panel="groups">Groups</button>
-    <button data-panel="tools">Tools</button>
+    <button data-panel="tools">Rank Predictor</button>
     <button data-panel="plans">Plans</button>
   </nav>
+
+  <!-- Auth Modal -->
+  <div id="authModal" class="auth-modal-overlay hidden">
+    <div class="auth-modal-inner">
+      <!-- Register View -->
+      <div id="authRegisterView">
+        <h2>Create Your Account</h2>
+        <p>Save your progress, sync across devices, and track your SSC journey.</p>
+        <div id="authRegisterStatus" class="auth-status" style="color:#dc2626;"></div>
+        <input type="text" id="authName" class="auth-input" placeholder="Your Name" maxlength="100" autocomplete="name" />
+        <input type="email" id="authEmail" class="auth-input" placeholder="Email Address" maxlength="200" autocomplete="email" />
+        <button id="authRegisterBtn" class="auth-btn-primary">Create Account</button>
+        <button id="authGuestBtn" class="auth-btn-secondary">Continue as Guest</button>
+        <div class="auth-toggle">Already have an account? <a id="authShowLogin">Log in</a></div>
+      </div>
+      <!-- Login View -->
+      <div id="authLoginView" style="display:none;">
+        <h2>Welcome Back</h2>
+        <p>Log in to access your saved data and progress.</p>
+        <div id="authLoginStatus" class="auth-status" style="color:#dc2626;"></div>
+        <input type="email" id="authLoginEmail" class="auth-input" placeholder="Email Address" maxlength="200" autocomplete="email" />
+        <button id="authLoginBtn" class="auth-btn-primary">Log In</button>
+        <button id="authGuestBtn2" class="auth-btn-secondary">Continue as Guest</button>
+        <div class="auth-toggle">New here? <a id="authShowRegister">Create account</a></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Goal Onboarding Modal -->
   <div id="goalModal" class="goal-modal-overlay hidden">
@@ -2165,13 +2208,6 @@
             <option value="ssc_chsl">SSC CHSL</option>
             <option value="ssc_mts">SSC MTS</option>
             <option value="ssc_cpo">SSC CPO</option>
-          </select>
-        </div>
-        <div>
-          <label for="goalTier">Target Tier</label>
-          <select id="goalTier">
-            <option value="tier1">Tier 1</option>
-            <option value="tier2">Tier 2</option>
           </select>
         </div>
         <div>
@@ -2203,18 +2239,13 @@
           <input type="month" id="goalExamDate" />
         </div>
         <div>
-          <label for="goalStudyHours">Daily Study Hours</label>
-          <input type="number" id="goalStudyHours" min="1" max="16" placeholder="e.g. 6" />
-        </div>
-        <div>
-          <label for="goalTargetScore">Target Score</label>
-          <input type="number" id="goalTargetScore" min="60" max="600" placeholder="e.g. 150" />
-        </div>
-        <div>
           <label for="goalAutoCutoff">Auto Cutoff (From Data)</label>
           <input type="number" id="goalAutoCutoff" readonly placeholder="Select post + category" />
         </div>
       </div>
+      <input type="hidden" id="goalTier" value="tier2" />
+      <input type="hidden" id="goalStudyHours" value="6" />
+      <input type="hidden" id="goalTargetScore" value="0" />
       <div id="goalModalStatus" style="min-height:18px;font-size:13px;font-weight:700;color:#1e40af;margin-top:10px;"></div>
       <div style="display:flex;gap:10px;margin-top:16px;">
         <button id="saveGoalBtn" style="flex:1;padding:12px;border-radius:14px;background:#2563eb;border:none;color:#fff;font-size:15px;font-weight:800;cursor:pointer;">Save Goal</button>

@@ -38,6 +38,7 @@ const questionsRoute = require("./routes/questions");
 const testsRoute = require("./routes/tests");
 const goalsRoute = require("./routes/goals");
 const socialRoute = require("./routes/social");
+const authRoute = require("./routes/auth");
 
 const app = express();
 app.set("trust proxy", true);
@@ -160,6 +161,7 @@ app.use("/api/questions", questionsRoute);
 app.use("/api/tests", testsRoute);
 app.use("/api/goals", goalsRoute);
 app.use("/api/social", socialRoute);
+app.use("/api/auth", authRoute);
 
 // Force legacy index paths to the main app preview homepage.
 app.get(["/index", "/index.html"], (req, res) => {
