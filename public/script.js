@@ -1404,10 +1404,10 @@ function updateHookZone(outcome) {
     headlineText.textContent = `You're ${marksAway} marks away from ${post} — here's exactly what to do:`;
     if (setupBtn) setupBtn.classList.add("hidden");
   } else {
-    // Goal set + history exists but no cutoff data for this tier (e.g. tier1 view with tier2 goal)
+    // Goal set + history exists but no cutoff data for this tier
     if (headlineIcon) headlineIcon.textContent = "📊";
-    headlineText.textContent = `${post} — switch to Tier 2 to see your selection forecast`;
-    if (setupBtn) setupBtn.classList.add("hidden");
+    headlineText.textContent = `${post} — re-save your goal to load cutoff data for this tier`;
+    if (setupBtn) setupBtn.classList.remove("hidden");
   }
 
   /* ── Gap card ── hero number with gradient */
@@ -4204,17 +4204,7 @@ async function saveGoalProfile() {
   const category = document.getElementById("goalCategory")?.value || "UR";
   const targetPost = document.getElementById("goalTargetPost")?.value || "";
   const examDate = document.getElementById("goalExamDate")?.value || "";
-  const autoCutoff = Number(document.getElementById("goalAutoCutoff")?.value || 0);
-
-  // Auto-derive: SSC CGL posts are allocated on Tier 2 scores
-  const tier = "tier2";
   const studyHours = 6;
-  // Target score: read from form (user may have edited), fallback to cutoff + 20 buffer
-  const targetScoreEl = document.getElementById("goalTargetScore");
-  const formTarget = Number(targetScoreEl?.value || 0);
-  const targetScore = Number.isFinite(formTarget) && formTarget > 0
-    ? Math.min(390, formTarget)
-    : (Number.isFinite(autoCutoff) && autoCutoff > 0 ? Math.min(390, Math.round(autoCutoff + 20)) : 200);
 
   const examAllowed = ["ssc_cgl", "ssc_chsl", "ssc_mts", "ssc_cpo"];
   const categoryAllowed = ["UR", "OBC", "SC", "ST", "EWS"];
@@ -4246,30 +4236,49 @@ async function saveGoalProfile() {
   if (statusEl) { statusEl.textContent = "Saving..."; statusEl.style.color = "#1e40af"; }
 
   try {
-    const normalizedTier = normalizeTierMode(tier);
-    const nextGoal = {
-      examFamily,
-      tier: normalizedTier,
-      category,
-      targetPost,
-      examDate,
-      studyHours,
-      targetScore,
-      autoCutoff: Number.isFinite(autoCutoff) && autoCutoff > 0 ? Math.round(autoCutoff) : null,
-      updatedAt: new Date().toISOString()
-    };
+    // Fetch cutoffs for BOTH tiers so we save goals for each
+    const [t1Res, t2Res] = await Promise.all([
+      fetch(apiUrl(`/api/goals/cutoffs?examFamily=${encodeURIComponent(examFamily)}&tier=tier1&userKey=${encodeURIComponent(userKey)}`)),
+      fetch(apiUrl(`/api/goals/cutoffs?examFamily=${encodeURIComponent(examFamily)}&tier=tier2&userKey=${encodeURIComponent(userKey)}`))
+    ]);
+    const t1Cat = t1Res.ok ? await t1Res.json() : null;
+    const t2Cat = t2Res.ok ? await t2Res.json() : null;
+
+    function findPostCutoff(catalog, post, cat) {
+      if (!catalog?.success || !Array.isArray(catalog.posts)) return null;
+      const found = catalog.posts.find(p => p.name === post);
+      const val = Number(found?.cutoffByCategory?.[cat] ?? 0);
+      return Number.isFinite(val) && val > 0 ? Math.round(val) : null;
+    }
+
+    const t1Cutoff = findPostCutoff(t1Cat, targetPost, category);
+    const t2Cutoff = findPostCutoff(t2Cat, targetPost, category);
+
+    const now = new Date().toISOString();
+    const common = { examFamily, category, targetPost, examDate, studyHours, updatedAt: now };
+
+    // Tier 1 goal (max 200)
+    const t1Target = t1Cutoff ? Math.min(200, t1Cutoff + 8) : 160;
+    const tier1Goal = { ...common, tier: "tier1", autoCutoff: t1Cutoff, targetScore: t1Target };
+
+    // Tier 2 goal (max 390)
+    const targetScoreEl = document.getElementById("goalTargetScore");
+    const formTarget = Number(targetScoreEl?.value || 0);
+    const t2Target = Number.isFinite(formTarget) && formTarget > 0
+      ? Math.min(390, formTarget)
+      : (t2Cutoff ? Math.min(390, t2Cutoff + 20) : 200);
+    const tier2Goal = { ...common, tier: "tier2", autoCutoff: t2Cutoff, targetScore: t2Target };
 
     goalsByTierCache = {
       ...(goalsByTierCache && typeof goalsByTierCache === "object" ? goalsByTierCache : {}),
-      [normalizedTier]: nextGoal
+      tier1: tier1Goal,
+      tier2: tier2Goal
     };
 
     const profileUpdatePayload = {
-      goalsByTier: goalsByTierCache
+      goalsByTier: goalsByTierCache,
+      goal: tier1Goal
     };
-    if (normalizedTier === "tier1") {
-      profileUpdatePayload.goal = nextGoal;
-    }
 
     const response = await fetch(apiUrl(`/api/user/${encodeURIComponent(userKey)}`), {
       method: "POST",
@@ -4282,7 +4291,7 @@ async function saveGoalProfile() {
     goalsByTierCache = profile.goalsByTier && typeof profile.goalsByTier === "object"
       ? profile.goalsByTier
       : goalsByTierCache;
-    goalProfile = goalsByTierCache[normalizedTier] || goalsByTierCache[activeTierMode] || null;
+    goalProfile = goalsByTierCache[activeTierMode] || goalsByTierCache["tier2"] || null;
     updateTopGoalFrame();
     updateGoalGapBanner(lastMarksEntries);
     updateTodayActionPlan(lastMarksEntries);
