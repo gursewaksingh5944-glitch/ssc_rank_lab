@@ -37,7 +37,9 @@ function shuffle(arr) {
 }
 
 function pickQuestions(bank, subject, tier, count, opts = {}) {
-  let pool = bank.filter(q => q.subject === subject && (q.tier === tier || q.tier === "tier1"));
+  // quant, reasoning, english overlap between tier1 and tier2; include both tiers
+  const sharedSubjects = new Set(["quant", "reasoning", "english", "gk"]);
+  let pool = bank.filter(q => q.subject === subject && (sharedSubjects.has(subject) || q.tier === tier || q.tier === "tier1"));
   if (opts.isPYQ) pool = pool.filter(q => q.isPYQ);
   if (opts.difficulty) pool = pool.filter(q => q.difficulty === opts.difficulty);
   if (opts.topics && opts.topics.length) {
