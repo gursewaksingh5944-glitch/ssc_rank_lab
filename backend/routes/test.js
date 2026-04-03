@@ -312,5 +312,32 @@ router.get("/:userKey/analytics", (req, res) => {
   }
 });
 
+// DELETE /api/test/:userKey/:entryId - Remove a test entry
+router.delete("/:userKey/:entryId", (req, res) => {
+  try {
+    const userKey = normalizeUserKey(req.params.userKey);
+    const entryId = String(req.params.entryId || "").trim();
+    if (!userKey || !entryId) {
+      return res.status(400).json({ success: false, error: "userKey and entryId required" });
+    }
+
+    const store = readStore();
+    const entries = Array.isArray(store.users[userKey]) ? store.users[userKey] : [];
+    const idx = entries.findIndex(e => e.id === entryId);
+    if (idx === -1) {
+      return res.status(404).json({ success: false, error: "Entry not found" });
+    }
+
+    entries.splice(idx, 1);
+    store.users[userKey] = entries;
+    writeStore(store);
+
+    return res.json({ success: true, message: "Entry deleted" });
+  } catch (error) {
+    console.error("/api/test DELETE error:", error);
+    return res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
 module.exports = router;
 module.exports.loadTestEntriesFromDb = loadTestEntriesFromDb;

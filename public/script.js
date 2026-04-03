@@ -1652,8 +1652,8 @@ function runWhatIfSimulator() {
   if (!inputEl || !resultEl) return;
 
   const score = Number(inputEl.value);
-  const goalTier = String(_lastOutcome?.goalProfile?.tier || "tier1").toLowerCase();
-  const scoreMax = goalTier === "tier2" ? 390 : 200;
+  const currentTier = String(activeTierMode || "tier1").toLowerCase();
+  const scoreMax = currentTier === "tier2" ? 390 : 200;
   if (!Number.isFinite(score) || score < 0 || score > scoreMax) {
     resultEl.textContent = `Enter a merit score between 0 and ${scoreMax}.`;
     resultEl.style.color = "#f87171";
@@ -2708,7 +2708,7 @@ async function loadBenchmarkProfile() {
     topicDrillByTierCache = profile.topicDrillByTier && typeof profile.topicDrillByTier === "object" ? profile.topicDrillByTier : {};
 
     const legacyGoal = profile.goal || null;    const legacyGoalTier = normalizeTierMode(legacyGoal?.tier || "tier1");
-    goalProfile = goalsByTierCache[activeTierMode] || goalsByTierCache["tier2"] || (legacyGoal && legacyGoalTier === activeTierMode ? legacyGoal : null);
+    goalProfile = goalsByTierCache[activeTierMode] || (legacyGoal && legacyGoalTier === activeTierMode ? legacyGoal : null);
 
     const legacyBenchmark = profile.benchmark || null;
     benchmarkProfile = benchmarksByTierCache[activeTierMode] || (activeTierMode === "tier1" ? legacyBenchmark : null);
@@ -3972,13 +3972,29 @@ function displayMarksHistory(entries) {
     const subjectParts = _histCfg.subjects.map(function (s) {
       return '<div>' + s.label + ': ' + (entry[s.dbKey] || 0) + '</div>';
     }).join('');
+    const deleteBtn = entry.id
+      ? ' <button class="text-red-400 hover:text-red-600 text-xs ml-2 js-delete-entry" data-entry-id="' + escapeHtml(entry.id) + '" title="Delete entry">✕</button>'
+      : '';
     return '<div class="bg-gray-50 p-4 rounded-xl">'
-      + '<div class="font-semibold">' + new Date(entry.test_date).toLocaleDateString() + '</div>'
+      + '<div class="font-semibold">' + new Date(entry.test_date).toLocaleDateString() + deleteBtn + '</div>'
       + '<div class="grid grid-cols-3 md:grid-cols-6 gap-2 mt-2 text-sm">'
       + subjectParts
       + '<div class="font-semibold">Total: ' + (entry.total_marks || 0) + '</div>'
       + '</div></div>';
   }).join('');
+
+  historyDiv.querySelectorAll(".js-delete-entry").forEach(function (btn) {
+    btn.addEventListener("click", async function () {
+      const entryId = btn.dataset.entryId;
+      if (!entryId || !confirm("Delete this entry?")) return;
+      try {
+        const userKey = getUserKey();
+        const resp = await fetch(apiUrl("/api/test/" + encodeURIComponent(userKey) + "/" + encodeURIComponent(entryId)), { method: "DELETE" });
+        const data = await resp.json();
+        if (data.success) loadMarksHistory();
+      } catch (_) { /* ignore */ }
+    });
+  });
 }
 
 function drawProgressChart(entries) {

@@ -196,15 +196,18 @@ router.get("/:userKey/outcome", (req, res) => {
     if (!userKey) {
       return res.status(400).json({ success: false, error: "userKey required" });
     }
+    if (!["tier1", "tier2"].includes(requestedTier)) {
+      return res.status(400).json({ success: false, error: "Invalid tier" });
+    }
 
     const profile = getUserProfile(userKey);
     const goalsByTier = profile?.goalsByTier && typeof profile.goalsByTier === "object"
       ? profile.goalsByTier
       : {};
     const legacyGoal = profile?.goal || null;
+    const legacyGoalTier = String(legacyGoal?.tier || "tier1").toLowerCase().replace(/[^a-z0-9]/g, "");
     const goalProfile = goalsByTier[requestedTier] ||
-      goalsByTier["tier2"] ||
-      (legacyGoal ? legacyGoal : null);
+      (legacyGoal && legacyGoalTier === requestedTier ? legacyGoal : null);
 
     const entries = readTestEntries(userKey, requestedTier);
     const hasHistory = entries.length > 0;
@@ -345,7 +348,18 @@ router.post("/:userKey", (req, res) => {
       return res.status(400).json({ success: false, error: "userKey required" });
     }
 
-    const profileUpdate = req.body || {};
+    // Whitelist allowed profile fields to prevent data injection
+    const ALLOWED_FIELDS = [
+      "goal", "goalsByTier", "benchmark", "benchmarksByTier",
+      "selfReviewByTier", "topicDrillByTier",
+      "name", "email", "category", "examFamily", "examDate"
+    ];
+    const raw = req.body || {};
+    const profileUpdate = {};
+    for (const key of ALLOWED_FIELDS) {
+      if (key in raw) profileUpdate[key] = raw[key];
+    }
+
     const saved = setUserProfile(userKey, profileUpdate);
 
     return res.status(200).json({ success: true, userKey, profile: saved });

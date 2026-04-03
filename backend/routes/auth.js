@@ -22,7 +22,7 @@ router.post("/register", (req, res) => {
     const email = normalizeEmail(req.body.email);
     const name = String(req.body.name || "").trim();
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
       return res.status(400).json({ success: false, error: "Valid email required" });
     }
     if (!name || name.length < 2) {
@@ -74,7 +74,7 @@ router.post("/register", (req, res) => {
 router.post("/login", (req, res) => {
   try {
     const email = normalizeEmail(req.body.email);
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
       return res.status(400).json({ success: false, error: "Valid email required" });
     }
 

@@ -62,11 +62,18 @@ function sanitize(q) {
   };
 }
 
-// ── Session store (in-memory, bounded) ──────────────────────
+// ── Session store (in-memory, bounded + TTL cleanup) ────────
 const testSessions = new Map();
 const MAX_SESSIONS = 500;
+const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 function storeSession(testId, session) {
+  session._createdAt = Date.now();
+  // Evict expired sessions first
+  const now = Date.now();
+  for (const [id, s] of testSessions) {
+    if (now - (s._createdAt || 0) > SESSION_TTL_MS) testSessions.delete(id);
+  }
   if (testSessions.size >= MAX_SESSIONS) {
     // Evict oldest
     const oldest = testSessions.keys().next().value;
