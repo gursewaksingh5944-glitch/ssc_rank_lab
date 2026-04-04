@@ -1330,6 +1330,25 @@
     "guest_1775301980788_ndbcacmz": {
       "referralCode": "RL2FF3A88797",
       "updatedAt": "2026-04-04T11:26:23.075Z"
+    },
+    "guest_1775324565652_i9z5b623": {
+      "referralCode": "RLF0704594D9",
+      "updatedAt": "2026-04-04T17:42:45.712Z"
+    },
+    "guest_1775324565652_owmd53wa": {
+      "referralCode": "RLFA3AC70FB3",
+      "updatedAt": "2026-04-04T17:42:47.672Z"
+    },
+    "guest_1775324565652_cqvbsuda": {
+      "trialPlan": 99,
+      "trialStartedAt": "2026-04-04T17:42:47.762Z",
+      "trialEndsAt": "2026-04-06T17:42:47.762Z",
+      "hasUsedTrial": true,
+      "updatedAt": "2026-04-04T17:42:47.762Z"
+    },
+    "guest_1775324565652_dkn08c5n": {
+      "referralCode": "RLC6DEC5AD4A",
+      "updatedAt": "2026-04-04T17:42:47.789Z"
     }
   },
   "payments": [],
