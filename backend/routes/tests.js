@@ -46,12 +46,46 @@ function pickQuestions(bank, subject, tier, count, opts = {}) {
     const topicSet = new Set(opts.topics.map(t => t.toLowerCase()));
     pool = pool.filter(q => topicSet.has((q.topic || "").toLowerCase()));
   }
-  return shuffle(pool).slice(0, count);
+
+  // Separate set-based questions from standalone
+  const standalone = pool.filter(q => !q.setId);
+  const setGroups = {};
+  for (const q of pool.filter(q => q.setId)) {
+    if (!setGroups[q.setId]) setGroups[q.setId] = [];
+    setGroups[q.setId].push(q);
+  }
+  // Sort set questions by setIndex
+  for (const g of Object.values(setGroups)) {
+    g.sort((a, b) => (a.setIndex || 0) - (b.setIndex || 0));
+  }
+
+  const result = [];
+  const usedSets = new Set();
+  const shuffledStandalone = shuffle(standalone);
+  const shuffledSetIds = shuffle(Object.keys(setGroups));
+
+  // First, try to include complete question sets
+  for (const sid of shuffledSetIds) {
+    const group = setGroups[sid];
+    if (result.length + group.length <= count) {
+      result.push(...group);
+      usedSets.add(sid);
+    }
+    if (result.length >= count) break;
+  }
+
+  // Fill rest with standalone questions
+  for (const q of shuffledStandalone) {
+    if (result.length >= count) break;
+    result.push(q);
+  }
+
+  return result;
 }
 
 // Strip answers before sending to client
 function sanitize(q) {
-  return {
+  const out = {
     id: q.id,
     question: q.question,
     options: q.options,
@@ -62,6 +96,8 @@ function sanitize(q) {
     negativeMarks: q.negativeMarks || 0.5,
     isPYQ: q.isPYQ || false
   };
+  if (q.setId) { out.setId = q.setId; out.setIndex = q.setIndex; out.setSize = q.setSize; }
+  return out;
 }
 
 // ── Session store (in-memory, bounded + TTL cleanup) ────────
