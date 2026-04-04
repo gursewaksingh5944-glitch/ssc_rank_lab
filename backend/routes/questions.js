@@ -2164,4 +2164,93 @@ router.get("/admin/review/stats", (req, res) => {
   }
 });
 
+// ============================================================
+// ROUTE: Flag/Report a bad question (user-facing, no admin key)
+// ============================================================
+router.post("/flag", (req, res) => {
+  try {
+    const { questionId, reason } = req.body;
+    if (!questionId) return res.status(400).json({ success: false, error: "questionId required" });
+
+    const bank = readBank();
+    const q = bank.questions.find(q => q.id === questionId);
+    if (!q) return res.status(404).json({ success: false, error: "Question not found" });
+
+    // Track flags on the question
+    if (!q.flags) q.flags = [];
+    // Rate limit: max 10 flags per question to prevent abuse
+    if (q.flags.length >= 10) {
+      return res.json({ success: true, message: "Already flagged" });
+    }
+    q.flags.push({
+      reason: String(reason || "bad quality").substring(0, 200),
+      at: new Date().toISOString()
+    });
+
+    // Auto-remove: if a question gets 3+ flags, mark it as rejected
+    if (q.flags.length >= 3 && q.reviewStatus !== "rejected") {
+      q.reviewStatus = "rejected";
+    }
+
+    writeBank(bank);
+    res.json({ success: true, message: "Question flagged successfully. Thank you for helping improve quality!" });
+  } catch (err) {
+    console.error("/api/questions/flag error:", err);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
+// ============================================================
+// ROUTE: Admin — view flagged questions
+// ============================================================
+router.get("/admin/flagged", (req, res) => {
+  try {
+    if (!requireAdminAccess(req, res)) return;
+
+    const bank = readBank();
+    const flagged = bank.questions
+      .filter(q => q.flags && q.flags.length > 0)
+      .map(q => ({
+        id: q.id,
+        question: q.question.substring(0, 200),
+        subject: q.subject,
+        topic: q.topic,
+        options: q.options,
+        flagCount: q.flags.length,
+        flags: q.flags,
+        reviewStatus: q.reviewStatus
+      }))
+      .sort((a, b) => b.flagCount - a.flagCount);
+
+    res.json({ success: true, total: flagged.length, flagged });
+  } catch (err) {
+    console.error("/api/questions/admin/flagged error:", err);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
+// ============================================================
+// ROUTE: Admin — remove a specific question by ID
+// ============================================================
+router.post("/admin/remove", (req, res) => {
+  try {
+    if (!requireAdminAccess(req, res)) return;
+
+    const { questionId } = req.body;
+    if (!questionId) return res.status(400).json({ success: false, error: "questionId required" });
+
+    const bank = readBank();
+    const idx = bank.questions.findIndex(q => q.id === questionId);
+    if (idx === -1) return res.status(404).json({ success: false, error: "Question not found" });
+
+    bank.questions.splice(idx, 1);
+    writeBank(bank);
+
+    res.json({ success: true, message: "Question removed", remaining: bank.questions.length });
+  } catch (err) {
+    console.error("/api/questions/admin/remove error:", err);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
 module.exports = router;

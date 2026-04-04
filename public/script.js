@@ -3226,6 +3226,31 @@ function renderQuestionLabInsights() {
 }
 
 function handleQuestionLabOptionClick(event) {
+  // Handle flag button
+  const flagBtn = event.target.closest(".qlab-flag-btn");
+  if (flagBtn) {
+    const qid = decodeURIComponent(String(flagBtn.dataset.qid || ""));
+    if (!qid) return;
+    flagBtn.disabled = true;
+    flagBtn.textContent = "...";
+    fetch("/api/questions/flag", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ questionId: qid, reason: "bad quality" })
+    })
+      .then(r => r.json())
+      .then(d => {
+        flagBtn.textContent = "✓";
+        flagBtn.title = "Reported — thank you!";
+        flagBtn.classList.add("flagged");
+      })
+      .catch(() => {
+        flagBtn.textContent = "⚑";
+        flagBtn.disabled = false;
+      });
+    return;
+  }
+
   const optionBtn = event.target.closest(".qlab-option-btn");
   if (!optionBtn) return;
 
@@ -3328,6 +3353,7 @@ function renderQuestionLabItems(items = []) {
           <span class="qlab-chip">${escapeHtml(item.topic || "topic")}</span>
           ${yearText ? `<span class="qlab-chip">${escapeHtml(yearText)}</span>` : ""}
           ${batchText ? `<span class="qlab-chip">${escapeHtml(String(batchText))}</span>` : ""}
+          <button type="button" class="qlab-flag-btn" data-qid="${encodeURIComponent(questionId)}" title="Report bad question">⚑</button>
         </div>
         <div class="qlab-item-qno">Q${globalIdx}</div>
         <div class="qlab-item-question">${escapeHtml(item.question || "")}</div>
