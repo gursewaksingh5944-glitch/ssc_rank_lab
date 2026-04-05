@@ -4922,6 +4922,78 @@ function initQuestionAdminPanel() {
       runQuestionAutoDecision("reject");
     });
   }
+
+  const quickAddBtn = document.getElementById("qaQuickAddBtn");
+  if (quickAddBtn) quickAddBtn.addEventListener("click", quickAddQuestion);
+}
+
+async function quickAddQuestion() {
+  const statusEl = document.getElementById("qaQuickStatus");
+  const setStatus = function (msg, isErr) {
+    if (statusEl) {
+      statusEl.textContent = msg;
+      statusEl.style.color = isErr ? "#b91c1c" : "#16a34a";
+    }
+  };
+
+  const question = String(document.getElementById("qaQuickQuestion").value || "").trim();
+  const opt0 = String(document.getElementById("qaQuickOpt0").value || "").trim();
+  const opt1 = String(document.getElementById("qaQuickOpt1").value || "").trim();
+  const opt2 = String(document.getElementById("qaQuickOpt2").value || "").trim();
+  const opt3 = String(document.getElementById("qaQuickOpt3").value || "").trim();
+  const answerIndex = Number(document.getElementById("qaQuickAnswer").value);
+  const subject = document.getElementById("qaQuickSubject").value;
+  const topic = String(document.getElementById("qaQuickTopic").value || "").trim();
+  const difficulty = document.getElementById("qaQuickDifficulty").value;
+  const tier = document.getElementById("qaQuickTier").value;
+  const explanation = String(document.getElementById("qaQuickExplanation").value || "").trim();
+  const adminKey = String(document.getElementById("questionAdminKey").value || "").trim();
+
+  if (!question) return setStatus("Question text is required", true);
+  if (!opt0 || !opt1 || !opt2 || !opt3) return setStatus("All 4 options are required", true);
+  if (!topic) return setStatus("Topic is required", true);
+  if (!adminKey) return setStatus("Admin key is required (use the field above)", true);
+
+  setStatus("Adding…");
+
+  try {
+    const response = await fetch(apiUrl("/api/questions/admin/upsert"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-key": adminKey
+      },
+      body: JSON.stringify({
+        item: {
+          subject: subject,
+          topic: topic,
+          difficulty: difficulty,
+          tier: tier,
+          questionMode: "objective",
+          question: question,
+          options: [opt0, opt1, opt2, opt3],
+          answerIndex: answerIndex,
+          explanation: explanation,
+          confidenceScore: 1.0,
+          reviewStatus: "approved",
+          source: { kind: "manual", addedBy: "admin" }
+        }
+      })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      return setStatus("Error: " + (data.error || "Failed"), true);
+    }
+    setStatus("Added! Bank total: " + data.total);
+    document.getElementById("qaQuickQuestion").value = "";
+    document.getElementById("qaQuickOpt0").value = "";
+    document.getElementById("qaQuickOpt1").value = "";
+    document.getElementById("qaQuickOpt2").value = "";
+    document.getElementById("qaQuickOpt3").value = "";
+    document.getElementById("qaQuickExplanation").value = "";
+  } catch (err) {
+    setStatus("Network error: " + err.message, true);
+  }
 }
 
 function getSocialDisplayName() {

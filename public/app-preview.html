@@ -2087,6 +2087,78 @@
           <div id="questionAdminStatus" class="admin-status"></div>
           <div id="questionAdminStats" class="admin-stats"></div>
           <div id="questionAdminPreviewList" class="review-list"></div>
+
+          <hr style="margin:20px 0;border:none;border-top:2px dashed #e2e8f0;" />
+          <h3 style="margin:0;font-size:16px;font-weight:900;color:#1e293b;">Quick Add — Single Question</h3>
+          <p style="margin:6px 0 0;font-size:12px;color:#64748b;font-weight:700;">Paste or type a question with 4 options. Saved instantly as approved.</p>
+          <div class="admin-grid" style="margin-top:10px;">
+            <div class="admin-field" style="grid-column:1/-1;">
+              <label for="qaQuickQuestion">Question Text</label>
+              <textarea id="qaQuickQuestion" rows="3" placeholder="The marked price of a water bottle is ₹950…" style="width:100%;font-family:inherit;font-size:13px;padding:8px;border:2px solid #e2e8f0;border-radius:8px;resize:vertical;"></textarea>
+            </div>
+            <div class="admin-field">
+              <label for="qaQuickOpt0">Option A</label>
+              <input id="qaQuickOpt0" type="text" placeholder="Option A" />
+            </div>
+            <div class="admin-field">
+              <label for="qaQuickOpt1">Option B</label>
+              <input id="qaQuickOpt1" type="text" placeholder="Option B" />
+            </div>
+            <div class="admin-field">
+              <label for="qaQuickOpt2">Option C</label>
+              <input id="qaQuickOpt2" type="text" placeholder="Option C" />
+            </div>
+            <div class="admin-field">
+              <label for="qaQuickOpt3">Option D</label>
+              <input id="qaQuickOpt3" type="text" placeholder="Option D" />
+            </div>
+            <div class="admin-field">
+              <label for="qaQuickAnswer">Correct Answer</label>
+              <select id="qaQuickAnswer">
+                <option value="0">A</option>
+                <option value="1">B</option>
+                <option value="2">C</option>
+                <option value="3">D</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="qaQuickSubject">Subject</label>
+              <select id="qaQuickSubject">
+                <option value="quant">Quant</option>
+                <option value="english">English</option>
+                <option value="reasoning">Reasoning</option>
+                <option value="gk">GK</option>
+                <option value="computer">Computer</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="qaQuickTopic">Topic</label>
+              <input id="qaQuickTopic" type="text" placeholder="Discount / Algebra / Idioms" />
+            </div>
+            <div class="admin-field">
+              <label for="qaQuickDifficulty">Difficulty</label>
+              <select id="qaQuickDifficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="qaQuickTier">Tier</label>
+              <select id="qaQuickTier">
+                <option value="tier1">Tier 1</option>
+                <option value="tier2">Tier 2</option>
+              </select>
+            </div>
+            <div class="admin-field" style="grid-column:1/-1;">
+              <label for="qaQuickExplanation">Explanation (optional)</label>
+              <input id="qaQuickExplanation" type="text" placeholder="Short solution or reasoning" />
+            </div>
+          </div>
+          <div class="admin-actions">
+            <button class="primary" id="qaQuickAddBtn" type="button">Add Question</button>
+          </div>
+          <div id="qaQuickStatus" class="admin-status"></div>
         </div>
       </section>
 
