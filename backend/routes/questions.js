@@ -71,7 +71,6 @@ const SECTION_ORDER = ["quant", "reasoning", "english", "gk"];
 // Midpoint weights are used to keep topic proportions realistic during auto-mock generation.
 const SSC_CGL_TOPIC_WEIGHTAGE = {
   quant: {
-    "Data Interpretation": 4.5,
     Geometry: 3,
     Mensuration: 3,
     Trigonometry: 2.5,
