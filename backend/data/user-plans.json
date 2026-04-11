@@ -1469,6 +1469,20 @@
     "guest_1775369355999_7vt5axoh": {
       "referralCode": "RL6BFBB71F74",
       "updatedAt": "2026-04-05T06:09:17.643Z"
+    },
+    "user_gursewaksingh5944_gmail_com": {
+      "email": "gursewaksingh5944@gmail.com",
+      "name": "GURSEWAK SINGH",
+      "registeredAt": "2026-04-11T07:06:13.670Z",
+      "updatedAt": "2026-04-11T07:07:41.254Z",
+      "referralCode": "RL3F884DC28C"
+    },
+    "user_test_example_com": {
+      "email": "test@example.com",
+      "name": "Test User",
+      "passwordHash": "$2b$10$kgOYeSQm.66t767WlIZh.ucbm0bKzQSpWlfZlszg9M.0okEYVv966",
+      "registeredAt": "2026-04-11T07:38:09.632Z",
+      "updatedAt": "2026-04-11T07:38:09.632Z"
     }
   },
   "payments": [],

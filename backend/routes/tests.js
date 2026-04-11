@@ -6,6 +6,7 @@ const router = express.Router();
 const fs = require("fs");
 const path = require("path");
 const { TestAnalytics } = require("../modules/test-analytics");
+const { requirePremium } = require("../utils/premiumMiddleware");
 
 // ── Question bank loader ────────────────────────────────────
 const BANK_PATH = path.join(__dirname, "..", "data", "question-bank.json");
@@ -110,6 +111,23 @@ const testSessions = new Map();
 const MAX_SESSIONS = 500;
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
+// Historical scores for percentile calculation (in-memory, rolling window)
+const scoreHistory = { tier1: [], tier2: [] };
+const MAX_SCORE_HISTORY = 1000;
+
+function recordScore(tier, netMarks) {
+  const hist = scoreHistory[tier] || scoreHistory.tier1;
+  hist.push(netMarks);
+  if (hist.length > MAX_SCORE_HISTORY) hist.shift();
+}
+
+function calculatePercentile(tier, netMarks) {
+  const hist = scoreHistory[tier] || scoreHistory.tier1;
+  if (hist.length < 2) return null; // not enough data
+  const below = hist.filter(s => s < netMarks).length;
+  return Math.round((below / hist.length) * 100);
+}
+
 function storeSession(testId, session) {
   session._createdAt = Date.now();
   // Evict expired sessions first
@@ -199,7 +217,7 @@ function buildSectionQuestions(bank, config, tier, opts = {}) {
 // ============================================================
 // ROUTE 1: Generate Full Mock (real questions)
 // ============================================================
-router.post("/full-mock", (req, res) => {
+router.post("/full-mock", requirePremium(99), (req, res) => {
   try {
     const { tier = "tier1", userId } = req.body;
     const config = SSC_EXAM_CONFIG[tier];
@@ -513,6 +531,29 @@ router.post("/:testId/submit", (req, res) => {
       };
     });
 
+    // Record score for percentile tracking
+    const tier = session.tier || "tier1";
+    recordScore(tier, stats.netMarks);
+    const percentile = calculatePercentile(tier, stats.netMarks);
+
+    // Time per question analysis
+    const timeAnalysis = responses.map(resp => {
+      const q = session.questions.find(x => x.id === resp.questionId);
+      return {
+        questionId: resp.questionId,
+        subject: q?.subject,
+        topic: q?.topic,
+        timeSpent: resp.timeSpent || 0
+      };
+    });
+    const avgTimePerQ = timeAnalysis.length > 0
+      ? Math.round(timeAnalysis.reduce((s, t) => s + t.timeSpent, 0) / timeAnalysis.length / 1000)
+      : 0;
+    const slowestQuestions = [...timeAnalysis]
+      .sort((a, b) => b.timeSpent - a.timeSpent)
+      .slice(0, 5)
+      .map(t => ({ ...t, timeSpentSec: Math.round(t.timeSpent / 1000) }));
+
     res.json({
       success: true,
       testId,
@@ -525,16 +566,24 @@ router.post("/:testId/submit", (req, res) => {
         maxMarks: session.config.totalMarks || (session.questions.length * 2),
         accuracy: stats.accuracy,
         speed: stats.speed,
-        timeUsed: (session.totalTime / 60000).toFixed(1) + " min"
+        timeUsed: (session.totalTime / 60000).toFixed(1) + " min",
+        percentile: percentile,
+        avgTimePerQuestion: avgTimePerQ + "s"
       },
       sectionBreakdown: stats.bySection,
       weakAreas: weakAreas.slice(0, 5),
       recommendations: report.recommendations,
       answerReview,
+      timeAnalysis: {
+        avgTimePerQuestion: avgTimePerQ,
+        slowestQuestions
+      },
       nextSteps: [
+        percentile !== null ? `You scored better than ${percentile}% of test-takers.` : null,
         weakAreas.length > 0 ? `Focus on ${weakAreas[0].topic} — your weakest area.` : null,
         parseFloat(stats.accuracy) < 60 ? "Revise concepts before next mock." : null,
         parseFloat(stats.accuracy) >= 80 ? "Great accuracy! Try a harder difficulty mix." : null,
+        avgTimePerQ > 90 ? "You're spending too long per question. Practice speed drills." : null,
         "Take a topic-wise test on weak areas to improve."
       ].filter(Boolean)
     });

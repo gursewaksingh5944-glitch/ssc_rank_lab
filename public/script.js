@@ -287,6 +287,7 @@ document.addEventListener("DOMContentLoaded", function () {
   loadQuestionLabItems({ interactive: false });
   syncPaymentStatus();
   setInterval(syncPaymentStatus, 60000);
+  loadTopPerformers();
 
   attachCombinedDashboardInputListeners();
   refreshCombinedDashboard();
@@ -2022,7 +2023,7 @@ async function predictRank() {
       throw new Error("Invalid JSON response from server");
     }
 
-    console.log("PREDICT-V2 RESPONSE:", data);
+
 
     if (!response.ok || !data.success) {
       resultDiv.innerHTML = `
@@ -3577,6 +3578,98 @@ function refreshMockResultsDashboard() {
       <span style="font-size:12px;font-weight:700;color:${barColor};min-width:45px;text-align:right;">${pct}%</span>
     </div>`;
   }).join("");
+}
+
+/* =========== Mock Test Launcher (Homepage Cards) =========== */
+function qlabOpenExamWindow(params) {
+  const qs = new URLSearchParams(params).toString();
+  const url = '/ssc-exam.html?' + qs;
+  window.open(url, '_blank', 'width=' + screen.width + ',height=' + screen.height + ',menubar=no,toolbar=no,location=no,status=no,scrollbars=no');
+}
+
+function qlabLaunchFullMock() {
+  const picker = document.getElementById('qlabTierPicker');
+  const secPicker = document.getElementById('qlabSectionalPicker');
+  if (secPicker) secPicker.style.display = 'none';
+  if (picker) picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+}
+
+function qlabLaunchMock(tier) {
+  const picker = document.getElementById('qlabTierPicker');
+  if (picker) picker.style.display = 'none';
+  qlabOpenExamWindow({ tier, mode: 'full_mock' });
+}
+
+function qlabShowSectionalPicker() {
+  const picker = document.getElementById('qlabSectionalPicker');
+  const tierPicker = document.getElementById('qlabTierPicker');
+  if (tierPicker) tierPicker.style.display = 'none';
+  if (picker) picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+}
+
+function qlabLaunchSectional(subject) {
+  const picker = document.getElementById('qlabSectionalPicker');
+  if (picker) picker.style.display = 'none';
+  qlabOpenExamWindow({ tier: 'tier1', mode: 'full_mock', sectional: subject });
+}
+
+function qlabLaunchSpeed() {
+  qlabOpenExamWindow({ tier: 'tier1', mode: 'full_mock', speed: 'true', speedMix: 'mixed' });
+}
+
+/* =========== Groups Panel (Premium) =========== */
+async function openGroupsPanel() {
+  if (!(await ensurePremiumAccess("Study Groups"))) return;
+  alert("Study Groups feature is launching soon! You'll be able to create groups, invite friends, and challenge members.");
+}
+
+/* =========== Top Performers Leaderboard =========== */
+async function loadTopPerformers() {
+  try {
+    const resp = await fetch(apiUrl("/api/test/leaderboard/top?tier=tier1"));
+    const data = await resp.json();
+    if (!data.success || !Array.isArray(data.performers)) return;
+
+    const performers = data.performers;
+    const nameEls = [
+      document.getElementById("top1Name"),
+      document.getElementById("top2Name"),
+      document.getElementById("top3Name")
+    ];
+    const scoreEls = [
+      document.getElementById("top1Score"),
+      document.getElementById("top2Score"),
+      document.getElementById("top3Score")
+    ];
+
+    for (let i = 0; i < 3; i++) {
+      if (performers[i]) {
+        if (nameEls[i]) nameEls[i].textContent = performers[i].name;
+        if (scoreEls[i]) scoreEls[i].textContent = performers[i].score + "/" + performers[i].maxMarks;
+      }
+    }
+
+    // Render positions 4-10
+    const listEl = document.getElementById("topPerformersList");
+    if (listEl && performers.length > 3) {
+      const rest = performers.slice(3, 10);
+      listEl.innerHTML = rest.map((p, i) => {
+        const rank = i + 4;
+        const pct = p.percentage;
+        const barColor = pct >= 70 ? "#4ade80" : pct >= 50 ? "#fbbf24" : "#f87171";
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;' + (i < rest.length - 1 ? 'border-bottom:1px solid #e5e7eb;' : '') + '">' +
+          '<span style="font-size:13px;font-weight:800;color:#78716c;min-width:28px;">#' + rank + '</span>' +
+          '<span style="font-size:13px;font-weight:700;color:#1c1917;min-width:70px;">' + escapeHtml(p.name) + '</span>' +
+          '<div style="flex:1;background:#f3f4f6;border-radius:999px;height:6px;overflow:hidden;">' +
+            '<div style="width:' + pct + '%;height:100%;border-radius:999px;background:' + barColor + ';"></div>' +
+          '</div>' +
+          '<span style="font-size:13px;font-weight:800;color:#1c1917;min-width:80px;text-align:right;">' + p.score + '/' + p.maxMarks + '</span>' +
+        '</div>';
+      }).join("");
+    }
+  } catch (err) {
+    console.error("loadTopPerformers error:", err);
+  }
 }
 
 async function loadQuestionLabItems(options = {}) {

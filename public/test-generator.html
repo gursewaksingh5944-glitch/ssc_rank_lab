@@ -4,414 +4,266 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SSC CGL Mock Test Generator - Practice & Analyze</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #8b5cf6;
             --success: #10b981;
             --danger: #ef4444;
-            --warning: #f59e0b;
-            --info: #0ea5e9;
-            --light: #f3f4f6;
-            --dark: #1f2937;
-            --text: #374151;
+            --surface: #0f172a;
+            --surface-light: #1e293b;
+            --card: rgba(255,255,255,0.06);
+            --card-border: rgba(255,255,255,0.1);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--surface);
             min-height: 100vh;
-            padding: 20px;
             color: var(--text);
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
+        .bg-glow {
+            position: fixed;inset:0;pointer-events:none;z-index:0;
+            background:
+                radial-gradient(ellipse 600px 400px at 20% 10%, rgba(99,102,241,.15), transparent),
+                radial-gradient(ellipse 500px 500px at 80% 80%, rgba(139,92,246,.1), transparent);
         }
 
-        header {
-            text-align: center;
-            color: white;
-            margin-bottom: 50px;
-        }
+        .container { max-width: 960px; margin: 0 auto; padding: 40px 20px; position: relative; z-index: 1; }
 
+        header { text-align: center; margin-bottom: 48px; }
         header h1 {
-            font-size: 2.5em;
+            font-size: 2.4em; font-weight: 900; letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe, #a5b4fc);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
-            font-weight: 700;
         }
+        header p { font-size: 1.05em; color: var(--text-muted); font-weight: 500; }
 
-        header p {
-            font-size: 1.1em;
-            opacity: 0.95;
+        .stats-strip {
+            display: grid; grid-template-columns: repeat(3,1fr); gap: 12px;
+            margin-bottom: 48px;
         }
+        .stat-pill {
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 16px; padding: 16px; text-align: center;
+        }
+        .stat-pill .val { font-size: 1.5em; font-weight: 800; color: var(--text); }
+        .stat-pill .lbl { font-size: 0.75em; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 4px; }
 
         .modes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 50px;
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 48px;
         }
 
         .mode-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 3px solid transparent;
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 20px; padding: 28px; cursor: pointer;
+            transition: all 0.25s ease; position: relative; overflow: hidden;
         }
-
-        .mode-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            border-color: var(--primary);
+        .mode-card::before {
+            content:''; position:absolute; inset:0; border-radius:20px;
+            background: linear-gradient(135deg, rgba(99,102,241,.08), transparent);
+            opacity:0; transition: opacity .25s;
         }
+        .mode-card:hover { transform: translateY(-4px); border-color: var(--primary); }
+        .mode-card:hover::before { opacity:1; }
+        .mode-card.disabled { opacity: 0.5; cursor: default; }
+        .mode-card.disabled:hover { transform: none; border-color: var(--card-border); }
 
+        .mode-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; position: relative; z-index:1; }
         .mode-icon {
-            font-size: 2.5em;
-            margin-bottom: 15px;
+            width: 48px; height: 48px; border-radius: 14px; display: flex;
+            align-items: center; justify-content: center; font-size: 1.5em;
+            flex-shrink: 0;
         }
+        .mode-icon.mock { background: linear-gradient(135deg,#6366f1,#818cf8); }
+        .mode-icon.sectional { background: linear-gradient(135deg,#0ea5e9,#38bdf8); }
+        .mode-icon.speed { background: linear-gradient(135deg,#f59e0b,#fbbf24); }
+        .mode-icon.weakness { background: linear-gradient(135deg,#10b981,#34d399); }
 
-        .mode-card h3 {
-            color: var(--dark);
-            margin-bottom: 10px;
-            font-size: 1.4em;
-        }
+        .mode-card h3 { font-size: 1.15em; font-weight: 800; color: var(--text); }
+        .mode-card .desc { font-size: 0.88em; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; position: relative; z-index:1; }
 
-        .mode-card p {
-            color: var(--text);
-            font-size: 0.95em;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .mode-details {
-            background: var(--light);
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 0.9em;
-            margin-bottom: 15px;
-        }
-
-        .mode-details div {
-            display: flex;
-            align-items: center;
-            margin: 8px 0;
-            color: var(--text);
-        }
-
-        .mode-details span {
-            margin-right: 10px;
+        .mode-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; position: relative; z-index:1; }
+        .mode-tag {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 4px 10px; border-radius: 999px; font-size: 0.75em; font-weight: 700;
+            background: rgba(255,255,255,0.06); color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.08);
         }
 
         .start-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            width: 100%; padding: 12px; border-radius: 12px; border: none;
+            font-size: 0.95em; font-weight: 700; cursor: pointer;
+            transition: all 0.2s; position: relative; z-index:1;
             color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
         }
+        .start-btn.primary { background: linear-gradient(135deg, var(--primary), var(--accent)); }
+        .start-btn.primary:hover { box-shadow: 0 8px 24px rgba(99,102,241,.4); }
+        .start-btn.disabled { background: var(--surface-light); color: var(--text-muted); cursor: not-allowed; }
 
-        .start-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
-        }
-
-        .start-btn:active {
-            transform: scale(0.98);
+        .coming-badge {
+            position:absolute; top:16px; right:16px; padding:4px 10px;
+            border-radius:999px; font-size:0.7em; font-weight:800;
+            background:rgba(16,185,129,.15); color:#34d399; border:1px solid rgba(16,185,129,.25);
+            text-transform:uppercase; letter-spacing:.04em; z-index:2;
         }
 
         /* Modal */
         .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            animation: fadeIn 0.3s ease;
+            display:none; position:fixed; z-index:1000; inset:0;
+            background:rgba(0,0,0,.7); backdrop-filter:blur(4px);
+            animation: fadeIn .2s ease;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
 
         .modal-content {
-            background: white;
-            margin: 10% auto;
-            padding: 40px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideIn 0.3s ease;
+            background: var(--surface-light); border:1px solid var(--card-border);
+            margin: 12% auto; padding: 32px; border-radius: 20px;
+            width: 90%; max-width: 440px;
+            box-shadow: 0 24px 64px rgba(0,0,0,.5);
+            animation: slideUp .25s ease;
         }
+        @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
 
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+        .modal-content h2 { font-size:1.3em; font-weight:800; margin-bottom:20px; color:var(--text); }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display:block; margin-bottom:6px; font-weight:700; font-size:.88em; color:var(--text-muted); }
+        .form-group select {
+            width:100%; padding:10px 14px; border:1px solid var(--card-border);
+            border-radius:12px; font-size:1em; background:var(--surface);
+            color:var(--text); transition: border-color .2s;
         }
+        .form-group select:focus { outline:none; border-color:var(--primary); }
 
-        .modal-content h2 {
-            color: var(--dark);
-            margin-bottom: 20px;
+        .modal-info {
+            background:var(--card); border:1px solid var(--card-border);
+            border-radius:12px; padding:14px; margin:16px 0;
         }
+        .modal-info div { display:flex; align-items:center; gap:8px; margin:6px 0; font-size:.88em; color:var(--text-muted); }
 
-        .form-group {
-            margin-bottom: 20px;
+        .modal-buttons { display:flex; gap:10px; margin-top:24px; }
+        .btn { flex:1; padding:12px; border:none; border-radius:12px; font-size:.95em; font-weight:700; cursor:pointer; transition:all .2s; }
+        .btn-primary { background:linear-gradient(135deg,var(--primary),var(--accent)); color:white; }
+        .btn-primary:hover { box-shadow:0 6px 20px rgba(99,102,241,.4); }
+        .btn-cancel { background:var(--card); color:var(--text-muted); border:1px solid var(--card-border); }
+        .btn-cancel:hover { border-color:var(--text-muted); }
+
+        .close-btn {
+            float:right; background:none; border:none; color:var(--text-muted);
+            font-size:1.3em; cursor:pointer; padding:4px; line-height:1;
         }
+        .close-btn:hover { color:var(--danger); }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark);
+        .back-link {
+            display:inline-flex; align-items:center; gap:6px; color:var(--text-muted);
+            font-size:.88em; font-weight:600; text-decoration:none; margin-bottom:24px;
+            transition: color .2s;
         }
+        .back-link:hover { color:var(--text); }
 
-        .form-group select,
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid var(--light);
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group select:focus,
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 30px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: scale(1.02);
-        }
-
-        .btn-secondary {
-            background: var(--light);
-            color: var(--dark);
-            border: 2px solid var(--primary);
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .close {
-            color: var(--text);
-            float: right;
-            font-size: 1.5em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .close:hover {
-            color: var(--danger);
-        }
-
-        .stats-banner {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 50px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 15px;
-        }
-
-        .stat-number {
-            font-size: 2em;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .stat-label {
-            color: var(--text);
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.8em;
-            }
-
-            .modes-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .modal-content {
-                margin: 30% auto;
-                padding: 25px;
-            }
+        @media (max-width: 640px) {
+            header h1 { font-size: 1.6em; }
+            .modes-grid { grid-template-columns: 1fr; }
+            .stats-strip { grid-template-columns: 1fr; }
+            .modal-content { margin: 25% auto; padding: 24px; }
         }
     </style>
 </head>
 <body>
+    <div class="bg-glow"></div>
     <div class="container">
-        <!-- Header -->
+        <a href="/" class="back-link">← Back to SSCRankLab</a>
+
         <header>
-            <h1>🎯 SSC CGL Mock Test Generator</h1>
-            <p>Professional exam preparation with realistic timing and analytics</p>
+            <h1>SSC CGL Mock Test Generator</h1>
+            <p>Real exam patterns, professional timing, detailed analytics</p>
         </header>
 
-        <!-- Stats Banner -->
-        <div class="stats-banner">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number">3,912+</div>
-                    <div class="stat-label">Questions</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">100%</div>
-                    <div class="stat-label">Accurate Answers</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">Real Exam</div>
-                    <div class="stat-label">Patterns & Timing</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">Detailed</div>
-                    <div class="stat-label">Analytics</div>
-                </div>
+        <!-- Stats Strip -->
+        <div class="stats-strip">
+            <div class="stat-pill">
+                <div class="val">Real Exam</div>
+                <div class="lbl">Patterns & Timing</div>
+            </div>
+            <div class="stat-pill">
+                <div class="val">100%</div>
+                <div class="lbl">Verified Answers</div>
+            </div>
+            <div class="stat-pill">
+                <div class="val">Detailed</div>
+                <div class="lbl">Analytics & Review</div>
             </div>
         </div>
 
-        <!-- Test Modes Grid -->
+        <!-- Test Modes -->
         <div class="modes-grid">
             <!-- Full Mock -->
             <div class="mode-card" onclick="openModal('fullMockModal')">
-                <div class="mode-icon">📋</div>
-                <h3>Full Mock Test</h3>
-                <p>Complete SSC CGL exam with all 4 sections</p>
-                <div class="mode-details">
-                    <div><span>⏱️</span> 60 minutes</div>
-                    <div><span>📊</span> 100 questions (25-25-25-25)</div>
-                    <div><span>🎯</span> Real exam timing & pattern</div>
+                <div class="mode-header">
+                    <div class="mode-icon mock">📋</div>
+                    <h3>Full Mock Test</h3>
                 </div>
-                <button class="start-btn">Start Full Mock →</button>
+                <div class="desc">Complete SSC CGL exam simulation with all 4 sections under real timing</div>
+                <div class="mode-tags">
+                    <span class="mode-tag">⏱️ Timed</span>
+                    <span class="mode-tag">📊 All Sections</span>
+                    <span class="mode-tag">🎯 Real Pattern</span>
+                </div>
+                <button class="start-btn primary">Start Full Mock →</button>
             </div>
 
-            <!-- PYQ Based -->
-            <div class="mode-card" onclick="openModal('pyqModal')">
-                <div class="mode-icon">📚</div>
-                <h3>PYQ Based Exam</h3>
-                <p>Actual questions from SSC CGL previous years</p>
-                <div class="mode-details">
-                    <div><span>📅</span> 2023-2025 available</div>
-                    <div><span>🏆</span> From real exams</div>
-                    <div><span>✅</span> With year metadata</div>
+            <!-- Sectional Test -->
+            <div class="mode-card" onclick="openModal('sectionalModal')">
+                <div class="mode-header">
+                    <div class="mode-icon sectional">📐</div>
+                    <h3>Sectional Test</h3>
                 </div>
-                <button class="start-btn">Select Year →</button>
-            </div>
-
-            <!-- Random Mixed -->
-            <div class="mode-card" onclick="openModal('randomModal')">
-                <div class="mode-icon">🎲</div>
-                <h3>Random Mixed Test</h3>
-                <p>PYQ questions mixed with fresh ones</p>
-                <div class="mode-details">
-                    <div><span>🔀</span> 50% PYQ | 50% New</div>
-                    <div><span>⏱️</span> 60 minutes</div>
-                    <div><span>📈</span> Varied difficulty</div>
+                <div class="desc">Focus on one subject — Quant, English, Reasoning, or GK individually</div>
+                <div class="mode-tags">
+                    <span class="mode-tag">📝 25 Questions</span>
+                    <span class="mode-tag">🎯 Single Subject</span>
+                    <span class="mode-tag">⏱️ 15 min</span>
                 </div>
-                <button class="start-btn">Start Mixed Test →</button>
-            </div>
-
-            <!-- Topic Wise -->
-            <div class="mode-card" onclick="openModal('topicModal')">
-                <div class="mode-icon">🎓</div>
-                <h3>Topic Wise Test</h3>
-                <p>Deep dive into specific Quant topics</p>
-                <div class="mode-details">
-                    <div><span>⏱️</span> Unlimited time</div>
-                    <div><span>📐</span> 16 quant topics</div>
-                    <div><span>🔍</span> Focused practice</div>
-                </div>
-                <button class="start-btn">Choose Topic →</button>
+                <button class="start-btn primary">Choose Section →</button>
             </div>
 
             <!-- Speed Test -->
             <div class="mode-card" onclick="openModal('speedModal')">
-                <div class="mode-icon">⚡</div>
-                <h3>Speed Test</h3>
-                <p>Quick 20-question test to build speed</p>
-                <div class="mode-details">
-                    <div><span>⏱️</span> 15 minutes</div>
-                    <div><span>📊</span> 20 questions</div>
-                    <div><span>🚀</span> Fast feedback</div>
+                <div class="mode-header">
+                    <div class="mode-icon speed">⚡</div>
+                    <h3>Speed Test</h3>
                 </div>
-                <button class="start-btn">Start Speed Test →</button>
+                <div class="desc">Quick 20-question sprint to build speed and time management skills</div>
+                <div class="mode-tags">
+                    <span class="mode-tag">⏱️ 10 min</span>
+                    <span class="mode-tag">🚀 20 Questions</span>
+                    <span class="mode-tag">📈 Fast Review</span>
+                </div>
+                <button class="start-btn primary">Start Speed Test →</button>
             </div>
 
             <!-- Weakness Builder -->
-            <div class="mode-card" onclick="alert('Feature coming soon!')">
-                <div class="mode-icon">💪</div>
-                <h3>Weakness Builder</h3>
-                <p>Personalized focus on your weak areas</p>
-                <div class="mode-details">
-                    <div><span>📈</span> Based on history</div>
-                    <div><span>🎯</span> Targeted practice</div>
-                    <div><span>⏱️</span> Coming Soon</div>
+            <div class="mode-card disabled">
+                <span class="coming-badge">Coming Soon</span>
+                <div class="mode-header">
+                    <div class="mode-icon weakness">💪</div>
+                    <h3>Weakness Builder</h3>
                 </div>
-                <button class="start-btn" style="opacity: 0.5; cursor: not-allowed;">Coming Soon</button>
+                <div class="desc">AI-powered tests targeting your weakest topics based on past performance</div>
+                <div class="mode-tags">
+                    <span class="mode-tag">🧠 AI Targeted</span>
+                    <span class="mode-tag">📊 Based on History</span>
+                    <span class="mode-tag">🎯 Personalized</span>
+                </div>
+                <button class="start-btn disabled">Coming Soon</button>
             </div>
         </div>
     </div>
@@ -419,119 +271,93 @@
     <!-- Full Mock Modal -->
     <div id="fullMockModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('fullMockModal')">&times;</span>
+            <button class="close-btn" onclick="closeModal('fullMockModal')">&times;</button>
             <h2>Start Full Mock Test</h2>
             <form onsubmit="startFullMock(event)">
                 <div class="form-group">
                     <label>Select Exam Tier</label>
                     <select id="tier" required>
-                        <option value="tier1">SSC CGL Tier 1 (60 min, 100 Q)</option>
-                        <option value="tier2">SSC CGL Tier 2 (120 min, 120 Q)</option>
+                        <option value="tier1">SSC CGL Tier 1 — 60 min, 100 Q</option>
+                        <option value="tier2">SSC CGL Tier 2 — 150 min, 130 Q</option>
                     </select>
                 </div>
-                <div class="mode-details" style="margin: 20px 0;">
-                    <div><span>📋</span> 100 Questions</div>
-                    <div><span>⏱️</span> Professional Timing</div>
-                    <div><span>📊</span> Detailed Analytics</div>
-                    <div><span>🔒</span> Cannot skip sections</div>
+                <div class="modal-info">
+                    <div>📋 Full-length exam simulation</div>
+                    <div>⏱️ Real exam timing enforced</div>
+                    <div>📊 Section-wise analytics after submit</div>
+                    <div>🔒 Sections locked like real SSC exam</div>
                 </div>
                 <div class="modal-buttons">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('fullMockModal')">Cancel</button>
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('fullMockModal')">Cancel</button>
                     <button type="submit" class="btn btn-primary">Start Test</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- PYQ Modal -->
-    <div id="pyqModal" class="modal">
+    <!-- Sectional Test Modal -->
+    <div id="sectionalModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('pyqModal')">&times;</span>
-            <h2>Select PYQ Exam</h2>
-            <form onsubmit="startPYQExam(event)">
+            <button class="close-btn" onclick="closeModal('sectionalModal')">&times;</button>
+            <h2>Sectional Test</h2>
+            <form onsubmit="startSectional(event)">
                 <div class="form-group">
-                    <label>Year</label>
-                    <select id="pyqYear" onchange="updateExams()" required>
-                        <option value="">Select Year</option>
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
+                    <label>Select Subject</label>
+                    <select id="sectionalSubject" required>
+                        <option value="quant">Quantitative Aptitude</option>
+                        <option value="english">English Language</option>
+                        <option value="reasoning">General Intelligence & Reasoning</option>
+                        <option value="gk">General Knowledge</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Exam Date</label>
-                    <select id="pyqExam" required>
-                        <option value="">Select exam date</option>
-                    </select>
-                </div>
-                <div class="mode-details" style="margin: 20px 0;">
-                    <div><span>✅</span> Real exam questions</div>
-                    <div><span>📅</span> With year metadata</div>
-                    <div><span>🏆</span> Authentic experience</div>
+                <div class="modal-info">
+                    <div>📝 25 questions from selected subject</div>
+                    <div>⏱️ 15 minutes time limit</div>
+                    <div>🎯 Topic-focused practice</div>
                 </div>
                 <div class="modal-buttons">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('pyqModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Start PYQ Exam</button>
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('sectionalModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Start Sectional</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Random Mixed Modal -->
-    <div id="randomModal" class="modal">
+    <!-- Speed Test Modal -->
+    <div id="speedModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('randomModal')">&times;</span>
-            <h2>Start Random Mixed Test</h2>
-            <form onsubmit="startRandomMixed(event)">
+            <button class="close-btn" onclick="closeModal('speedModal')">&times;</button>
+            <h2>Speed Test</h2>
+            <form onsubmit="startSpeed(event)">
                 <div class="form-group">
-                    <label>PYQ Ratio</label>
-                    <select id="pyqRatio">
-                        <option value="0.5">50% PYQ | 50% Fresh</option>
-                        <option value="0.6">60% PYQ | 40% Fresh</option>
-                        <option value="0.4">40% PYQ | 60% Fresh</option>
+                    <label>Select Subject Mix</label>
+                    <select id="speedMix">
+                        <option value="mixed">All Subjects Mixed</option>
+                        <option value="quant">Quant Only</option>
+                        <option value="english">English Only</option>
+                        <option value="reasoning">Reasoning Only</option>
+                        <option value="gk">GK Only</option>
                     </select>
                 </div>
-                <div class="mode-details" style="margin: 20px 0;">
-                    <div><span>🔀</span> Mix of both types</div>
-                    <div><span>⏱️</span> 60 minutes</div>
-                    <div><span>📈</span> Varied practice</div>
+                <div class="modal-info">
+                    <div>⚡ 20 questions, 10 minutes</div>
+                    <div>🚀 Build speed under pressure</div>
+                    <div>📈 Instant score & review</div>
                 </div>
                 <div class="modal-buttons">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('randomModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Start Test</button>
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('speedModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Start Speed Test</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = "block";
+        function openModal(id) {
+            document.getElementById(id).style.display = 'block';
         }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = "none";
-        }
-
-        function updateExams() {
-            const year = document.getElementById('pyqYear').value;
-            const examSelect = document.getElementById('pyqExam');
-            examSelect.innerHTML = '<option value="">Select exam date</option>';
-
-            const exams = {
-                '2023': ['12-Sep-Shift1', '12-Sep-Shift2', '12-Sep-Shift3', '13-Sep-Shift1', '13-Sep-Shift2', '13-Sep-Shift3'],
-                '2024': ['14-Sep-Shift1', '14-Sep-Shift2', '15-Sep-Shift1', '16-Sep-Shift1'],
-                '2025': ['15-Sep-Shift1-2025']
-            };
-
-            if (exams[year]) {
-                exams[year].forEach(exam => {
-                    const option = document.createElement('option');
-                    option.value = exam;
-                    option.textContent = exam;
-                    examSelect.appendChild(option);
-                });
-            }
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
         }
 
         function launchExam(params) {
@@ -547,25 +373,23 @@
             launchExam({ tier, mode: 'full_mock' });
         }
 
-        function startPYQExam(e) {
+        function startSectional(e) {
             e.preventDefault();
-            const year = document.getElementById('pyqYear').value;
-            const exam = document.getElementById('pyqExam').value;
-            closeModal('pyqModal');
-            launchExam({ tier: 'tier1', mode: 'pyq_based', year, exam });
+            const subject = document.getElementById('sectionalSubject').value;
+            closeModal('sectionalModal');
+            launchExam({ tier: 'tier1', mode: 'full_mock', sectional: subject });
         }
 
-        function startRandomMixed(e) {
+        function startSpeed(e) {
             e.preventDefault();
-            const ratio = document.getElementById('pyqRatio').value;
-            closeModal('randomModal');
-            launchExam({ tier: 'tier1', mode: 'random_mixed', pyqRatio: ratio });
+            const mix = document.getElementById('speedMix').value;
+            closeModal('speedModal');
+            launchExam({ tier: 'tier1', mode: 'full_mock', speed: 'true', speedMix: mix });
         }
 
-        // Close modal when clicking outside
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
-                event.target.style.display = "none";
+                event.target.style.display = 'none';
             }
         }
     </script>

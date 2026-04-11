@@ -125,6 +125,30 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',Tahoma,Geneva,Verda
 .option-label{font-size:14px;line-height:1.5;color:#333}
 .option-letter{font-weight:700;color:#6a5acd;margin-right:4px}
 
+/* ── MOBILE RESPONSIVE ────────────────────────── */
+@media(max-width:768px){
+  .exam-body{flex-direction:column}
+  .left-panel{width:100%;height:auto;max-height:35vh;border-right:none;border-bottom:2px solid #ccc}
+  .palette-grid{grid-template-columns:repeat(8,1fr);gap:3px}
+  .q-btn{width:30px;height:30px;font-size:10px}
+  .q-body{padding:15px}
+  .q-text{font-size:14px}
+  .option-item{padding:10px 12px}
+  .toolbar .nav-buttons button{padding:4px 10px;font-size:11px}
+  .exam-header .exam-title{font-size:14px}
+  .exam-header .timer-box .time-value{font-size:16px}
+  .section-tabs .tab{font-size:9px;padding:5px 3px}
+  .palette-legend{display:none}
+}
+@media(max-width:480px){
+  .palette-grid{grid-template-columns:repeat(6,1fr)}
+  .toolbar{flex-wrap:wrap;height:auto;gap:4px;padding:4px 10px}
+  .q-body{padding:10px}
+  .q-header{padding:8px 12px}
+  .q-footer{flex-wrap:wrap;gap:6px;padding:8px 12px}
+  .q-footer button{flex:1;min-width:80px;text-align:center}
+}
+
 /* Q footer buttons */
 .q-footer{
   padding:10px 20px;border-top:2px solid #ddd;background:#f5f3ff;
@@ -906,6 +930,22 @@ window.addEventListener('beforeunload', function(e) {
   if (timerInterval) {
     e.preventDefault();
     e.returnValue = '';
+  }
+});
+
+// ── TAB SWITCH DETECTION ─────────────────────
+let tabSwitchCount = 0;
+const MAX_TAB_SWITCHES = 3;
+document.addEventListener('visibilitychange', function() {
+  if (!timerInterval) return; // exam not active
+  if (document.hidden) {
+    tabSwitchCount++;
+    if (tabSwitchCount >= MAX_TAB_SWITCHES) {
+      alert(`⚠️ You switched tabs ${MAX_TAB_SWITCHES} times. Your exam is being auto-submitted.`);
+      submitExam();
+    } else {
+      alert(`⚠️ Tab switch detected (${tabSwitchCount}/${MAX_TAB_SWITCHES}). Switching tabs again may auto-submit your exam.`);
+    }
   }
 });
 </script>

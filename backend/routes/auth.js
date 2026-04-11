@@ -1,8 +1,10 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
 const { getUserProfile, setUserProfile } = require("../utils/planStore");
 const testStore = require("../utils/testStore");
 
 const router = express.Router();
+const SALT_ROUNDS = 10;
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
@@ -17,10 +19,11 @@ function emailToUserKey(email) {
  * Body: { email, name }
  * Creates new user or returns existing user if email already registered.
  */
-router.post("/register", (req, res) => {
+router.post("/register", async (req, res) => {
   try {
     const email = normalizeEmail(req.body.email);
     const name = String(req.body.name || "").trim();
+    const password = String(req.body.password || "");
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
       return res.status(400).json({ success: false, error: "Valid email required" });
@@ -31,25 +34,28 @@ router.post("/register", (req, res) => {
     if (name.length > 100) {
       return res.status(400).json({ success: false, error: "Name too long" });
     }
+    if (!password || password.length < 6) {
+      return res.status(400).json({ success: false, error: "Password required (min 6 chars)" });
+    }
 
     const userKey = emailToUserKey(email);
     const existing = getUserProfile(userKey);
 
     if (existing && existing.email) {
-      // Already registered — return as login
-      return res.json({
-        success: true,
-        userKey,
-        name: existing.name || name,
-        email: existing.email,
-        isNew: false
+      // Already registered — require login instead
+      return res.status(409).json({
+        success: false,
+        error: "Account already exists. Please login."
       });
     }
+
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
     // Create new profile
     const profile = setUserProfile(userKey, {
       email,
       name,
+      passwordHash,
       registeredAt: new Date().toISOString()
     });
 
@@ -71,9 +77,11 @@ router.post("/register", (req, res) => {
  * Body: { email }
  * Looks up existing user by email.
  */
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const email = normalizeEmail(req.body.email);
+    const password = String(req.body.password || "");
+
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
       return res.status(400).json({ success: false, error: "Valid email required" });
     }
@@ -83,6 +91,17 @@ router.post("/login", (req, res) => {
 
     if (!profile || !profile.email) {
       return res.status(404).json({ success: false, error: "No account found with this email. Please register first." });
+    }
+
+    // If account has a password hash, verify it
+    if (profile.passwordHash) {
+      if (!password) {
+        return res.status(401).json({ success: false, error: "Password required" });
+      }
+      const match = await bcrypt.compare(password, profile.passwordHash);
+      if (!match) {
+        return res.status(401).json({ success: false, error: "Incorrect password" });
+      }
     }
 
     return res.json({

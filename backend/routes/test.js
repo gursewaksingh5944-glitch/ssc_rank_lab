@@ -131,6 +131,55 @@ router.post("/", (req, res) => {
   }
 });
 
+// GET /api/test/leaderboard/top - Top performers this week
+router.get("/leaderboard/top", (req, res) => {
+  try {
+    const store = readStore();
+    const tier = normalizeTier(req.query.tier || "tier1");
+    const limits = getTierLimits(tier);
+    const maxTotal = limits.total;
+
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const weekAgoStr = weekAgo.toISOString().split("T")[0];
+
+    const performers = [];
+    for (const [userKey, entries] of Object.entries(store.users || {})) {
+      if (!Array.isArray(entries)) continue;
+      const recentEntries = entries.filter((e) => {
+        if (normalizeTier(e?.tier || "tier1") !== tier) return false;
+        const d = String(e?.test_date || "");
+        return d >= weekAgoStr;
+      });
+      if (recentEntries.length === 0) continue;
+
+      let best = 0;
+      for (const e of recentEntries) {
+        const total = Number(e.total_marks || 0);
+        if (total > best) best = total;
+      }
+
+      const displayName = userKey.length > 3
+        ? userKey.slice(0, 3) + "***"
+        : userKey + "***";
+
+      performers.push({
+        name: displayName,
+        score: Number(best.toFixed(1)),
+        maxMarks: maxTotal,
+        percentage: Number(((best / maxTotal) * 100).toFixed(1)),
+        tests: recentEntries.length
+      });
+    }
+
+    performers.sort((a, b) => b.score - a.score);
+    return res.json({ success: true, tier, performers: performers.slice(0, 10) });
+  } catch (error) {
+    console.error("/api/test/leaderboard/top error:", error);
+    return res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
 // GET /api/test/:userKey - Get user's test history
 router.get("/:userKey", (req, res) => {
   try {

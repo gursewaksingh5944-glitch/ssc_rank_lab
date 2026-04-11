@@ -1909,92 +1909,108 @@
         </div><!-- end predictorTier2Box -->
       </section>
 
-      <!-- ===================== QUESTIONS — Premium Standalone Panel ===================== -->
+      <!-- ===================== MOCK TEST LAUNCHER ===================== -->
       <section id="questions" class="panel">
         <div style="position:relative;border-radius:24px;background:linear-gradient(140deg,#1e1b4b 0%,#312e81 40%,#1e293b 100%);padding:24px;overflow:hidden;margin-bottom:16px;">
           <div style="position:absolute;width:350px;height:350px;border-radius:50%;right:-100px;top:-160px;background:radial-gradient(circle,rgba(99,102,241,.25),transparent 70%);pointer-events:none;"></div>
           <div style="position:relative;z-index:1;">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
               <div>
-                <div style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;background:linear-gradient(90deg,#4f46e5,#7c3aed);color:#fff;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;">🧪 SSC Question Lab</div>
-                <h2 style="font-size:24px;font-weight:900;color:#fff;margin:10px 0 6px;">Question &amp; Mock Generator</h2>
-                <p style="color:#cbd5e1;font-size:13px;line-height:1.5;max-width:55ch;">Generate SSC-ready practice sets, PYQ-based tests, and full mocks. 9,000+ curated questions.</p>
+                <div style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;background:linear-gradient(90deg,#4f46e5,#7c3aed);color:#fff;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;">🎯 SSC Mock Tests</div>
+                <h2 style="font-size:24px;font-weight:900;color:#fff;margin:10px 0 6px;">Take a Mock Test</h2>
+                <p style="color:#cbd5e1;font-size:13px;line-height:1.5;max-width:55ch;">Real SSC CGL exam simulation — pick your mode and start in a full exam window.</p>
               </div>
-              <span style="display:inline-flex;padding:5px 10px;border-radius:999px;border:1px solid #4ade80;background:rgba(74,222,128,.1);color:#4ade80;font-size:10px;font-weight:800;">✅ FREE</span>
+              <a href="/test-generator.html" style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:999px;border:1px solid #818cf8;color:#c7d2fe;font-size:11px;font-weight:700;text-decoration:none;transition:all .2s;" onmouseover="this.style.background='rgba(129,140,248,.15)'" onmouseout="this.style.background='transparent'">All Modes →</a>
             </div>
 
-            <!-- Trust pills -->
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
-              <span style="display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.2);">📝 9,000+ Questions</span>
-              <span style="display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.2);">⚡ Instant Generate</span>
-              <span style="display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.2);">📈 PYQ + Practice</span>
-              <span style="display:inline-flex;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:700;color:#c7d2fe;border:1px solid #4338ca;background:rgba(67,56,202,.2);">🎯 Topic Specific</span>
+            <!-- Mock Test Cards 2x2 -->
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;">
+              <!-- Full Mock -->
+              <div onclick="qlabLaunchFullMock()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#6366f1';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.12)';this.style.transform='none'">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;font-size:1.1em;">📋</div>
+                  <div>
+                    <div style="font-size:14px;font-weight:800;color:#fff;">Full Mock Test</div>
+                    <div style="font-size:10px;color:#94a3b8;font-weight:600;">Tier 1 or Tier 2</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;">
+                  <span style="padding:2px 7px;border-radius:999px;font-size:9px;font-weight:700;background:rgba(99,102,241,.2);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);">⏱️ Timed</span>
+                  <span style="padding:2px 7px;border-radius:999px;font-size:9px;font-weight:700;background:rgba(99,102,241,.2);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);">📊 All Sections</span>
+                </div>
+                <div style="width:100%;padding:8px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:12px;font-weight:700;text-align:center;">Start Full Mock →</div>
+              </div>
+
+              <!-- Sectional -->
+              <div onclick="qlabShowSectionalPicker()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#0ea5e9';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.12)';this.style.transform='none'">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:1.1em;">📐</div>
+                  <div>
+                    <div style="font-size:14px;font-weight:800;color:#fff;">Sectional Test</div>
+                    <div style="font-size:10px;color:#94a3b8;font-weight:600;">25 Q · 15 min</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;">
+                  <span style="padding:2px 7px;border-radius:999px;font-size:9px;font-weight:700;background:rgba(14,165,233,.2);color:#7dd3fc;border:1px solid rgba(14,165,233,.3);">🎯 Single Subject</span>
+                  <span style="padding:2px 7px;border-radius:999px;font-size:9px;font-weight:700;background:rgba(14,165,233,.2);color:#7dd3fc;border:1px solid rgba(14,165,233,.3);">📝 Focused</span>
+                </div>
+                <div style="width:100%;padding:8px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:12px;font-weight:700;text-align:center;">Choose Section →</div>
+              </div>
+
+              <!-- Speed Test -->
+              <div onclick="qlabLaunchSpeed()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#f59e0b';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.12)';this.style.transform='none'">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#fbbf24);display:flex;align-items:center;justify-content:center;font-size:1.1em;">⚡</div>
+                  <div>
+                    <div style="font-size:14px;font-weight:800;color:#fff;">Speed Test</div>
+                    <div style="font-size:10px;color:#94a3b8;font-weight:600;">20 Q · 10 min</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;">
+                  <span style="padding:2px 7px;border-radius:999px;font-size:9px;font-weight:700;background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid rgba(245,158,11,.3);">🚀 Sprint</span>
+                  <span style="padding:2px 7px;border-radius:999px;font-size:9px;font-weight:700;background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid rgba(245,158,11,.3);">📈 Build Speed</span>
+                </div>
+                <div style="width:100%;padding:8px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1e293b;font-size:12px;font-weight:700;text-align:center;">Start Speed Test →</div>
+              </div>
+
+              <!-- Weakness Builder -->
+              <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;opacity:.55;position:relative;">
+                <div style="position:absolute;top:10px;right:10px;padding:2px 8px;border-radius:999px;font-size:8px;font-weight:800;background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.25);text-transform:uppercase;letter-spacing:.04em;">Coming Soon</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                  <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#10b981,#34d399);display:flex;align-items:center;justify-content:center;font-size:1.1em;">💪</div>
+                  <div>
+                    <div style="font-size:14px;font-weight:800;color:#fff;">Weakness Builder</div>
+                    <div style="font-size:10px;color:#94a3b8;font-weight:600;">AI-Targeted</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;">
+                  <span style="padding:2px 7px;border-radius:999px;font-size:9px;font-weight:700;background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.2);">🧠 Smart</span>
+                  <span style="padding:2px 7px;border-radius:999px;font-size:9px;font-weight:700;background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.2);">🎯 Personalized</span>
+                </div>
+                <div style="width:100%;padding:8px;border-radius:10px;background:rgba(255,255,255,.08);color:#64748b;font-size:12px;font-weight:700;text-align:center;">Coming Soon</div>
+              </div>
             </div>
 
-            <!-- Stats -->
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">
-              <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px;text-align:center;">
-                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;">Best Score</div>
-                <div id="qgenBestScore" style="font-size:18px;font-weight:900;color:#fff;margin-top:3px;font-family:'Space Grotesk',sans-serif;">--</div>
-              </div>
-              <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px;text-align:center;">
-                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;">Avg Score</div>
-                <div id="qgenAvgScore" style="font-size:18px;font-weight:900;color:#fff;margin-top:3px;font-family:'Space Grotesk',sans-serif;">--</div>
-              </div>
-              <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px;text-align:center;">
-                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;">Questions</div>
-                <div id="qgenQuestionsLoaded" style="font-size:18px;font-weight:900;color:#fff;margin-top:3px;font-family:'Space Grotesk',sans-serif;">0</div>
-              </div>
-              <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px;text-align:center;">
-                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;">Top Topic</div>
-                <div id="qgenTopTopic" style="font-size:14px;font-weight:900;color:#fff;margin-top:3px;">--</div>
+            <!-- Sectional Picker (hidden) -->
+            <div id="qlabSectionalPicker" style="display:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;margin-bottom:12px;">
+              <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#a5b4fc;margin-bottom:8px;">Choose Subject</div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+                <button onclick="qlabLaunchSectional('quant')" style="padding:10px;border-radius:10px;border:1px solid rgba(99,102,241,.3);background:rgba(99,102,241,.12);color:#c7d2fe;font-size:12px;font-weight:700;cursor:pointer;">📐 Quant</button>
+                <button onclick="qlabLaunchSectional('english')" style="padding:10px;border-radius:10px;border:1px solid rgba(14,165,233,.3);background:rgba(14,165,233,.12);color:#7dd3fc;font-size:12px;font-weight:700;cursor:pointer;">📝 English</button>
+                <button onclick="qlabLaunchSectional('reasoning')" style="padding:10px;border-radius:10px;border:1px solid rgba(168,85,247,.3);background:rgba(168,85,247,.12);color:#d8b4fe;font-size:12px;font-weight:700;cursor:pointer;">🧠 Reasoning</button>
+                <button onclick="qlabLaunchSectional('gk')" style="padding:10px;border-radius:10px;border:1px solid rgba(245,158,11,.3);background:rgba(245,158,11,.12);color:#fcd34d;font-size:12px;font-weight:700;cursor:pointer;">🌍 GK</button>
               </div>
             </div>
 
-            <!-- Top records -->
-            <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px;margin-bottom:14px;">
-              <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#a5b4fc;margin-bottom:6px;">Your Top Records</div>
-              <div id="qgenTopRecords" style="font-size:12px;color:#cbd5e1;">No records yet. Generate questions and start practicing.</div>
+            <!-- Tier Picker (hidden) -->
+            <div id="qlabTierPicker" style="display:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;margin-bottom:12px;">
+              <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#a5b4fc;margin-bottom:8px;">Choose Tier</div>
+              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">
+                <button onclick="qlabLaunchMock('tier1')" style="padding:12px;border-radius:10px;border:1px solid rgba(99,102,241,.3);background:rgba(99,102,241,.12);color:#c7d2fe;font-size:12px;font-weight:700;cursor:pointer;">Tier 1 — 100Q · 60 min</button>
+                <button onclick="qlabLaunchMock('tier2')" style="padding:12px;border-radius:10px;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.12);color:#d8b4fe;font-size:12px;font-weight:700;cursor:pointer;">Tier 2 — 130Q · 150 min</button>
+              </div>
             </div>
           </div>
-        </div>
-
-        <!-- Question Lab Controls (light section) -->
-        <div class="qlab-shell">
-          <div class="qlab-controls" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;">
-            <select id="qlabTier" style="display:none;">
-              <option value="tier1">Tier 1</option>
-              <option value="tier2">Tier 2</option>
-            </select>
-            <select id="qlabTestType">
-              <option value="full">Full Mock</option>
-              <option value="sectional">Sectional (25 Qs)</option>
-            </select>
-            <select id="qlabSubject" style="display:none;">
-              <option value="quant">Quant</option>
-              <option value="english">English</option>
-              <option value="reasoning">Reasoning</option>
-              <option value="gk">GK</option>
-            </select>
-            <select id="qlabSourceMode">
-              <option value="pyq" selected>PYQ Questions</option>
-              <option value="random">Random Mix</option>
-            </select>
-          </div>
-          <div id="qlabTopicChecklistWrap" class="qlab-topic-wrap" style="display:none;">
-            <div class="qlab-topic-title">Select Topics (Optional — leave empty for full sectional)</div>
-            <div id="qlabTopicChecklist" class="qlab-topic-grid"></div>
-          </div>
-          <div class="qlab-actions">
-            <button id="btnLoadQuestions" class="qlab-btn primary">Generate</button>
-            <button id="btnCheckQuestionLab" class="qlab-btn success">Check My Performance</button>
-            <button id="btnToggleQuestionLabAnswers" class="qlab-btn secondary">Reveal Answers</button>
-          </div>
-          <div id="questionLabStatus" class="qlab-status"></div>
-          <div id="questionLabInsights" class="qlab-insights">
-            <div class="qlab-helper">Generate a set, attempt it honestly, then use <strong>Check My Performance</strong> for instant accuracy and projected score feedback.</div>
-          </div>
-          <div id="questionLabList" class="qlab-list"></div>
         </div>
 
         <!-- Mock Results Dashboard -->
@@ -2018,6 +2034,16 @@
               </div>
               <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:10px;text-align:center;">
                 <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;">Total Attempted</div>
+                <div id="mockTotalAttempted" style="font-size:18px;font-weight:900;color:#0f172a;margin-top:3px;">0</div>
+              </div>
+              <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:10px;text-align:center;">
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#991b1b;">Weak Subject</div>
+                <div id="mockWeakSubject" style="font-size:14px;font-weight:900;color:#dc2626;margin-top:3px;">--</div>
+              </div>
+            </div>
+            <div id="mockResultsList"></div>
+          </div>
+        </div>
                 <div id="mockTotalAttempted" style="font-size:18px;font-weight:900;color:#0f172a;margin-top:3px;">0</div>
               </div>
               <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:10px;text-align:center;">
