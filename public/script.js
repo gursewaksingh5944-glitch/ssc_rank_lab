@@ -3587,7 +3587,8 @@ function refreshMockResultsDashboard() {
 }
 
 /* =========== Mock Test Launcher (Homepage Cards) =========== */
-function qlabOpenExamWindow(params) {
+async function qlabOpenExamWindow(params) {
+  if (!(await ensurePremiumAccess('Mock Tests'))) return;
   params.userKey = getUserKey();
   const qs = new URLSearchParams(params).toString();
   const url = '/ssc-exam.html?' + qs;
