@@ -517,10 +517,18 @@ let qStartTime = 0;           // when user landed on this question
   const pyqYear = params.get('year');
   const pyqExam = params.get('exam');
   const pyqRatio = params.get('pyqRatio');
+  const sectional = params.get('sectional');
+  const speed = params.get('speed');
+  const speedMix = params.get('speedMix');
+  const topicSubject = params.get('subject');
+  const topics = params.get('topics');
 
   try {
     let endpoint, body;
-    if (mode === 'pyq_based') {
+    if (mode === 'topic_wise' && topics) {
+      endpoint = '/api/tests/topic-wise';
+      body = { tier, subject: topicSubject || 'quant', topics: topics.split(',').map(function(t){return t.trim();}), count: 25 };
+    } else if (mode === 'pyq_based') {
       endpoint = '/api/tests/pyq-exam';
       body = { tier, year: pyqYear, exam: pyqExam };
     } else if (mode === 'random_mixed') {
@@ -529,6 +537,8 @@ let qStartTime = 0;           // when user landed on this question
     } else {
       endpoint = '/api/tests/full-mock';
       body = { tier };
+      if (sectional) body.sectional = sectional;
+      if (speed === 'true') { body.speed = true; body.speedMix = speedMix || 'mixed'; }
     }
 
     const res = await fetch(endpoint, {

@@ -284,7 +284,6 @@ document.addEventListener("DOMContentLoaded", function () {
   loadBenchmarkProfile();
   loadMarksHistory();
   loadQuestionLabMeta();
-  loadQuestionLabItems({ interactive: false });
   syncPaymentStatus();
   setInterval(syncPaymentStatus, 60000);
   // Sync on tab focus to catch cross-device/tab changes
@@ -568,13 +567,12 @@ function switchTierMode(nextTier) {
 
   questionLabCache = [];
   resetQuestionLabAttemptState({
-    warnings: [`Switched to ${activeTierMode.toUpperCase()} mode. Load a fresh set for this tier.`],
+    warnings: [`Switched to ${activeTierMode.toUpperCase()} mode.`],
     served: 0
   });
   renderQuestionLabItems([]);
   renderQuestionLabInsights();
   loadQuestionLabMeta();
-  loadQuestionLabItems({ interactive: false });
 }
 
 function bindUnlockButtons() {
@@ -3594,7 +3592,9 @@ function qlabOpenExamWindow(params) {
 function qlabLaunchFullMock() {
   const picker = document.getElementById('qlabTierPicker');
   const secPicker = document.getElementById('qlabSectionalPicker');
+  const topicPicker = document.getElementById('qlabTopicPicker');
   if (secPicker) secPicker.style.display = 'none';
+  if (topicPicker) topicPicker.style.display = 'none';
   if (picker) picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
 }
 
@@ -3607,7 +3607,9 @@ function qlabLaunchMock(tier) {
 function qlabShowSectionalPicker() {
   const picker = document.getElementById('qlabSectionalPicker');
   const tierPicker = document.getElementById('qlabTierPicker');
+  const topicPicker = document.getElementById('qlabTopicPicker');
   if (tierPicker) tierPicker.style.display = 'none';
+  if (topicPicker) topicPicker.style.display = 'none';
   if (picker) picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
 }
 
@@ -3619,6 +3621,42 @@ function qlabLaunchSectional(subject) {
 
 function qlabLaunchSpeed() {
   qlabOpenExamWindow({ tier: 'tier1', mode: 'full_mock', speed: 'true', speedMix: 'mixed' });
+}
+
+/* Topic-wise test launcher */
+const QLAB_TOPICS = {
+  quant: ['Algebra', 'Arithmetic', 'Geometry', 'Mensuration', 'Trigonometry', 'Number System', 'Data Interpretation', 'Simplification', 'Percentage', 'Profit & Loss', 'Time & Work', 'Time & Distance', 'Average', 'Ratio & Proportion', 'SI & CI'],
+  reasoning: ['Analogy', 'Series', 'Coding-Decoding', 'Blood Relations', 'Direction Sense', 'Syllogism', 'Classification', 'Mirror & Water Image', 'Venn Diagram', 'Paper Folding'],
+  english: ['Synonyms & Antonyms', 'Idioms & Phrases', 'One Word Substitution', 'Spelling', 'Error Detection', 'Sentence Improvement', 'Fill in the Blanks', 'Cloze Test', 'Reading Comprehension', 'Active & Passive Voice'],
+  gk: ['History', 'Geography', 'Polity', 'Economics', 'Science', 'Current Affairs', 'Static GK']
+};
+
+function qlabShowTopicPicker() {
+  const picker = document.getElementById('qlabTopicPicker');
+  const tierPicker = document.getElementById('qlabTierPicker');
+  const secPicker = document.getElementById('qlabSectionalPicker');
+  if (tierPicker) tierPicker.style.display = 'none';
+  if (secPicker) secPicker.style.display = 'none';
+  if (picker) {
+    picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+    if (picker.style.display === 'block') qlabUpdateTopicList();
+  }
+}
+
+function qlabUpdateTopicList() {
+  const subject = document.getElementById('qlabTopicSubject')?.value || 'quant';
+  const container = document.getElementById('qlabTopicButtons');
+  if (!container) return;
+  const topics = QLAB_TOPICS[subject] || [];
+  container.innerHTML = topics.map(function (t) {
+    return '<button onclick="qlabLaunchTopic(\'' + subject + '\',\'' + t.replace(/'/g, "\\'") + '\')" style="padding:10px;border-radius:10px;border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.1);color:#d1fae5;font-size:11px;font-weight:700;cursor:pointer;text-align:left;">' + t + '</button>';
+  }).join('');
+}
+
+function qlabLaunchTopic(subject, topic) {
+  const picker = document.getElementById('qlabTopicPicker');
+  if (picker) picker.style.display = 'none';
+  qlabOpenExamWindow({ tier: 'tier1', mode: 'topic_wise', subject: subject, topics: topic });
 }
 
 /* =========== Groups Panel (Premium) =========== */

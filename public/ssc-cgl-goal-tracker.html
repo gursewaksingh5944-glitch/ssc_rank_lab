@@ -1,51 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SSC CGL Goal Tracker | Post Specific Progress Dashboard</title>
-  <meta name="description" content="Set SSC CGL goals by post and category, then track daily progress with cutoff-aware benchmark logic inside SSCRankLab." />
-  <meta name="keywords" content="ssc cgl goal tracker, ssc post specific goals, ssc target score tracker" />
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SSC CGL Goal Tracker 2026 | Free Post-Wise Goal Setting + Daily Progress</title>
+  <meta name="description" content="SSC CGL Goal Tracker — set your target post, track daily marks vs cutoff, get weekly report cards, and monitor selection chance. Free on SSC Rank Lab with 6600+ PYQs." />
+  <meta name="keywords" content="ssc cgl goal tracker, ssc preparation tracker, ssc cgl target post tracker, ssc daily marks tracker, ssc progress tracker free, ssc goal setting app, ssc cgl preparation monitor" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://sscranklab.com/ssc-cgl-goal-tracker.html" />
-  <meta property="og:title" content="SSC CGL Goal Tracker" />
-  <meta property="og:description" content="Post-specific SSC CGL goal tracking and progress monitoring platform." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://sscranklab.com/ssc-cgl-goal-tracker.html" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <style>
-    *{box-sizing:border-box;} body{margin:0;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#ecfeff,#eef2ff);color:#111827;} .wrap{max-width:1080px;margin:0 auto;padding:28px 16px 64px;} .card{background:#fff;border:1px solid #bfdbfe;border-radius:24px;overflow:hidden;box-shadow:0 18px 40px rgba(14,116,144,.09);} .hero{padding:34px 24px;background:linear-gradient(135deg,#cffafe,#e0e7ff);} .tag{display:inline-block;background:#0e7490;color:#fff;font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;} h1{margin:14px 0 10px;font-size:clamp(30px,4vw,46px);line-height:1.1;} h2{font-size:24px;margin:0 0 10px;} p{color:#334155;line-height:1.75;} .section{margin:18px 24px;border:1px solid #e2e8f0;border-radius:18px;padding:18px;background:#fff;} .list li{margin-bottom:8px;} .btn{display:inline-block;text-decoration:none;font-weight:700;padding:11px 16px;border-radius:12px;margin-right:10px;} .btn-primary{background:#0891b2;color:#fff;} .btn-secondary{background:#fff;color:#111827;border:1px solid #cbd5e1;} footer{text-align:center;color:#64748b;font-size:13px;margin-top:12px;}
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#eef4ff,#fef3c7,#f0fdf4);color:#162033;line-height:1.75}.wrap{max-width:1120px;margin:0 auto;padding:28px 16px 80px}.card{background:rgba(255,255,255,.93);border:1px solid rgba(110,128,180,.18);border-radius:28px;box-shadow:0 20px 60px rgba(28,47,94,.08);overflow:hidden}.hero{padding:42px 26px 30px;background:radial-gradient(circle at top right,rgba(245,158,11,.12),transparent 28%),radial-gradient(circle at top left,rgba(59,130,246,.1),transparent 28%)}.badge{display:inline-block;background:#fef3c7;color:#92400e;padding:8px 14px;border-radius:999px;font-weight:700;font-size:13px;margin-bottom:14px}h1{font-size:clamp(26px,5vw,42px);line-height:1.12;margin:0 0 14px;color:#101828}h2{font-size:24px;margin:0 0 14px;color:#111827}h3{font-size:18px;margin:0 0 8px;color:#111827}p{margin:0 0 16px;color:#334155}.btns{display:flex;flex-wrap:wrap;gap:14px;margin-top:20px}.btn{text-decoration:none;padding:14px 22px;border-radius:14px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;transition:.2s;font-size:15px}.btn-primary{background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff;box-shadow:0 14px 28px rgba(217,119,6,.25)}.btn-green{background:linear-gradient(135deg,#059669,#10b981);color:#fff}.btn:hover{transform:translateY(-2px)}.content{padding:30px 26px 12px}.section{margin-bottom:24px;background:#fff;border:1px solid #fef3c7;border-radius:22px;padding:24px}ul{padding-left:20px;margin:0 0 14px;color:#334155}li{margin-bottom:6px}.cta-box{margin-top:20px;background:linear-gradient(135deg,#111827,#1f2937);color:#fff;border-radius:24px;padding:28px}.cta-box p{color:#fde68a}.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-top:20px}.mini{background:#fff;border:1px solid #fde68a;border-radius:18px;padding:18px}.links{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}.links a{text-decoration:none;color:#92400e;background:#fef3c7;padding:10px 14px;border-radius:999px;font-weight:600;font-size:14px}footer{padding:8px 26px 34px;color:#64748b;font-size:14px;text-align:center}.sticky-bar{position:fixed;bottom:0;left:0;width:100%;background:#111827;padding:12px;display:flex;justify-content:center;z-index:999;gap:12px}.sticky-btn{background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff;padding:12px 20px;border-radius:12px;font-weight:700;text-decoration:none;font-size:14px}@media(max-width:768px){.hero,.content{padding-left:18px;padding-right:18px}.section,.cta-box{padding:18px}.btn,.sticky-btn{width:100%;text-align:center;justify-content:center}.btns{flex-direction:column}h1{font-size:26px}h2{font-size:22px}.sticky-bar{flex-direction:column;gap:8px;padding:10px 16px}}</style>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is SSC CGL Goal Tracker?","acceptedAnswer":{"@type":"Answer","text":"SSC Rank Lab's Goal Tracker lets you set a target SSC post, enter your category, and track daily marks against the required cutoff. It shows your benchmark gap, 7-day averages, weekly report cards, and real-time selection probability."}},{"@type":"Question","name":"Is the SSC goal tracker free?","acceptedAnswer":{"@type":"Answer","text":"Yes. Goal setting, daily marks tracking, mock tests, 6600+ PYQs, and group features are free. Premium features like post allocation predictor and what-if simulator are ₹99/month."}}]}
+  </script>
 </head>
 <body>
-  <main class="wrap">
-    <article class="card">
-      <section class="hero">
-        <span class="tag">Goal Dashboard</span>
-        <h1>SSC CGL Goal Tracker For Post Specific Preparation</h1>
-        <p>Set a clear post target and track daily progress against realistic score goals. SSCRankLab helps aspirants avoid vague preparation and move with measurable strategy.</p>
-        <a class="btn btn-primary" href="/#progress">Set Goal and Track</a>
-        <a class="btn btn-secondary" href="/#predictor">Use Rank Predictor</a>
-      </section>
-
+  <div class="sticky-bar">
+    <a href="./" class="sticky-btn">🎯 Set Your Goal Free →</a>
+    <a href="./" class="sticky-btn" style="background:linear-gradient(135deg,#059669,#10b981)">📝 Practice 6600+ PYQs →</a>
+  </div>
+  <div class="wrap"><div class="card">
+    <section class="hero">
+      <div class="badge">Free Goal-Based SSC Preparation Tracker</div>
+      <h1>SSC CGL Goal Tracker 2026 — Track Progress Toward Your Target Post</h1>
+      <p style="font-size:17px;max-width:880px">Set your target post (Inspector, Tax Asst, Auditor, etc.), choose your category, and track daily marks against the required cutoff. Get weekly report cards with selection chance analysis — all free.</p>
+      <div class="btns">
+        <a class="btn btn-primary" href="./">🎯 Set My Goal</a>
+        <a class="btn btn-green" href="./">📝 Practice PYQs</a>
+      </div>
+    </section>
+    <div class="content">
       <section class="section">
-        <h2>How Goal Tracking Helps</h2>
-        <ul class="list">
-          <li>Converts long-term target into daily execution steps</li>
-          <li>Maps target post to score expectations and benchmark mode</li>
-          <li>Highlights weak subjects before they damage final score</li>
-          <li>Keeps preparation aligned with final posting objective</li>
+        <h2>How SSC Rank Lab's Goal Tracker Works</h2>
+        <div class="grid">
+          <div class="mini"><h3>Step 1: Set Your Goal</h3><p>Choose target post (Inspector/Tax Asst/Auditor/UDC/LDC) and category (Gen/OBC/SC/ST/EWS). The system loads the corresponding cutoff benchmark.</p></div>
+          <div class="mini"><h3>Step 2: Log Daily Marks</h3><p>After each mock test or practice session, enter your marks. The tracker calculates your 7-day rolling average and benchmark gap.</p></div>
+          <div class="mini"><h3>Step 3: Track Your Gap</h3><p>See how far you are from the cutoff: green (safe zone), yellow (borderline), red (below cutoff). The system shows daily marks gain needed.</p></div>
+          <div class="mini"><h3>Step 4: Weekly Report</h3><p>Every week, get an automated report card: improvement trend, subject-wise performance, benchmark comparison, selection probability.</p></div>
+        </div>
+      </section>
+      <section class="section">
+        <h2>Goal Tracker Features</h2>
+        <ul>
+          <li><strong>Post-specific benchmark:</strong> Cutoff target adjusts based on your chosen post and category</li>
+          <li><strong>7-day rolling average:</strong> Smooths out daily fluctuations for accurate trend analysis</li>
+          <li><strong>Benchmark gap display:</strong> Shows exactly how many marks you need to bridge daily</li>
+          <li><strong>Selection chance forecast:</strong> Real-time probability of selection based on current trajectory</li>
+          <li><strong>What-if simulator:</strong> Change score by ±5 marks and see impact on rank and post allocation</li>
+          <li><strong>Weekly report cards:</strong> Automated PDF-style reports with trends, subject analysis, and recommendations</li>
         </ul>
       </section>
-
       <section class="section">
-        <h2>Built For Aspirants Who Feel Stuck</h2>
-        <p>If you are tired of studying without proof of progress, this goal tracker gives clarity every day. You can see whether your effort is moving toward your desired post or not.</p>
+        <h2>More Than Just Tracking — Complete Preparation</h2>
+        <div class="grid">
+          <div class="mini"><h3>📝 6,600+ PYQs</h3><p>Practice previous year questions with explanations. Organized by subject, topic, and difficulty.</p></div>
+          <div class="mini"><h3>📊 Mock Tests</h3><p>Full-length, sectional, and speed tests with instant scoring. Track improvement over time.</p></div>
+          <div class="mini"><h3>👥 Groups & Competition</h3><p>Create groups, challenge friends, compete on leaderboards, chat with aspirants.</p></div>
+          <div class="mini"><h3>🎯 Rank Predictor</h3><p>Predict your rank and post allocation based on current performance.</p></div>
+        </div>
       </section>
-    </article>
-    <footer>© 2026 SSCRankLab</footer>
-  </main>
+      <section class="cta-box">
+        <h2>Start Tracking — It's Free</h2>
+        <p>Set your target, log daily marks, practice PYQs, take mocks. Everything you need to get your SSC post.</p>
+        <div class="btns">
+          <a class="btn btn-primary" href="./">🎯 Set My Goal Now</a>
+          <a class="btn btn-green" href="./">📝 Start Practice</a>
+        </div>
+      </section>
+      <section class="section">
+        <h2>Related</h2>
+        <div class="links">
+          <a href="./ssc-daily-prep-tracker.html">Daily Tracker</a>
+          <a href="./ssc-cgl-study-planner.html">Study Planner</a>
+          <a href="./ssc-mock-test-progress-tracker.html">Mock Tracker</a>
+          <a href="./ssc-cgl-rank-predictor.html">Rank Predictor</a>
+          <a href="./ssc-preparation-tracker-app.html">Prep Tracker App</a>
+        </div>
+      </section>
+    </div>
+    <footer>© 2026 SSC Rank Lab — Free SSC Preparation Platform</footer>
+  </div></div>
 </body>
 </html>

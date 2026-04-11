@@ -1,392 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
-  <div class="sticky-bar">
-  <a href="./" class="sticky-btn">Check Your Rank Now →</a>
-</div>
-
-<style>
-.sticky-bar{
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  background:#111827;
-  padding:12px;
-  display:flex;
-  justify-content:center;
-  z-index:999;
-}
-.sticky-btn{
-  background:linear-gradient(135deg,#4f46e5,#7c3aed);
-  color:#fff;
-  padding:14px 22px;
-  border-radius:12px;
-  font-weight:700;
-  text-decoration:none;
-}
-</style>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SSC Rank Predictor 2026 – Predict SSC Rank for Tier 1 & Tier 2</title>
-  <meta name="description" content="Use our SSC Rank Predictor 2026 to estimate your expected rank for SSC CGL, CHSL, MTS and GD exams. Explore score vs rank, cutoff trends and post-wise selection insights." />
-  <meta name="keywords" content="SSC Rank Predictor, SSC expected rank, SSC score vs rank, SSC cutoff, SSC CGL rank predictor, SSC CHSL rank predictor, SSC MTS rank predictor, SSC GD rank predictor" />
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SSC Rank Predictor 2026 | Free Tool for CGL, CHSL, MTS, GD + Mock Tests</title>
+  <meta name="description" content="Free SSC Rank Predictor 2026 for CGL, CHSL, MTS & GD exams. Predict your rank, practice 6600+ previous year questions, take mock tests, track progress daily, and join study groups on SSC Rank Lab." />
+  <meta name="keywords" content="ssc rank predictor, ssc rank predictor 2026, ssc expected rank, ssc cgl rank predictor, ssc chsl rank predictor, ssc mts rank predictor, ssc gd rank predictor, ssc mock test, ssc previous year questions, ssc preparation app, ssc practice set free, ssc study plan" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://sscranklab.com/ssc-rank-predictor.html" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      font-family:'Poppins',sans-serif;
-      color:#182033;
-      background:
-        radial-gradient(circle at top left, rgba(99,102,241,.22), transparent 28%),
-        radial-gradient(circle at bottom right, rgba(168,85,247,.20), transparent 25%),
-        linear-gradient(135deg,#eef2ff 0%, #f8f5ff 50%, #eef9ff 100%);
-      padding:24px 14px 40px;
-      line-height:1.75;
-    }
-    .wrap{max-width:1120px;margin:auto}
-    .card,.hero,.section,.faq,.cta-box,.footer-box{
-      background:rgba(255,255,255,.88);
-      border:1px solid rgba(255,255,255,.9);
-      backdrop-filter:blur(10px);
-      border-radius:26px;
-      box-shadow:0 16px 48px rgba(35,52,120,.10);
-      padding:28px;
-      margin-bottom:20px;
-    }
-    .badge{
-      display:inline-block;
-      background:#eef2ff;
-      color:#4338ca;
-      font-weight:700;
-      font-size:13px;
-      padding:8px 14px;
-      border-radius:999px;
-      margin-bottom:14px;
-    }
-    h1{
-      font-size:clamp(30px,5vw,48px);
-      line-height:1.12;
-      margin-bottom:14px;
-    }
-    h2{
-      font-size:clamp(22px,3vw,30px);
-      margin-bottom:12px;
-      color:#1f2a44;
-    }
-    h3{
-      font-size:18px;
-      margin-bottom:8px;
-      color:#1f2a44;
-    }
-    p{color:#475569;margin-bottom:14px}
-    .hero p{font-size:16px}
-    .info{
-      background:linear-gradient(135deg,#eef2ff,#f5f3ff);
-      border-left:5px solid #6366f1;
-      border-radius:18px;
-      padding:18px;
-      color:#334155;
-      margin:18px 0;
-    }
-    .btn-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      text-decoration:none;
-      font-weight:700;
-      border-radius:14px;
-      padding:14px 22px;
-      transition:.2s ease;
-      border:none;
-      cursor:pointer;
-      font-family:'Poppins',sans-serif;
-    }
-    .btn-primary{
-      color:#fff;
-      background:linear-gradient(135deg,#4f46e5,#7c3aed);
-      box-shadow:0 12px 28px rgba(79,70,229,.24);
-    }
-    .btn-secondary{
-      color:#4338ca;
-      background:#fff;
-      border:1px solid #dbe4ff;
-    }
-    .btn:hover{transform:translateY(-1px)}
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:16px;
-      margin-top:12px;
-    }
-    .mini{
-      background:linear-gradient(180deg,#ffffff,#f7faff);
-      border:1px solid #e7edff;
-      border-radius:22px;
-      padding:20px;
-    }
-    .mini p{margin-bottom:10px}
-    .mini a{
-      text-decoration:none;
-      color:#4338ca;
-      font-weight:700;
-    }
-    table{
-      width:100%;
-      border-collapse:collapse;
-      overflow:hidden;
-      border-radius:18px;
-      background:#fff;
-      margin-top:14px;
-    }
-    th,td{
-      padding:14px 12px;
-      border-bottom:1px solid #edf2ff;
-      text-align:left;
-      font-size:14px;
-    }
-    th{
-      background:#f3f5ff;
-      color:#312e81;
-      font-weight:700;
-    }
-    ul{
-      padding-left:18px;
-      color:#475569;
-      margin:8px 0 0;
-    }
-    .faq-item{
-      padding:14px 0;
-      border-bottom:1px solid #edf2ff;
-    }
-    .faq-item:last-child{border-bottom:none}
-    .link-list{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:14px;
-    }
-    .link-list a{
-      text-decoration:none;
-      background:#eef2ff;
-      color:#4338ca;
-      padding:10px 14px;
-      border-radius:12px;
-      font-weight:600;
-    }
-    .compare{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-      gap:16px;
-      margin-top:14px;
-    }
-    .compare .box{
-      background:#fafbff;
-      border:1px solid #e6ebff;
-      border-radius:20px;
-      padding:18px;
-    }
-    .small{
-      font-size:13px;
-      color:#64748b;
-    }
-  </style>
-
+  <meta property="og:title" content="SSC Rank Predictor 2026 â€” Free for CGL, CHSL, MTS, GD" />
+  <meta property="og:description" content="Predict SSC rank for any exam. Practice 6600+ PYQs, take mock tests, join groups â€” all free on SSC Rank Lab." />
+  <meta property="og:type" content="website" /><meta property="og:url" content="https://sscranklab.com/ssc-rank-predictor.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#eef4ff,#fef3c7,#f0fdf4);color:#162033;line-height:1.75}.wrap{max-width:1120px;margin:0 auto;padding:28px 16px 80px}.card{background:rgba(255,255,255,.93);border:1px solid rgba(110,128,180,.18);border-radius:28px;box-shadow:0 20px 60px rgba(28,47,94,.08);overflow:hidden}.hero{padding:42px 26px 30px;background:radial-gradient(circle at top right,rgba(245,158,11,.12),transparent 28%),radial-gradient(circle at top left,rgba(59,130,246,.1),transparent 28%)}.badge{display:inline-block;background:#fef3c7;color:#92400e;padding:8px 14px;border-radius:999px;font-weight:700;font-size:13px;margin-bottom:14px}h1{font-size:clamp(26px,5vw,46px);line-height:1.12;margin:0 0 14px;color:#101828}h2{font-size:24px;margin:0 0 14px;color:#111827}h3{font-size:18px;margin:0 0 8px;color:#111827}p{margin:0 0 16px;color:#334155}.btns{display:flex;flex-wrap:wrap;gap:14px;margin-top:20px}.btn{text-decoration:none;padding:14px 22px;border-radius:14px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;transition:.2s ease;font-size:15px}.btn-primary{background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff;box-shadow:0 14px 28px rgba(217,119,6,.25)}.btn-green{background:linear-gradient(135deg,#059669,#10b981);color:#fff}.btn-blue{background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff}.btn-secondary{background:#fff;color:#1e3a5f;border:1px solid #fde68a}.btn:hover{transform:translateY(-2px)}.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-top:20px}.mini{background:#fff;border:1px solid #fde68a;border-radius:18px;padding:18px}.content{padding:30px 26px 12px}.section{margin-bottom:24px;background:#fff;border:1px solid #fef3c7;border-radius:22px;padding:24px}ul{padding-left:20px;margin:0 0 14px;color:#334155}li{margin-bottom:6px}.cta-box{margin-top:20px;background:linear-gradient(135deg,#111827,#1f2937);color:#fff;border-radius:24px;padding:28px}.cta-box p{color:#fde68a}.feature-strip{background:linear-gradient(135deg,#fef3c7,#fffbeb);border:1px solid #fde68a;border-radius:20px;padding:22px;margin-bottom:24px}.links{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}.links a{text-decoration:none;color:#92400e;background:#fef3c7;padding:10px 14px;border-radius:999px;font-weight:600;font-size:14px}footer{padding:8px 26px 34px;color:#64748b;font-size:14px;text-align:center}.sticky-bar{position:fixed;bottom:0;left:0;width:100%;background:#111827;padding:12px;display:flex;justify-content:center;z-index:999;gap:12px}.sticky-btn{background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff;padding:12px 20px;border-radius:12px;font-weight:700;text-decoration:none;font-size:14px}@media(max-width:768px){.hero,.content{padding-left:18px;padding-right:18px}.section,.cta-box{padding:18px}.btn,.sticky-btn{width:100%;text-align:center;justify-content:center}.btns{flex-direction:column}h1{font-size:26px}h2{font-size:22px}.sticky-bar{flex-direction:column;gap:8px;padding:10px 16px}}</style>
   <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"FAQPage",
-    "mainEntity":[
-      {
-        "@type":"Question",
-        "name":"Is SSC rank prediction exact?",
-        "acceptedAnswer":{"@type":"Answer","text":"No. It is an estimate based on score trends, competition level and previous result patterns."}
-      },
-      {
-        "@type":"Question",
-        "name":"Which SSC exams are covered?",
-        "acceptedAnswer":{"@type":"Answer","text":"This website covers major SSC searches including CGL, CHSL, MTS and GD along with score vs rank and cutoff related pages."}
-      },
-      {
-        "@type":"Question",
-        "name":"Why should I use a rank predictor?",
-        "acceptedAnswer":{"@type":"Answer","text":"A rank predictor gives a quick sense of performance before official results and helps candidates plan the next stage better."}
-      }
-    ]
-  }
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Which SSC exams does SSC Rank Lab cover?","acceptedAnswer":{"@type":"Answer","text":"SSC Rank Lab covers CGL, CHSL, MTS, GD Constable, CPO, and Stenographer exams with rank prediction, 6600+ PYQs, mock tests, and daily preparation tracking."}},{"@type":"Question","name":"Is the SSC Rank Predictor free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The basic rank predictor, question bank, mock tests, group chat, and progress tracker are free. Premium features like post allocation and what-if simulation are available for ₹99/month."}},{"@type":"Question","name":"How many previous year questions are available?","acceptedAnswer":{"@type":"Answer","text":"SSC Rank Lab has 6600+ verified previous year questions across Quant, English, Reasoning, and GK with detailed explanations for each question."}}]}
   </script>
 </head>
 <body>
-  <div class="wrap">
-
-    <section class="hero">
-      <div class="badge">SSC traffic hub</div>
-      <h1>SSC Rank Predictor 2026</h1>
-      <p style="font-size:18px; font-weight:600; color:#1e293b;">
-Enter your marks → Get expected rank instantly
-</p>
-      <p>Check expected rank, score strength, cutoff direction and exam-wise rank trends for major SSC exams. This page is your main SEO hub and should guide visitors into your actual prediction tool.</p>
-      <div class="info">
-        Estimate performance for <strong>SSC CGL, SSC CHSL, SSC MTS and SSC GD</strong>, then move users into your main calculator for instant prediction.
-      </div>
-      <div class="btn-row">
-        <a class="btn btn-primary" href="./">🚀 Predict Your Rank Now</a>
-        <button class="btn btn-secondary" onclick="sharePage()">Share This Page</button>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>Why students search for an SSC rank predictor</h2>
-      <p>After an exam, most candidates do not want to wait quietly for the official result. They immediately start searching for expected rank, safe score, cutoff trend, marks vs rank and selection chances. This page is built to satisfy that exact behavior and hold the user inside your website.</p>
-      <p>Instead of giving a thin one-paragraph article, this page explains what score means, how prediction helps, which exams are covered and where the visitor should click next.</p>
-    </section>
-
-    <section class="section">
-      <h2>Exams covered on this website</h2>
-      <div class="grid">
-        <div class="mini">
-          <h3>SSC CGL</h3>
-          <p>Best page for Tier 1 and Tier 2 rank prediction, post preference interest and cutoff-driven traffic.</p>
-          <a href="./ssc-cgl-rank-predictor">Open SSC CGL page →</a>
-        </div>
-        <div class="mini">
-          <h3>SSC CHSL</h3>
-          <p>Useful for candidates checking expected rank, score quality and next-stage confidence.</p>
-          <a href="./ssc-chsl-rank-predictor">Open SSC CHSL page →</a>
-        </div>
-        <div class="mini">
-          <h3>SSC MTS</h3>
-          <p>Supports merit estimate and exam-performance intent from MTS candidates.</p>
-          <a href="./ssc-rank-predictor">Open SSC MTS page →</a>
-        </div>
-        <div class="mini">
-          <h3>SSC GD</h3>
-          <p>Targets written exam estimate and overall selection-confidence searches.</p>
-          <a href="./ssc-rank-predictor">Open SSC GD page →</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>Score vs rank snapshot</h2>
-      <table>
-        <tr>
-          <th>Approx score band</th>
-          <th>Performance meaning</th>
-          <th>General expectation</th>
-        </tr>
-        <tr>
-          <td>Very high score</td>
-          <td>Strong position</td>
-          <td>Usually competitive for top ranks</td>
-        </tr>
-        <tr>
-          <td>Above average</td>
-          <td>Good chance area</td>
-          <td>Needs comparison with exam difficulty</td>
-        </tr>
-        <tr>
-          <td>Average</td>
-          <td>Borderline to moderate</td>
-          <td>Depends heavily on cutoff movement</td>
-        </tr>
-        <tr>
-          <td>Below average</td>
-          <td>Lower confidence zone</td>
-          <td>Needs official result confirmation</td>
-        </tr>
-      </table>
-    </section>
-
-    <section class="section">
-      <h2>Performance insight box</h2>
-      <div class="compare">
-        <div class="box">
-          <h3>High score case</h3>
-          <p>If your marks feel clearly above the usual competition level, your next step should be serious preparation for the next stage rather than waiting passively.</p>
-        </div>
-        <div class="box">
-          <h3>Borderline score case</h3>
-          <p>If your marks feel near the expected cutoff zone, use the calculator and compare across score bands. This helps reduce guesswork.</p>
-        </div>
-      </div>
-    </section>
-
-  
-
-    <p style="color:#dc2626; font-weight:600; text-align:center;">
-Check your rank before cutoff trends change.
-</p>
-
-<div class="tool-box">
-  <h3>Quick Rank Check</h3>
-  <p>Enter your marks and instantly see your expected rank range.</p>
-  <a href="/" class="btn btn-primary">Start Prediction</a>
-</div>
-
-<section class="cta-box">
-      <h2>Use the free prediction tool</h2>
-      <p>Your reader should always see a clear next action. Keep this section on every page so organic visitors turn into actual users.</p>
-      <div class="btn-row">
-        <a class="btn btn-primary" href="./">Check Your Rank Instantly</a>
-        <a class="btn btn-secondary" href="./ssc-score-vs-rank">View Score vs Rank</a>
-      </div>
-    </section>
-
-    <section class="faq">
-      <h2>Frequently asked questions</h2>
-      <div class="faq-item">
-        <h3>Is SSC rank prediction exact?</h3>
-        <p>No. It is an estimate based on score trends, competition level and previous result patterns.</p>
-      </div>
-      <div class="faq-item">
-        <h3>Can this page bring traffic?</h3>
-        <p>Yes. This broad page captures generic SSC rank-related searches and then routes traffic to exam-specific pages.</p>
-      </div>
-      <div class="faq-item">
-        <h3>Which page should I visit for CGL?</h3>
-        <p>The SSC CGL rank predictor page is the strongest exam-specific page and should be linked prominently.</p>
-      </div>
-    </section>
-
-    <section class="footer-box">
-      <h2>Explore more</h2>
-      <div class="link-list">
-        <a href="./ssc-cgl-rank-predictor">SSC CGL Rank Predictor</a>
-        <a href="./ssc-chsl-rank-predictor">SSC CHSL Rank Predictor</a>
-        <a href="./ssc-rank-predictor">SSC MTS Rank Predictor</a>
-        <a href="./ssc-rank-predictor">SSC GD Rank Predictor</a>
-        <a href="./ssc-score-vs-rank">SSC Score vs Rank</a>
-        <a href="./ssc-cgl-cutoff">SSC CGL Cutoff</a>
-        <a href="./ssc-cgl-syllabus">SSC CGL Syllabus</a>
-        <a href="./ssc-cgl-exam-date">SSC CGL Exam Date</a>
-      </div>
-      <p class="small">Tip: use these exact internal links on every page so Google crawls all pages easily.</p>
-    </section>
-
+  <div class="sticky-bar">
+    <a href="./" class="sticky-btn">ðŸŽ¯ Predict SSC Rank Free â†’</a>
+    <a href="./" class="sticky-btn" style="background:linear-gradient(135deg,#059669,#10b981)">ðŸ“ Practice 6600+ PYQs â†’</a>
   </div>
-
-  <script>
-    function sharePage(){
-      if(navigator.share){
-        navigator.share({
-          title: document.title,
-          text: 'Check this SSC rank prediction page',
-          url: window.location.href
-        });
-      } else {
-        navigator.clipboard.writeText(window.location.href);
-        alert('Link copied');
-      }
-    }
-  </script>
+  <div class="wrap"><div class="card">
+    <section class="hero">
+      <div class="badge">SSC Rank Lab â€” All SSC Exams in One Platform</div>
+      <h1>SSC Rank Predictor 2026 â€” Free for CGL, CHSL, MTS & GD</h1>
+      <p style="font-size:17px;max-width:880px">One platform for all SSC exams. <strong>Predict your rank</strong>, practice <strong>6,600+ previous year questions</strong>, take <strong>timed mock tests</strong>, <strong>track daily progress</strong>, and <strong>compete in study groups</strong>. Updated with SSC CGL 2025 FRTA result data.</p>
+      <div class="btns">
+        <a class="btn btn-primary" href="./">ðŸŽ¯ Predict Your SSC Rank Free</a>
+        <a class="btn btn-green" href="./">ðŸ“ Practice PYQs</a>
+        <a class="btn btn-blue" href="./">ðŸ“Š Take Mock Test</a>
+      </div>
+    </section>
+    <div class="content">
+      <section class="section">
+        <h2>SSC Rank Predictor â€” Covers All Major SSC Exams</h2>
+        <div class="grid">
+          <div class="mini"><h3>ðŸŽ¯ SSC CGL</h3><p>Rank prediction for Combined Graduate Level â€” Inspector, Auditor, Tax Assistant, LDC posts. Updated with April 2026 FRTA data.</p><a class="btn btn-primary" href="./ssc-cgl-rank-predictor.html" style="margin-top:10px;padding:10px 16px;font-size:13px">CGL Predictor â†’</a></div>
+          <div class="mini"><h3>ðŸŽ¯ SSC CHSL</h3><p>Predict your rank for Combined Higher Secondary Level â€” LDC, DEO, PA/SA, Court Clerk posts.</p><a class="btn btn-blue" href="./ssc-chsl-rank-predictor.html" style="margin-top:10px;padding:10px 16px;font-size:13px">CHSL Predictor â†’</a></div>
+          <div class="mini"><h3>ðŸŽ¯ SSC MTS</h3><p>Multi Tasking Staff rank prediction. MTS 2026 expected notification in June 2026.</p><a class="btn btn-secondary" href="./" style="margin-top:10px;padding:10px 16px;font-size:13px">Check MTS Rank â†’</a></div>
+          <div class="mini"><h3>ðŸŽ¯ SSC GD</h3><p>GD Constable rank prediction for CAPFs, SSF, Assam Rifles. Practice with SSC-specific PYQs.</p><a class="btn btn-secondary" href="./" style="margin-top:10px;padding:10px 16px;font-size:13px">Check GD Rank â†’</a></div>
+        </div>
+      </section>
+      <section class="feature-strip">
+        <h3>More Than Just Rank Prediction â€” Complete SSC Preparation</h3>
+        <div class="grid">
+          <div class="mini"><h3>ðŸ“ 6,600+ Previous Year Questions</h3><p>Verified PYQs from all SSC exams with detailed explanations. Practice by topic, difficulty, or take full mock tests.</p></div>
+          <div class="mini"><h3>ðŸ“Š Timed Mock Tests</h3><p>Full mocks, sectional tests (25QÃ—15min), speed tests (20QÃ—10min) with real exam interface and instant scoring.</p></div>
+          <div class="mini"><h3>ðŸ“ˆ Daily Progress Tracking</h3><p>Set target post, log daily marks, track benchmark gap, monitor 7-day averages, and get weekly report cards.</p></div>
+          <div class="mini"><h3>ðŸ‘¥ Study Groups & Competitions</h3><p>Create groups, challenge friends with quizzes, compete on leaderboards, and chat with fellow aspirants.</p></div>
+          <div class="mini"><h3>ðŸŽ¯ Goal-Based Preparation</h3><p>Choose your target post, category, and cutoff. The platform aligns everything to your specific goal.</p></div>
+          <div class="mini"><h3>ðŸ“‰ Selection Chance Forecast</h3><p>Real-time selection probability showing safe zone, marks needed, and daily gain required.</p></div>
+        </div>
+      </section>
+      <section class="section">
+        <h2>Latest SSC Updates â€” April 2026</h2>
+        <ul>
+          <li><strong>SSC CGL 2025 FRTA:</strong> Tier 2 result released April 8, 2026. Document verification next.</li>
+          <li><strong>SSC CHSL 2025 Tier 2:</strong> Scheduled for April 2026.</li>
+          <li><strong>SSC GD 2026:</strong> Exam notification expected soon.</li>
+          <li><strong>SSC CGL 2026:</strong> Notification expected by mid-2026.</li>
+        </ul>
+      </section>
+      <section class="cta-box">
+        <h2>Start SSC Preparation Today â€” 100% Free</h2>
+        <p>Rank prediction, 6600+ PYQs, mock tests, daily tracker, group competitions â€” everything in one platform.</p>
+        <div class="btns">
+          <a class="btn btn-primary" href="./">ðŸŽ¯ Open SSC Rank Lab Free</a>
+          <a class="btn btn-green" href="./">ðŸ“ Start PYQ Practice</a>
+        </div>
+      </section>
+      <section class="section">
+        <h2>Explore SSC Resources</h2>
+        <div class="links">
+          <a href="./ssc-cgl-rank-predictor.html">CGL Predictor</a>
+          <a href="./ssc-chsl-rank-predictor.html">CHSL Predictor</a>
+          <a href="./ssc-cgl-expected-cutoff-2026.html">CGL Cutoff 2026</a>
+          <a href="./ssc-cgl-previous-year-cutoff.html">Previous Cutoff</a>
+          <a href="./ssc-marks-vs-rank.html">Marks vs Rank</a>
+          <a href="./ssc-cgl-syllabus.html">SSC Syllabus</a>
+          <a href="./ssc-cgl-normalization-explained.html">Normalization</a>
+          <a href="./ssc-cgl-result-2025.html">CGL 2025 Result</a>
+          <a href="./ssc-cgl-post-wise-salary.html">Post Wise Salary</a>
+        </div>
+      </section>
+    </div>
+    <footer>SSC rank prediction is an analytical estimate. Final ranks determined by SSC. © 2026 SSC Rank Lab</footer>
+  </div></div>
 </body>
 </html>
