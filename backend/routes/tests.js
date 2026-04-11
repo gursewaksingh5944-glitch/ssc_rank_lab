@@ -64,8 +64,12 @@ function pickQuestions(bank, subject, tier, count, opts = {}) {
   const shuffledStandalone = shuffle(standalone);
   const shuffledSetIds = shuffle(Object.keys(setGroups));
 
-  // First, try to include complete question sets
+  // Cap set-based questions: max 1 set per 15 questions (e.g., 1 DI set per 25 quant)
+  const maxSets = Math.max(1, Math.floor(count / 15));
+
+  // First, try to include complete question sets (capped)
   for (const sid of shuffledSetIds) {
+    if (usedSets.size >= maxSets) break;
     const group = setGroups[sid];
     if (result.length + group.length <= count) {
       result.push(...group);
@@ -96,6 +100,7 @@ function sanitize(q) {
     negativeMarks: q.negativeMarks || 0.5,
     isPYQ: q.isPYQ || false
   };
+  if (q.sharedContext) out.sharedContext = q.sharedContext;
   if (q.setId) { out.setId = q.setId; out.setIndex = q.setIndex; out.setSize = q.setSize; }
   return out;
 }
@@ -139,15 +144,14 @@ const SSC_EXAM_CONFIG = {
   tier2: {
     name: "SSC CGL Tier-2",
     totalQuestions: 130,
-    totalTime: 120,
+    totalTime: 150,
     marksPerQ: 3,
     negPerQ: 1,
     sections: {
-      quant: { label: "Quantitative Aptitude", code: "quant", questions: 35 },
-      reasoning: { label: "Reasoning", code: "reasoning", questions: 30 },
-      english: { label: "English Comprehension", code: "english", questions: 30 },
-      gk: { label: "General Awareness", code: "gk", questions: 20 },
-      computer: { label: "Computer Knowledge", code: "computer", questions: 15 }
+      quant: { label: "Mathematical Abilities", code: "quant", questions: 30 },
+      reasoning: { label: "Reasoning & General Intelligence", code: "reasoning", questions: 30 },
+      english: { label: "English Language & Comprehension", code: "english", questions: 45 },
+      gk: { label: "General Awareness", code: "gk", questions: 25 }
     },
     totalMarks: 390
   }

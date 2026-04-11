@@ -878,6 +878,8 @@ function isExactAnswerQuestion(item) {
 }
 
 function isFigureDependentQuestion(item) {
+  // Questions with actual diagram images are usable
+  if (item.diagram) return false;
   const text = String(item?.question || "").toLowerCase();
   return /\b(in the (given|following|adjoining) (figure|diagram)|from the figure|as shown in the figure|refer.{0,10}figure|the following figure|given figure|see the figure|in the figure)\b/.test(text);
 }

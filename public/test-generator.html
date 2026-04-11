@@ -534,26 +534,32 @@
             }
         }
 
+        function launchExam(params) {
+            const qs = new URLSearchParams(params).toString();
+            const url = '/ssc-exam.html?' + qs;
+            window.open(url, '_blank', 'width=' + screen.width + ',height=' + screen.height + ',menubar=no,toolbar=no,location=no,status=no,scrollbars=no');
+        }
+
         function startFullMock(e) {
             e.preventDefault();
             const tier = document.getElementById('tier').value;
-            alert('🎯 Full Mock Test Started!\n\nTier: ' + tier + '\n\n⏱️ Timer will start on next screen...');
             closeModal('fullMockModal');
+            launchExam({ tier, mode: 'full_mock' });
         }
 
         function startPYQExam(e) {
             e.preventDefault();
             const year = document.getElementById('pyqYear').value;
             const exam = document.getElementById('pyqExam').value;
-            alert('📚 PYQ Exam Loaded!\n\nYear: ' + year + '\nExam: ' + exam + '\n\n🏆 Good Luck!');
             closeModal('pyqModal');
+            launchExam({ tier: 'tier1', mode: 'pyq_based', year, exam });
         }
 
         function startRandomMixed(e) {
             e.preventDefault();
             const ratio = document.getElementById('pyqRatio').value;
-            alert('🎲 Random Mixed Test Started!\n\nPYQ Ratio: ' + (ratio * 100).toFixed(0) + '%\n\n⏱️ Let\'s begin!');
             closeModal('randomModal');
+            launchExam({ tier: 'tier1', mode: 'random_mixed', pyqRatio: ratio });
         }
 
         // Close modal when clicking outside

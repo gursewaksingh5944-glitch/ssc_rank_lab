@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSC CGL 2025 - Online Examination</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;font-size:14px;background:#e8e8e8}
+
+/* ── TOP HEADER BAR ───────────────────────────── */
+.exam-header{
+  background:linear-gradient(to bottom,#6a5acd,#483d8b);
+  color:#fff;padding:6px 15px;display:flex;justify-content:space-between;align-items:center;
+  border-bottom:3px solid #ffd700;height:48px;
+}
+.exam-header .exam-title{font-size:18px;font-weight:700;letter-spacing:.5px}
+.exam-header .timer-box{display:flex;align-items:center;gap:12px}
+.exam-header .timer-box .time-label{font-size:12px;opacity:.9}
+.exam-header .timer-box .time-value{font-size:20px;font-weight:700;font-family:'Courier New',monospace;color:#ffd700}
+.exam-header .pause-btn{background:#ffd700;color:#333;border:none;padding:4px 12px;border-radius:3px;cursor:pointer;font-weight:600;font-size:12px}
+
+/* ── TOOLBAR (Zoom, Previous, Mark, Save, Submit) ─ */
+.toolbar{
+  background:#dcd0ff;border-bottom:2px solid #b8a9e8;padding:5px 15px;
+  display:flex;justify-content:space-between;align-items:center;height:38px;
+}
+.toolbar .left-tools{display:flex;gap:8px;align-items:center}
+.toolbar .left-tools a{color:#4834d4;font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline}
+.toolbar .nav-buttons{display:flex;gap:6px}
+.toolbar .nav-buttons button{
+  padding:5px 14px;border:1px solid #666;border-radius:3px;cursor:pointer;
+  font-size:12px;font-weight:600;background:linear-gradient(to bottom,#f0f0f0,#d0d0d0);color:#333;
+}
+.toolbar .nav-buttons button:hover{background:linear-gradient(to bottom,#e0e0ff,#c0c0e0)}
+.toolbar .nav-buttons .submit-btn{background:linear-gradient(to bottom,#48c774,#2d9f5a);color:#fff;border-color:#2d9f5a;font-weight:700}
+.toolbar .nav-buttons .submit-btn:hover{background:linear-gradient(to bottom,#3dbd6b,#248f4e)}
+
+.toolbar .answered-count{font-size:13px;color:#333;font-weight:600}
+.toolbar .answered-count span{color:#e74c3c;font-weight:700}
+
+/* ── MAIN AREA ────────────────────────────────── */
+.exam-body{display:flex;height:calc(100vh - 86px)}
+
+/* ── LEFT: SECTION TABS + QUESTION PALETTE ────── */
+.left-panel{
+  width:240px;background:#f5f3ff;border-right:2px solid #ccc;display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.section-tabs{display:flex;flex-wrap:wrap;border-bottom:2px solid #b8a9e8}
+.section-tabs .tab{
+  flex:1;min-width:50%;padding:7px 4px;text-align:center;font-size:11px;font-weight:700;
+  cursor:pointer;background:#e8e0ff;border:1px solid #ccc;color:#333;transition:.2s;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.section-tabs .tab.active{background:#6a5acd;color:#fff;border-color:#483d8b}
+.section-tabs .tab:hover:not(.active){background:#d0c4f0}
+
+/* Question number grid */
+.question-palette{flex:1;overflow-y:auto;padding:10px}
+.palette-title{font-size:12px;font-weight:700;color:#555;margin-bottom:8px;text-align:center}
+.palette-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.q-btn{
+  width:36px;height:36px;border-radius:50%;border:2px solid #999;display:flex;
+  align-items:center;justify-content:center;font-size:12px;font-weight:700;
+  cursor:pointer;transition:.15s;background:#fff;color:#333;margin:0 auto;
+}
+.q-btn:hover{transform:scale(1.1)}
+.q-btn.current{box-shadow:0 0 0 3px #ffd700}
+
+/* Status colors matching SSC exam */
+.q-btn.not-visited{background:#fff;color:#333;border-color:#999}
+.q-btn.not-answered{background:#e74c3c;color:#fff;border-color:#c0392b}
+.q-btn.answered{background:#27ae60;color:#fff;border-color:#1e8449}
+.q-btn.marked{background:#8e44ad;color:#fff;border-color:#6c3483}
+.q-btn.marked-answered{background:#8e44ad;color:#fff;border-color:#27ae60;box-shadow:inset 0 -8px 0 #27ae60}
+
+/* Legend */
+.palette-legend{padding:10px;border-top:1px solid #ccc;background:#f0ecff}
+.legend-title{font-size:11px;font-weight:700;color:#555;margin-bottom:6px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;margin-bottom:4px;color:#444}
+.legend-dot{width:14px;height:14px;border-radius:50%;border:1px solid #999;flex-shrink:0}
+.legend-dot.nv{background:#fff}
+.legend-dot.na{background:#e74c3c;border-color:#c0392b}
+.legend-dot.ans{background:#27ae60;border-color:#1e8449}
+.legend-dot.mr{background:#8e44ad;border-color:#6c3483}
+.legend-dot.ma{background:#8e44ad;border-color:#6c3483;box-shadow:inset 0 -4px 0 #27ae60}
+
+/* ── RIGHT: QUESTION AREA ─────────────────────── */
+.question-area{flex:1;display:flex;flex-direction:column;background:#fff}
+
+/* Question header */
+.q-header{
+  padding:10px 20px;border-bottom:1px solid #ddd;display:flex;
+  justify-content:space-between;align-items:center;background:#f9f7ff;
+}
+.q-header .q-number{font-size:16px;font-weight:700;color:#333}
+.q-header .q-meta{font-size:12px;color:#666}
+.q-header .lang-select{
+  padding:4px 8px;border:1px solid #aaa;border-radius:3px;font-size:12px;
+  background:#fff;color:#333;
+}
+
+/* Question body */
+.q-body{flex:1;overflow-y:auto;padding:25px 30px}
+.q-text{font-size:15px;line-height:1.7;color:#222;margin-bottom:25px}
+.q-text p{margin-bottom:10px}
+
+/* Options */
+.options-list{list-style:none}
+.option-item{
+  display:flex;align-items:flex-start;gap:12px;padding:12px 15px;margin-bottom:8px;
+  border:2px solid #ddd;border-radius:6px;cursor:pointer;transition:.2s;background:#fafafa;
+}
+.option-item:hover{border-color:#6a5acd;background:#f5f0ff}
+.option-item.selected{border-color:#6a5acd;background:#ede8ff}
+.option-radio{
+  width:20px;height:20px;border-radius:50%;border:2px solid #999;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;margin-top:1px;
+}
+.option-item.selected .option-radio{border-color:#6a5acd}
+.option-item.selected .option-radio::after{
+  content:'';width:10px;height:10px;border-radius:50%;background:#6a5acd;
+}
+.option-label{font-size:14px;line-height:1.5;color:#333}
+.option-letter{font-weight:700;color:#6a5acd;margin-right:4px}
+
+/* Q footer buttons */
+.q-footer{
+  padding:10px 20px;border-top:2px solid #ddd;background:#f5f3ff;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.q-footer button{
+  padding:8px 18px;border:1px solid #999;border-radius:4px;font-size:13px;
+  font-weight:600;cursor:pointer;background:linear-gradient(to bottom,#f8f8f8,#e0e0e0);color:#333;
+}
+.q-footer button:hover{background:linear-gradient(to bottom,#eee,#d0d0d0)}
+.q-footer .clear-btn{color:#e74c3c;border-color:#e74c3c}
+.q-footer .mark-btn{background:linear-gradient(to bottom,#a855f7,#7c3aed);color:#fff;border-color:#6d28d9}
+.q-footer .save-next-btn{background:linear-gradient(to bottom,#6a5acd,#483d8b);color:#fff;border-color:#483d8b}
+
+/* ── INSTRUCTIONS OVERLAY ─────────────────────── */
+.instructions-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;background:#f0f0f0;z-index:1000;
+  display:flex;flex-direction:column;
+}
+.instructions-overlay .inst-header{
+  background:linear-gradient(to bottom,#6a5acd,#483d8b);color:#fff;
+  padding:15px 30px;border-bottom:3px solid #ffd700;
+}
+.instructions-overlay .inst-header h1{font-size:22px}
+.instructions-overlay .inst-header p{font-size:13px;opacity:.8;margin-top:4px}
+.instructions-overlay .inst-body{flex:1;overflow-y:auto;padding:30px;max-width:900px;margin:0 auto}
+.instructions-overlay .inst-body h2{color:#483d8b;margin:20px 0 10px;font-size:18px}
+.instructions-overlay .inst-body ul{margin:10px 0 15px 25px;line-height:2}
+.instructions-overlay .inst-body li{color:#333}
+.instructions-overlay .inst-body .legend-table{width:100%;border-collapse:collapse;margin:15px 0}
+.instructions-overlay .inst-body .legend-table td{padding:8px;border:1px solid #ccc}
+.instructions-overlay .inst-body .legend-table .ld{width:30px;height:30px;border-radius:50%;display:inline-block;vertical-align:middle}
+.instructions-overlay .inst-footer{
+  padding:15px 30px;border-top:2px solid #ccc;background:#f8f8f8;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.instructions-overlay .inst-footer label{font-size:14px;color:#333;cursor:pointer}
+.instructions-overlay .inst-footer .begin-btn{
+  padding:10px 30px;background:linear-gradient(to bottom,#48c774,#2d9f5a);color:#fff;
+  border:none;border-radius:5px;font-size:16px;font-weight:700;cursor:pointer;
+}
+.instructions-overlay .inst-footer .begin-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── SUBMIT MODAL ─────────────────────────────── */
+.submit-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);
+  z-index:2000;display:none;align-items:center;justify-content:center;
+}
+.submit-overlay.show{display:flex}
+.submit-modal{
+  background:#fff;border-radius:8px;width:520px;max-height:80vh;overflow-y:auto;
+  box-shadow:0 10px 40px rgba(0,0,0,.3);
+}
+.submit-modal .sm-header{
+  background:linear-gradient(to bottom,#6a5acd,#483d8b);color:#fff;padding:15px 20px;
+  border-radius:8px 8px 0 0;font-size:18px;font-weight:700;
+}
+.submit-modal .sm-body{padding:20px}
+.submit-modal .sm-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.submit-modal .sm-item{
+  padding:12px;border-radius:6px;text-align:center;
+}
+.submit-modal .sm-item .sm-count{font-size:28px;font-weight:700}
+.submit-modal .sm-item .sm-label{font-size:12px;margin-top:4px}
+.submit-modal .sm-item.green{background:#e8f5e9;color:#27ae60}
+.submit-modal .sm-item.red{background:#fdecea;color:#e74c3c}
+.submit-modal .sm-item.purple{background:#f3e5f5;color:#8e44ad}
+.submit-modal .sm-item.grey{background:#f5f5f5;color:#666}
+
+.submit-modal .sm-warning{
+  background:#fff3cd;border:1px solid #ffc107;padding:12px;border-radius:6px;
+  margin-bottom:15px;font-size:13px;color:#856404;
+}
+.submit-modal .sm-footer{display:flex;gap:10px;justify-content:flex-end}
+.submit-modal .sm-footer button{
+  padding:10px 22px;border:none;border-radius:5px;font-size:14px;font-weight:600;cursor:pointer;
+}
+.submit-modal .sm-cancel{background:#e0e0e0;color:#333}
+.submit-modal .sm-submit{background:#e74c3c;color:#fff}
+
+/* ── SECTION SUMMARY IN SUBMIT ────────────────── */
+.section-summary-table{width:100%;border-collapse:collapse;margin-bottom:15px}
+.section-summary-table th{background:#6a5acd;color:#fff;padding:8px;font-size:12px;text-align:center}
+.section-summary-table td{padding:6px 8px;border:1px solid #ddd;text-align:center;font-size:13px}
+.section-summary-table tr:nth-child(even){background:#f9f7ff}
+
+/* ── LOADING OVERLAY ──────────────────────────── */
+.loading-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.9);
+  z-index:3000;display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.loading-overlay.hidden{display:none}
+.spinner{width:50px;height:50px;border:4px solid #e0e0e0;border-top:4px solid #6a5acd;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay p{margin-top:15px;font-size:16px;color:#333;font-weight:600}
+
+/* ── RESULTS OVERLAY ──────────────────────────── */
+.results-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;background:#f5f3ff;
+  z-index:2500;display:none;flex-direction:column;overflow-y:auto;
+}
+.results-overlay.show{display:flex}
+.results-overlay .res-header{
+  background:linear-gradient(to bottom,#6a5acd,#483d8b);color:#fff;
+  padding:20px 30px;border-bottom:3px solid #ffd700;text-align:center;
+}
+.results-overlay .res-header h1{font-size:24px}
+.results-overlay .res-body{flex:1;overflow-y:auto;padding:25px;max-width:1000px;margin:0 auto;width:100%}
+
+.results-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:25px}
+.res-card{background:#fff;border-radius:8px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.res-card .rc-value{font-size:32px;font-weight:700}
+.res-card .rc-label{font-size:12px;color:#666;margin-top:4px}
+.res-card.green .rc-value{color:#27ae60}
+.res-card.red .rc-value{color:#e74c3c}
+.res-card.blue .rc-value{color:#2563eb}
+.res-card.purple .rc-value{color:#8e44ad}
+
+.results-section-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:25px}
+.results-section-table th{background:#6a5acd;color:#fff;padding:12px;font-size:13px;text-align:center}
+.results-section-table td{padding:10px;border:1px solid #eee;text-align:center;font-size:14px}
+.results-section-table tr:nth-child(even){background:#f9f7ff}
+
+.res-actions{display:flex;gap:12px;justify-content:center;padding:20px}
+.res-actions button{
+  padding:12px 28px;border:none;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;
+}
+.res-actions .btn-review{background:#6a5acd;color:#fff}
+.res-actions .btn-home{background:#e0e0e0;color:#333}
+.res-actions .btn-new{background:#27ae60;color:#fff}
+
+/* ── ANSWER REVIEW ────────────────────────────── */
+.review-list{margin-top:20px}
+.review-item{background:#fff;border-radius:8px;padding:15px 20px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.06);border-left:4px solid #ccc}
+.review-item.correct{border-left-color:#27ae60}
+.review-item.incorrect{border-left-color:#e74c3c}
+.review-item.skipped{border-left-color:#999}
+.review-item .ri-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.review-item .ri-qnum{font-weight:700;color:#333}
+.review-item .ri-badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;color:#fff}
+.review-item .ri-badge.correct{background:#27ae60}
+.review-item .ri-badge.incorrect{background:#e74c3c}
+.review-item .ri-badge.skipped{background:#999}
+.review-item .ri-text{font-size:14px;color:#444;margin-bottom:8px}
+.review-item .ri-answer{font-size:13px;color:#666}
+.review-item .ri-answer strong{color:#333}
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <p id="loadingText">Preparing your examination...</p>
+</div>
+
+<!-- INSTRUCTIONS OVERLAY -->
+<div class="instructions-overlay" id="instructionsOverlay" style="display:none">
+  <div class="inst-header">
+    <h1 id="instExamTitle">SSC CGL 2025 - Tier I</h1>
+    <p>Please read the instructions carefully before starting the examination</p>
+  </div>
+  <div class="inst-body">
+    <h2>General Instructions</h2>
+    <ul>
+      <li>The exam consists of objective type Multiple Choice Questions (MCQs).</li>
+      <li id="instTotalQ">Total number of questions: <strong>100</strong></li>
+      <li id="instTotalTime">Total time allotted: <strong>60 minutes</strong></li>
+      <li id="instMarking">Each correct answer carries <strong>+2 marks</strong>. For each wrong answer, <strong>0.50 mark</strong> will be deducted.</li>
+      <li>There is <strong>no penalty</strong> for un-attempted questions.</li>
+      <li>Do NOT close the browser window during the exam.</li>
+    </ul>
+
+    <h2>Navigating the Exam</h2>
+    <ul>
+      <li><strong>Save &amp; Next</strong> — Saves your answer and moves to the next question.</li>
+      <li><strong>Mark for Review</strong> — Marks the question for review. You can revisit it later.</li>
+      <li><strong>Clear Response</strong> — Clears your selected answer for the current question.</li>
+      <li>Click any question number in the left panel to jump directly to that question.</li>
+      <li>Use the section tabs at the top-left to switch between sections.</li>
+    </ul>
+
+    <h2>Question Palette Legend</h2>
+    <table class="legend-table">
+      <tr>
+        <td><span class="ld" style="background:#fff;border:2px solid #999"></span></td>
+        <td>You have NOT visited the question yet</td>
+      </tr>
+      <tr>
+        <td><span class="ld" style="background:#e74c3c;border:2px solid #c0392b"></span></td>
+        <td>You have NOT answered the question</td>
+      </tr>
+      <tr>
+        <td><span class="ld" style="background:#27ae60;border:2px solid #1e8449"></span></td>
+        <td>You have answered the question</td>
+      </tr>
+      <tr>
+        <td><span class="ld" style="background:#8e44ad;border:2px solid #6c3483"></span></td>
+        <td>You have marked the question for review (NOT answered)</td>
+      </tr>
+      <tr>
+        <td><span class="ld" style="background:#8e44ad;border:2px solid #6c3483;box-shadow:inset 0 -8px 0 #27ae60"></span></td>
+        <td>You have answered AND marked for review</td>
+      </tr>
+    </table>
+
+    <h2 id="instSectionsTitle">Sections (<span id="instSectionCount">4</span>)</h2>
+    <ul id="instSectionsList">
+      <li>General Awareness — 25 questions</li>
+      <li>Reasoning — 25 questions</li>
+      <li>Quantitative Aptitude — 25 questions</li>
+      <li>English Comprehension — 25 questions</li>
+    </ul>
+  </div>
+  <div class="inst-footer">
+    <label>
+      <input type="checkbox" id="agreeCheckbox" onchange="document.getElementById('beginBtn').disabled = !this.checked">
+      I have read and understood the instructions
+    </label>
+    <button class="begin-btn" id="beginBtn" disabled onclick="beginExam()">Begin Examination</button>
+  </div>
+</div>
+
+<!-- EXAM INTERFACE -->
+<div id="examInterface" style="display:none">
+  <!-- Header -->
+  <div class="exam-header">
+    <div class="exam-title" id="examTitle">SSC CGL 2025 - Tier I</div>
+    <div class="timer-box">
+      <span class="time-label">Time Left:</span>
+      <span class="time-value" id="timerDisplay">60:00</span>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="left-tools">
+      <a onclick="document.body.style.fontSize='16px'">Zoom (+)</a>
+      <a onclick="document.body.style.fontSize='14px'">Zoom (−)</a>
+    </div>
+    <div class="nav-buttons">
+      <button onclick="prevQuestion()">Previous</button>
+      <button onclick="markForReview()" class="mark-btn-toolbar">Mark for Review</button>
+      <button onclick="saveAndNext()">Save &amp; Next</button>
+      <button class="submit-btn" onclick="showSubmitModal()">Submit</button>
+    </div>
+    <div class="answered-count">
+      Total Questions answered : <span id="answeredCount">0</span>
+    </div>
+  </div>
+
+  <!-- Main body -->
+  <div class="exam-body">
+    <!-- Left panel -->
+    <div class="left-panel">
+      <div class="section-tabs" id="sectionTabs"></div>
+      <div class="palette-title" id="paletteTitle">General Awareness</div>
+      <div class="question-palette">
+        <div class="palette-grid" id="paletteGrid"></div>
+      </div>
+      <div class="palette-legend">
+        <div class="legend-title">Legend</div>
+        <div class="legend-item"><div class="legend-dot nv"></div> Not Visited</div>
+        <div class="legend-item"><div class="legend-dot na"></div> Not Answered</div>
+        <div class="legend-item"><div class="legend-dot ans"></div> Answered</div>
+        <div class="legend-item"><div class="legend-dot mr"></div> Marked for Review</div>
+        <div class="legend-item"><div class="legend-dot ma"></div> Answered &amp; Marked</div>
+      </div>
+    </div>
+
+    <!-- Right: Question area -->
+    <div class="question-area">
+      <div class="q-header">
+        <div class="q-number" id="qNumber">Question No 1</div>
+        <div class="q-meta" id="qMeta">Marks: +2 | -0.50</div>
+        <select class="lang-select" id="langSelect">
+          <option>English</option>
+        </select>
+      </div>
+      <div class="q-body" id="qBody">
+        <div class="q-text" id="qText"></div>
+        <ul class="options-list" id="optionsList"></ul>
+      </div>
+      <div class="q-footer">
+        <button class="clear-btn" onclick="clearResponse()">Clear Response</button>
+        <button class="mark-btn" onclick="markForReview()">Mark for Review &amp; Next</button>
+        <button class="save-next-btn" onclick="saveAndNext()">Save &amp; Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT MODAL -->
+<div class="submit-overlay" id="submitOverlay">
+  <div class="submit-modal">
+    <div class="sm-header">Submit Examination</div>
+    <div class="sm-body">
+      <div class="sm-summary">
+        <div class="sm-item green"><div class="sm-count" id="smAnswered">0</div><div class="sm-label">Answered</div></div>
+        <div class="sm-item red"><div class="sm-count" id="smNotAnswered">0</div><div class="sm-label">Not Answered</div></div>
+        <div class="sm-item purple"><div class="sm-count" id="smMarked">0</div><div class="sm-label">Marked for Review</div></div>
+        <div class="sm-item grey"><div class="sm-count" id="smNotVisited">0</div><div class="sm-label">Not Visited</div></div>
+      </div>
+      <table class="section-summary-table" id="sectionSummaryTable">
+        <thead><tr><th>Section</th><th>Answered</th><th>Not Answered</th><th>Marked</th><th>Not Visited</th></tr></thead>
+        <tbody id="sectionSummaryBody"></tbody>
+      </table>
+      <div class="sm-warning">
+        ⚠️ Are you sure you want to submit the exam? This action cannot be undone. You will not be able to change your answers after submission.
+      </div>
+      <div class="sm-footer">
+        <button class="sm-cancel" onclick="hideSubmitModal()">Go Back</button>
+        <button class="sm-submit" onclick="submitExam()">Submit Exam</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS OVERLAY -->
+<div class="results-overlay" id="resultsOverlay">
+  <div class="res-header">
+    <h1>Examination Results</h1>
+    <p id="resSubtitle">SSC CGL 2025 - Tier I</p>
+  </div>
+  <div class="res-body">
+    <div class="results-stats" id="resultsStats"></div>
+    <table class="results-section-table" id="resultsSectionTable">
+      <thead><tr><th>Section</th><th>Attempted</th><th>Correct</th><th>Incorrect</th><th>Marks</th><th>Accuracy</th></tr></thead>
+      <tbody id="resultsSectionBody"></tbody>
+    </table>
+    <div class="res-actions">
+      <button class="btn-review" onclick="toggleReviewList()">📋 Review Answers</button>
+      <button class="btn-new" onclick="location.href='/test-generator.html'">📝 New Test</button>
+      <button class="btn-home" onclick="location.href='/'">🏠 Home</button>
+    </div>
+    <div class="review-list" id="reviewList" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+// ── STATE ────────────────────────────────────────────────
+let examData = null;         // API response
+let testId = '';
+let sections = [];           // [{key, label, questions:[]}]
+let allQuestions = [];        // flat array, global index
+let sectionMap = {};          // globalIdx -> sectionKey
+
+// Per-question state
+let answers = [];             // selectedIndex per question (-1 = unanswered)
+let statuses = [];            // 'not-visited','not-answered','answered','marked','marked-answered'
+let timePerQ = [];            // ms spent on each question
+let currentIdx = 0;           // global question index
+let currentSectionKey = '';
+
+// Timer
+let totalTimeMs = 0;
+let remainingMs = 0;
+let timerInterval = null;
+let qStartTime = 0;           // when user landed on this question
+
+// ── INIT: Read params & call API ─────────────────────────
+(async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const tier = params.get('tier') || 'tier1';
+  const mode = params.get('mode') || 'full_mock';
+  const pyqYear = params.get('year');
+  const pyqExam = params.get('exam');
+  const pyqRatio = params.get('pyqRatio');
+
+  try {
+    let endpoint, body;
+    if (mode === 'pyq_based') {
+      endpoint = '/api/tests/pyq-exam';
+      body = { tier, year: pyqYear, exam: pyqExam };
+    } else if (mode === 'random_mixed') {
+      endpoint = '/api/tests/random-mixed';
+      body = { tier, pyqRatio: parseFloat(pyqRatio) || 0.5 };
+    } else {
+      endpoint = '/api/tests/full-mock';
+      body = { tier };
+    }
+
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Failed to generate test');
+
+    examData = data.test;
+    testId = examData.testId;
+    setupExam();
+  } catch (err) {
+    document.getElementById('loadingText').textContent = 'Error: ' + err.message;
+    console.error(err);
+  }
+})();
+
+// ── SETUP EXAM DATA ──────────────────────────────────────
+function setupExam() {
+  sections = examData.sections || [];
+  allQuestions = [];
+  sectionMap = {};
+
+  sections.forEach(sec => {
+    sec.questions.forEach(q => {
+      const idx = allQuestions.length;
+      q._globalIdx = idx;
+      q._sectionKey = sec.key;
+      sectionMap[idx] = sec.key;
+      allQuestions.push(q);
+    });
+  });
+
+  const total = allQuestions.length;
+  answers = new Array(total).fill(-1);
+  statuses = new Array(total).fill('not-visited');
+  timePerQ = new Array(total).fill(0);
+
+  totalTimeMs = (examData.totalTime || 60) * 60 * 1000;
+  remainingMs = totalTimeMs;
+
+  // Update instructions
+  const tierLabel = examData.tier === 'tier2' ? 'Tier I- 2' : 'Tier I';
+  const titleText = `SSC CGL 2025 - ${tierLabel}`;
+  document.getElementById('instExamTitle').textContent = titleText;
+  document.getElementById('examTitle').textContent = titleText;
+  document.getElementById('instTotalQ').innerHTML = `Total number of questions: <strong>${total}</strong>`;
+  document.getElementById('instTotalTime').innerHTML = `Total time allotted: <strong>${examData.totalTime} minutes</strong>`;
+  document.getElementById('instMarking').innerHTML =
+    `Each correct answer carries <strong>+${examData.marksPerQuestion} marks</strong>. For each wrong answer, <strong>${examData.negativePerQuestion} mark</strong> will be deducted.`;
+  document.getElementById('instSectionCount').textContent = sections.length;
+
+  const secList = document.getElementById('instSectionsList');
+  secList.innerHTML = sections.map(s => `<li>${s.label} — ${s.questions.length} questions</li>`).join('');
+
+  // Show instructions
+  document.getElementById('loadingOverlay').classList.add('hidden');
+  document.getElementById('instructionsOverlay').style.display = 'flex';
+}
+
+// ── BEGIN EXAM ───────────────────────────────────────────
+function beginExam() {
+  document.getElementById('instructionsOverlay').style.display = 'none';
+  document.getElementById('examInterface').style.display = '';
+
+  buildSectionTabs();
+  switchSection(sections[0].key);
+  navigateTo(0);
+  startTimer();
+}
+
+// ── SECTION TABS ─────────────────────────────────────────
+function buildSectionTabs() {
+  const container = document.getElementById('sectionTabs');
+  container.innerHTML = sections.map(sec =>
+    `<div class="tab" data-key="${sec.key}" onclick="switchSection('${sec.key}', true)">${sec.label}</div>`
+  ).join('');
+}
+
+function switchSection(key, autoNav) {
+  currentSectionKey = key;
+  document.querySelectorAll('.section-tabs .tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.key === key);
+  });
+
+  const sec = sections.find(s => s.key === key);
+  document.getElementById('paletteTitle').textContent = sec.label;
+  buildPalette(sec);
+
+  // Auto-navigate to first question of the section when clicking tab
+  if (autoNav && sec.questions.length > 0) {
+    navigateTo(sec.questions[0]._globalIdx);
+  }
+}
+
+// ── QUESTION PALETTE ─────────────────────────────────────
+function buildPalette(sec) {
+  const grid = document.getElementById('paletteGrid');
+  grid.innerHTML = sec.questions.map((q, i) => {
+    const gi = q._globalIdx;
+    const status = statuses[gi];
+    const isCurrent = gi === currentIdx;
+    return `<div class="q-btn ${status.replace(' ','-')} ${isCurrent ? 'current' : ''}"
+                 onclick="navigateTo(${gi})" title="Q${i + 1}">${i + 1}</div>`;
+  }).join('');
+}
+
+function refreshPalette() {
+  const sec = sections.find(s => s.key === currentSectionKey);
+  if (sec) buildPalette(sec);
+  updateAnsweredCount();
+}
+
+// ── NAVIGATE TO QUESTION ─────────────────────────────────
+function navigateTo(idx) {
+  // Save time on previous question
+  if (qStartTime > 0) {
+    timePerQ[currentIdx] += Date.now() - qStartTime;
+  }
+
+  currentIdx = idx;
+  qStartTime = Date.now();
+  const q = allQuestions[idx];
+
+  // Mark as visited
+  if (statuses[idx] === 'not-visited') {
+    statuses[idx] = 'not-answered';
+  }
+
+  // Switch section if needed
+  if (q._sectionKey !== currentSectionKey) {
+    switchSection(q._sectionKey);
+  }
+
+  // Find local question number within section
+  const sec = sections.find(s => s.key === q._sectionKey);
+  const localIdx = sec.questions.indexOf(q);
+
+  document.getElementById('qNumber').textContent = `Question No ${localIdx + 1}`;
+  document.getElementById('qMeta').textContent =
+    `Marks: +${examData.marksPerQuestion} | -${examData.negativePerQuestion}`;
+
+  // Render shared context (passage/DI data) if present
+  let contextHtml = '';
+  if (q.sharedContext) {
+    contextHtml = `<div style="background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:15px;margin-bottom:18px;font-size:14px;line-height:1.8;color:#333;white-space:pre-wrap">${escapeHtml(q.sharedContext)}</div>`;
+  }
+  // Render question text
+  document.getElementById('qText').innerHTML = contextHtml + `<p>${escapeHtml(q.question)}</p>`;
+
+  // Render options
+  const letters = ['A', 'B', 'C', 'D', 'E'];
+  const optList = document.getElementById('optionsList');
+  optList.innerHTML = q.options.map((opt, i) => {
+    const selected = answers[idx] === i;
+    return `<li class="option-item ${selected ? 'selected' : ''}" onclick="selectOption(${i})">
+      <div class="option-radio"></div>
+      <div class="option-label"><span class="option-letter">${letters[i]}.</span> ${escapeHtml(opt)}</div>
+    </li>`;
+  }).join('');
+
+  refreshPalette();
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ── SELECT OPTION ────────────────────────────────────────
+function selectOption(i) {
+  answers[currentIdx] = i;
+  // Update status
+  if (statuses[currentIdx] === 'marked' || statuses[currentIdx] === 'marked-answered') {
+    statuses[currentIdx] = 'marked-answered';
+  } else {
+    statuses[currentIdx] = 'answered';
+  }
+  // Re-render options to show selected
+  navigateTo(currentIdx);
+}
+
+// ── CLEAR RESPONSE ───────────────────────────────────────
+function clearResponse() {
+  answers[currentIdx] = -1;
+  if (statuses[currentIdx] === 'marked-answered') {
+    statuses[currentIdx] = 'marked';
+  } else {
+    statuses[currentIdx] = 'not-answered';
+  }
+  navigateTo(currentIdx);
+}
+
+// ── SAVE & NEXT ──────────────────────────────────────────
+function saveAndNext() {
+  // Status already set by selectOption
+  if (currentIdx < allQuestions.length - 1) {
+    navigateTo(currentIdx + 1);
+  }
+}
+
+// ── PREVIOUS ─────────────────────────────────────────────
+function prevQuestion() {
+  if (currentIdx > 0) {
+    navigateTo(currentIdx - 1);
+  }
+}
+
+// ── MARK FOR REVIEW ──────────────────────────────────────
+function markForReview() {
+  if (answers[currentIdx] >= 0) {
+    statuses[currentIdx] = 'marked-answered';
+  } else {
+    statuses[currentIdx] = 'marked';
+  }
+  if (currentIdx < allQuestions.length - 1) {
+    navigateTo(currentIdx + 1);
+  } else {
+    refreshPalette();
+  }
+}
+
+// ── ANSWERED COUNT ───────────────────────────────────────
+function updateAnsweredCount() {
+  const count = statuses.filter(s => s === 'answered' || s === 'marked-answered').length;
+  document.getElementById('answeredCount').textContent = count;
+}
+
+// ── TIMER ────────────────────────────────────────────────
+function startTimer() {
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    remainingMs -= 1000;
+    if (remainingMs <= 0) {
+      remainingMs = 0;
+      clearInterval(timerInterval);
+      updateTimerDisplay();
+      alert('Time is up! Your exam will be submitted automatically.');
+      submitExam();
+      return;
+    }
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const totalSec = Math.max(0, Math.floor(remainingMs / 1000));
+  const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
+  const ss = String(totalSec % 60).padStart(2, '0');
+  document.getElementById('timerDisplay').textContent = `${mm}:${ss}`;
+
+  // Flash red when under 5 minutes
+  const el = document.getElementById('timerDisplay');
+  if (totalSec <= 300) {
+    el.style.color = '#ff4444';
+  } else {
+    el.style.color = '#ffd700';
+  }
+}
+
+// ── SUBMIT MODAL ─────────────────────────────────────────
+function showSubmitModal() {
+  // Save current Q time
+  if (qStartTime > 0) {
+    timePerQ[currentIdx] += Date.now() - qStartTime;
+    qStartTime = Date.now();
+  }
+
+  const answered = statuses.filter(s => s === 'answered' || s === 'marked-answered').length;
+  const notAnswered = statuses.filter(s => s === 'not-answered').length;
+  const marked = statuses.filter(s => s === 'marked' || s === 'marked-answered').length;
+  const notVisited = statuses.filter(s => s === 'not-visited').length;
+
+  document.getElementById('smAnswered').textContent = answered;
+  document.getElementById('smNotAnswered').textContent = notAnswered;
+  document.getElementById('smMarked').textContent = marked;
+  document.getElementById('smNotVisited').textContent = notVisited;
+
+  // Section summary
+  const tbody = document.getElementById('sectionSummaryBody');
+  tbody.innerHTML = sections.map(sec => {
+    const qs = sec.questions;
+    const a = qs.filter(q => statuses[q._globalIdx] === 'answered' || statuses[q._globalIdx] === 'marked-answered').length;
+    const na = qs.filter(q => statuses[q._globalIdx] === 'not-answered').length;
+    const m = qs.filter(q => statuses[q._globalIdx] === 'marked' || statuses[q._globalIdx] === 'marked-answered').length;
+    const nv = qs.filter(q => statuses[q._globalIdx] === 'not-visited').length;
+    return `<tr><td>${sec.label}</td><td>${a}</td><td>${na}</td><td>${m}</td><td>${nv}</td></tr>`;
+  }).join('');
+
+  document.getElementById('submitOverlay').classList.add('show');
+}
+
+function hideSubmitModal() {
+  document.getElementById('submitOverlay').classList.remove('show');
+}
+
+// ── SUBMIT EXAM ──────────────────────────────────────────
+async function submitExam() {
+  hideSubmitModal();
+  clearInterval(timerInterval);
+
+  // Save final Q time
+  if (qStartTime > 0) {
+    timePerQ[currentIdx] += Date.now() - qStartTime;
+    qStartTime = 0;
+  }
+
+  document.getElementById('loadingOverlay').classList.remove('hidden');
+  document.getElementById('loadingText').textContent = 'Submitting your examination...';
+
+  const responses = allQuestions.map((q, i) => ({
+    questionId: q.id,
+    selectedIndex: answers[i] >= 0 ? answers[i] : -1,
+    timeSpent: timePerQ[i]
+  }));
+
+  try {
+    const res = await fetch(`/api/tests/${testId}/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ responses })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Submission failed');
+
+    showResults(data);
+  } catch (err) {
+    alert('Submission failed: ' + err.message);
+    document.getElementById('loadingOverlay').classList.add('hidden');
+  }
+}
+
+// ── SHOW RESULTS ─────────────────────────────────────────
+function showResults(data) {
+  document.getElementById('loadingOverlay').classList.add('hidden');
+  document.getElementById('examInterface').style.display = 'none';
+
+  const stats = data.stats;
+  document.getElementById('resSubtitle').textContent = examData.testName || 'Mock Test';
+
+  // Stats cards
+  document.getElementById('resultsStats').innerHTML = `
+    <div class="res-card blue"><div class="rc-value">${stats.netMarks}/${stats.maxMarks}</div><div class="rc-label">Net Marks</div></div>
+    <div class="res-card green"><div class="rc-value">${stats.accuracy}</div><div class="rc-label">Accuracy</div></div>
+    <div class="res-card purple"><div class="rc-value">${stats.attempted}/${allQuestions.length}</div><div class="rc-label">Attempted</div></div>
+    <div class="res-card red"><div class="rc-value">${stats.incorrect}</div><div class="rc-label">Incorrect</div></div>
+  `;
+
+  // Section breakdown
+  const secBody = document.getElementById('resultsSectionBody');
+  if (data.sectionBreakdown) {
+    secBody.innerHTML = data.sectionBreakdown.map(sb => {
+      const acc = sb.attempted > 0 ? ((sb.correct / sb.attempted) * 100).toFixed(1) + '%' : '—';
+      const marks = sb.correct * examData.marksPerQuestion - (sb.attempted - sb.correct) * examData.negativePerQuestion;
+      return `<tr>
+        <td>${sb.section || sb.subject || ''}</td>
+        <td>${sb.attempted}</td>
+        <td>${sb.correct}</td>
+        <td>${sb.attempted - sb.correct}</td>
+        <td>${marks.toFixed(1)}</td>
+        <td>${acc}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Build answer review HTML
+  if (data.answerReview) {
+    const letters = ['A', 'B', 'C', 'D', 'E'];
+    document.getElementById('reviewList').innerHTML = data.answerReview.map((ar, i) => {
+      const q = allQuestions[i];
+      const cls = ar.isSkipped ? 'skipped' : ar.isCorrect ? 'correct' : 'incorrect';
+      const badge = ar.isSkipped ? 'Skipped' : ar.isCorrect ? 'Correct' : 'Incorrect';
+      const yourAns = ar.yourAnswer >= 0 ? `${letters[ar.yourAnswer]}. ${q.options[ar.yourAnswer]}` : 'Not answered';
+      const correctAns = ar.correctAnswer >= 0 ? `${letters[ar.correctAnswer]}. ${q.options[ar.correctAnswer]}` : '—';
+      return `<div class="review-item ${cls}">
+        <div class="ri-head">
+          <span class="ri-qnum">Q${i + 1}. ${q.topic || ''}</span>
+          <span class="ri-badge ${cls}">${badge} (${ar.marksAwarded >= 0 ? '+' : ''}${ar.marksAwarded})</span>
+        </div>
+        <div class="ri-text">${escapeHtml(q.question)}</div>
+        <div class="ri-answer">Your answer: <strong>${escapeHtml(yourAns)}</strong> | Correct: <strong>${escapeHtml(correctAns)}</strong></div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('resultsOverlay').classList.add('show');
+}
+
+function toggleReviewList() {
+  const el = document.getElementById('reviewList');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// Warn before closing
+window.addEventListener('beforeunload', function(e) {
+  if (timerInterval) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+</script>
+</body>
+</html>

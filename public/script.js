@@ -3355,6 +3355,8 @@ function renderQuestionLabItems(items = []) {
           ${batchText ? `<span class="qlab-chip">${escapeHtml(String(batchText))}</span>` : ""}
           <button type="button" class="qlab-flag-btn" data-qid="${encodeURIComponent(questionId)}" title="Report bad question">⚑</button>
         </div>
+        ${item.passage ? `<div class="qlab-passage">${escapeHtml(item.passage)}</div>` : ""}
+        ${item.diagram ? `<div class="qlab-diagram"><img src="${escapeHtml(item.diagram)}" alt="Chart/Diagram" loading="lazy"></div>` : ""}
         <div class="qlab-item-qno">Q${globalIdx}</div>
         <div class="qlab-item-question">${escapeHtml(item.question || "")}</div>
         <div class="qlab-options">${optionRows}</div>
