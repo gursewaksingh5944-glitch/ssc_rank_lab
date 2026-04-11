@@ -45,7 +45,8 @@ function requireAdminKey(req, res) {
   }
 
   const incomingKey = String(req.headers["x-admin-key"] || "").trim();
-  if (!incomingKey || incomingKey !== adminKey) {
+  if (!incomingKey || incomingKey.length !== adminKey.length ||
+      !crypto.timingSafeEqual(Buffer.from(incomingKey), Buffer.from(adminKey))) {
     res.status(401).json({ success: false, error: "Unauthorized" });
     return false;
   }
@@ -167,6 +168,26 @@ router.post("/verify", async (req, res) => {
         success: false,
         verified: false,
         error: "Invalid payment signature"
+      });
+    }
+
+    // Verify payment is actually captured via Razorpay API
+    try {
+      const rzpClient = getRazorpayClient();
+      const payment = await rzpClient.payments.fetch(razorpayPaymentId);
+      if (payment.status !== "captured") {
+        return res.status(400).json({
+          success: false,
+          verified: false,
+          error: `Payment not captured (status: ${payment.status})`
+        });
+      }
+    } catch (fetchErr) {
+      console.error("Razorpay payment fetch error:", fetchErr);
+      return res.status(500).json({
+        success: false,
+        verified: false,
+        error: "Unable to verify payment status with Razorpay"
       });
     }
 

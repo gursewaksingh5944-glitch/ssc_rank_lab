@@ -306,8 +306,15 @@ function creditReferralJoin(referrerKey, invitedUserKey, bonusDays = 2) {
   }
 
   const referrerProfile = store.users[referrer] || {};
+  const totalBonusSoFar = Number(referrerProfile.referralStats?.bonusDaysGranted || 0);
+  const MAX_REFERRAL_BONUS_DAYS = 30;
+  if (totalBonusSoFar >= MAX_REFERRAL_BONUS_DAYS) {
+    return { success: true, rewarded: false, error: "Referral bonus cap reached" };
+  }
+  const effectiveDays = Math.min(days, MAX_REFERRAL_BONUS_DAYS - totalBonusSoFar);
+
   const now = Date.now();
-  const bonusMs = days * 24 * 60 * 60 * 1000;
+  const bonusMs = effectiveDays * 24 * 60 * 60 * 1000;
   const existingTrialEndMs = new Date(referrerProfile.trialEndsAt || "").getTime();
   const baseMs = Number.isFinite(existingTrialEndMs) && existingTrialEndMs > now ? existingTrialEndMs : now;
   const newTrialEndMs = baseMs + bonusMs;
@@ -321,7 +328,7 @@ function creditReferralJoin(referrerKey, invitedUserKey, bonusDays = 2) {
     referralCode: referrerProfile.referralCode || buildReferralCode(referrer),
     referralStats: {
       acceptedJoins: Number(referrerProfile.referralStats?.acceptedJoins || 0) + 1,
-      bonusDaysGranted: Number(referrerProfile.referralStats?.bonusDaysGranted || 0) + days
+      bonusDaysGranted: Number(referrerProfile.referralStats?.bonusDaysGranted || 0) + effectiveDays
     },
     updatedAt: new Date().toISOString()
   };
@@ -329,7 +336,7 @@ function creditReferralJoin(referrerKey, invitedUserKey, bonusDays = 2) {
   store.referrals.push({
     referrerKey: referrer,
     invitedUserKey: invited,
-    bonusDays: days,
+    bonusDays: effectiveDays,
     at: new Date().toISOString()
   });
 
@@ -338,7 +345,7 @@ function creditReferralJoin(referrerKey, invitedUserKey, bonusDays = 2) {
   return {
     success: true,
     rewarded: true,
-    bonusDays: days,
+    bonusDays: effectiveDays,
     referrerKey: referrer,
     invitedUserKey: invited,
     trialEndsAt: store.users[referrer].trialEndsAt

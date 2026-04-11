@@ -133,14 +133,6 @@ app.use("/api/payment/verify", paymentLimiter);
 
 
 // ===============================
-// DEBUG (REMOVE LATER IF WANT)
-// ===============================
-app.get("/debug-headers", (req, res) => {
-  res.json(res.getHeaders());
-});
-
-
-// ===============================
 // HEALTH CHECK
 // ===============================
 app.get("/health", (req, res) => {

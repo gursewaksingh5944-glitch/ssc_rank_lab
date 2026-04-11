@@ -287,6 +287,10 @@ document.addEventListener("DOMContentLoaded", function () {
   loadQuestionLabItems({ interactive: false });
   syncPaymentStatus();
   setInterval(syncPaymentStatus, 60000);
+  // Sync on tab focus to catch cross-device/tab changes
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) syncPaymentStatus();
+  });
   loadTopPerformers();
 
   attachCombinedDashboardInputListeners();
@@ -4616,6 +4620,21 @@ function renderWeeklyReport(report) {
   bindUnlockButtons();
 }
 
+function showTrialExpiryWarning(trial) {
+  const existingBanner = document.getElementById("trialExpiryBanner");
+  if (existingBanner) existingBanner.remove();
+
+  if (!trial || !trial.active) return;
+  const hoursLeft = Math.ceil(Number(trial.remainingMs || 0) / (60 * 60 * 1000));
+  if (hoursLeft > 6) return;
+
+  const banner = document.createElement("div");
+  banner.id = "trialExpiryBanner";
+  banner.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#f59e0b,#d97706);color:#fff;text-align:center;padding:10px 16px;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;gap:12px;";
+  banner.innerHTML = '<span>⏳ Trial expires in ' + Math.max(0, hoursLeft) + 'h — <a href="#plans" onclick="document.getElementById(\'trialExpiryBanner\').remove();document.getElementById(\'plansPanel\')?.scrollIntoView({behavior:\'smooth\'});" style="color:#fff;text-decoration:underline;font-weight:700;">Upgrade to Premium ₹99</a></span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0 4px;">✕</button>';
+  document.body.prepend(banner);
+}
+
 async function syncPaymentStatus() {
   try {
     const userKey = getUserKey();
@@ -4639,6 +4658,9 @@ async function syncPaymentStatus() {
     setCurrentAccessPlan(effectivePlan);
     updatePremiumOptions(effectivePlan);
     hideUnlockedPlanButtons(unlockedPlan);
+
+    // Show trial expiry warning banner
+    showTrialExpiryWarning(data.trial);
   } catch (err) {
     console.error("syncPaymentStatus error:", err);
   }

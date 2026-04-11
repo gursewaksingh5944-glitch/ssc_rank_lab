@@ -349,7 +349,8 @@ function requireAdminAccess(req, res) {
   }
 
   const incomingKey = String(req.headers["x-admin-key"] || "").trim();
-  if (!incomingKey || incomingKey !== adminKey) {
+  if (!incomingKey || incomingKey.length !== adminKey.length ||
+      !crypto.timingSafeEqual(Buffer.from(incomingKey), Buffer.from(adminKey))) {
     res.status(401).json({ success: false, error: "Unauthorized" });
     return false;
   }
@@ -1662,6 +1663,14 @@ router.get("/pyq/stats", (req, res) => {
 
 router.post("/generate", (req, res) => {
   try {
+    const userKey = String(req.body?.userKey || req.query?.userKey || req.headers["x-user-key"] || "").trim().toLowerCase();
+    if (userKey) {
+      const { getEffectiveAccessPlan } = require("../utils/planStore");
+      if (getEffectiveAccessPlan(userKey) < 99) {
+        return res.status(403).json({ success: false, error: "Premium subscription required", premiumRequired: true });
+      }
+    }
+
     const bank = readBank();
     const generated = generateQuestionSet(bank, req.body || {});
 
@@ -1677,6 +1686,14 @@ router.post("/generate", (req, res) => {
 
 router.post("/mocks/generate", (req, res) => {
   try {
+    const userKey = String(req.body?.userKey || req.query?.userKey || req.headers["x-user-key"] || "").trim().toLowerCase();
+    if (userKey) {
+      const { getEffectiveAccessPlan } = require("../utils/planStore");
+      if (getEffectiveAccessPlan(userKey) < 99) {
+        return res.status(403).json({ success: false, error: "Premium subscription required", premiumRequired: true });
+      }
+    }
+
     const bank = readBank();
     const generated = generateQuestionSet(bank, {
       ...(req.body || {}),
