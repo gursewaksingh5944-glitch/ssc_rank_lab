@@ -768,10 +768,12 @@ function initAuthModal() {
 async function handleRegister() {
   const name = (document.getElementById("authName").value || "").trim();
   const email = (document.getElementById("authEmail").value || "").trim();
+  const password = (document.getElementById("authPassword").value || "");
   const status = document.getElementById("authRegisterStatus");
 
   if (!name || name.length < 2) { status.textContent = "Please enter your name."; return; }
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { status.textContent = "Please enter a valid email."; return; }
+  if (!password || password.length < 6) { status.textContent = "Password required (min 6 chars)."; return; }
 
   status.textContent = "";
   status.style.color = "#2563eb";
@@ -781,7 +783,7 @@ async function handleRegister() {
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email })
+      body: JSON.stringify({ name, email, password })
     });
     const data = await res.json();
     if (!data.success) {
@@ -817,9 +819,11 @@ async function handleRegister() {
 
 async function handleLogin() {
   const email = (document.getElementById("authLoginEmail").value || "").trim();
+  const password = (document.getElementById("authLoginPassword").value || "");
   const status = document.getElementById("authLoginStatus");
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { status.textContent = "Please enter a valid email."; return; }
+  if (!password) { status.textContent = "Please enter your password."; return; }
 
   status.textContent = "";
   status.style.color = "#2563eb";
@@ -829,7 +833,7 @@ async function handleLogin() {
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email, password })
     });
     const data = await res.json();
     if (!data.success) {

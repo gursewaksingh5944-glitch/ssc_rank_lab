@@ -223,7 +223,7 @@ function buildSectionQuestions(bank, config, tier, opts = {}) {
 // ============================================================
 // ROUTE 1: Generate Full Mock (real questions)
 // ============================================================
-router.post("/full-mock", requirePremium(99), (req, res) => {
+router.post("/full-mock", (req, res) => {
   try {
     const { tier = "tier1", userId, sectional, speed, speedMix } = req.body;
     let config = SSC_EXAM_CONFIG[tier];
