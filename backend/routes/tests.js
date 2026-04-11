@@ -44,8 +44,14 @@ function pickQuestions(bank, subject, tier, count, opts = {}) {
   if (opts.isPYQ) pool = pool.filter(q => q.isPYQ);
   if (opts.difficulty) pool = pool.filter(q => q.difficulty === opts.difficulty);
   if (opts.topics && opts.topics.length) {
-    const topicSet = new Set(opts.topics.map(t => t.toLowerCase()));
-    pool = pool.filter(q => topicSet.has((q.topic || "").toLowerCase()));
+    const topicSet = new Set(opts.topics.map(t => t.toLowerCase().trim()));
+    pool = pool.filter(q => {
+      const qTopic = (q.topic || "").toLowerCase().trim();
+      for (const t of topicSet) {
+        if (qTopic === t || qTopic.includes(t) || t.includes(qTopic)) return true;
+      }
+      return false;
+    });
   }
 
   // Separate set-based questions from standalone
@@ -219,12 +225,45 @@ function buildSectionQuestions(bank, config, tier, opts = {}) {
 // ============================================================
 router.post("/full-mock", requirePremium(99), (req, res) => {
   try {
-    const { tier = "tier1", userId } = req.body;
-    const config = SSC_EXAM_CONFIG[tier];
+    const { tier = "tier1", userId, sectional, speed, speedMix } = req.body;
+    let config = SSC_EXAM_CONFIG[tier];
     if (!config) return res.status(400).json({ error: "Invalid tier" });
 
+    // Sectional mode: only one subject, 25 questions, 15 min
+    if (sectional) {
+      const secKey = String(sectional).toLowerCase();
+      const secCfg = config.sections[secKey];
+      if (!secCfg) return res.status(400).json({ error: "Invalid subject for sectional" });
+      config = {
+        ...config,
+        name: `Sectional: ${secCfg.label}`,
+        totalQuestions: 25,
+        totalTime: 15,
+        totalMarks: 25 * config.marksPerQ,
+        sections: { [secKey]: { ...secCfg, questions: 25 } }
+      };
+    }
+
+    // Speed mode: 20 questions, 10 min, mixed or single subject
+    if (speed) {
+      const mix = String(speedMix || 'mixed').toLowerCase();
+      if (mix === 'mixed') {
+        const perSubject = 5;
+        const speedSections = {};
+        for (const [key, sec] of Object.entries(SSC_EXAM_CONFIG[tier].sections)) {
+          speedSections[key] = { ...sec, questions: perSubject };
+        }
+        config = { ...config, name: 'Speed Test (Mixed)', totalQuestions: 20, totalTime: 10, totalMarks: 20 * config.marksPerQ, sections: speedSections };
+      } else {
+        const secCfg = SSC_EXAM_CONFIG[tier].sections[mix];
+        if (secCfg) {
+          config = { ...config, name: `Speed Test: ${secCfg.label}`, totalQuestions: 20, totalTime: 10, totalMarks: 20 * config.marksPerQ, sections: { [mix]: { ...secCfg, questions: 20 } } };
+        }
+      }
+    }
+
     const bank = loadBank();
-    const testId = `fullmock_${(userId || "anon").substring(0, 20)}_${Date.now()}`;
+    const testId = `fullmock_${(userId || req.userKey || "anon").substring(0, 20)}_${Date.now()}`;
 
     const { sections, allQuestions } = buildSectionQuestions(bank, config, tier);
 

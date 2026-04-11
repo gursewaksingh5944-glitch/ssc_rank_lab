@@ -522,21 +522,22 @@ let qStartTime = 0;           // when user landed on this question
   const speedMix = params.get('speedMix');
   const topicSubject = params.get('subject');
   const topics = params.get('topics');
+  const userKey = params.get('userKey') || localStorage.getItem('sscranklab_user_key') || '';
 
   try {
     let endpoint, body;
     if (mode === 'topic_wise' && topics) {
       endpoint = '/api/tests/topic-wise';
-      body = { tier, subject: topicSubject || 'quant', topics: topics.split(',').map(function(t){return t.trim();}), count: 25 };
+      body = { tier, subject: topicSubject || 'quant', topics: topics.split(',').map(function(t){return t.trim();}), count: 25, userKey };
     } else if (mode === 'pyq_based') {
       endpoint = '/api/tests/pyq-exam';
-      body = { tier, year: pyqYear, exam: pyqExam };
+      body = { tier, year: pyqYear, exam: pyqExam, userKey };
     } else if (mode === 'random_mixed') {
       endpoint = '/api/tests/random-mixed';
-      body = { tier, pyqRatio: parseFloat(pyqRatio) || 0.5 };
+      body = { tier, pyqRatio: parseFloat(pyqRatio) || 0.5, userKey };
     } else {
       endpoint = '/api/tests/full-mock';
-      body = { tier };
+      body = { tier, userKey };
       if (sectional) body.sectional = sectional;
       if (speed === 'true') { body.speed = true; body.speedMix = speedMix || 'mixed'; }
     }

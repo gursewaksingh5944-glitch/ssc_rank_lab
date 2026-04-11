@@ -361,6 +361,7 @@
         }
 
         function launchExam(params) {
+            params.userKey = localStorage.getItem('sscranklab_user_key') || '';
             const qs = new URLSearchParams(params).toString();
             const url = '/ssc-exam.html?' + qs;
             window.open(url, '_blank', 'width=' + screen.width + ',height=' + screen.height + ',menubar=no,toolbar=no,location=no,status=no,scrollbars=no');
