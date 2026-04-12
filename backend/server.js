@@ -54,7 +54,10 @@ const publicPath = path.join(__dirname, "..", "public");
 // 🔥 ROBOTS.TXT (MUST BE FIRST!)
 // ===============================
 app.get("/robots.txt", (req, res) => {
-  return res.sendFile(path.join(publicPath, "robots.txt"));
+  res.type("text/plain");
+  return res.send(
+    "User-agent: *\nDisallow:\n\nSitemap: https://sscranklab.com/sitemap.xml\n"
+  );
 });
 
 
