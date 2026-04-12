@@ -55,6 +55,9 @@ const publicPath = path.join(__dirname, "..", "public");
 // ===============================
 app.get("/robots.txt", (req, res) => {
   res.type("text/plain");
+  // Cache for 24h at Cloudflare edge so bot-challenged requests still get served
+  res.set("Cache-Control", "public, max-age=86400, s-maxage=86400");
+  res.set("CDN-Cache-Control", "public, max-age=86400");
   return res.send(
     "User-agent: *\nDisallow:\n\nSitemap: https://sscranklab.com/sitemap.xml\n"
   );
@@ -65,6 +68,8 @@ app.get("/robots.txt", (req, res) => {
 // 🔥 SITEMAP (MUST BE BEFORE REDIRECT!)
 // ===============================
 app.get("/sitemap.xml", (req, res) => {
+  res.type("application/xml");
+  res.set("Cache-Control", "public, max-age=86400, s-maxage=86400");
   return res.sendFile(path.join(publicPath, "sitemap.xml"));
 });
 
