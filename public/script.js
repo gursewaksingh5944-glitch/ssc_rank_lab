@@ -651,7 +651,7 @@ async function ensurePremiumAccess(actionLabel = "This action") {
   if (hasPremium) return true;
 
   openTrialBuyWindow();
-  showPaymentStatus(`${actionLabel} is available in trial/premium. Start trial or buy ₹99 to continue.`, "info");
+  showPaymentStatus(`${actionLabel} requires premium. Start a free 4-day trial or subscribe from ₹99/month.`, "info");
   return false;
 }
 
@@ -1019,7 +1019,7 @@ function updatePremiumOptions(unlockedPlan = 0) {
   const previousValue = Number(premiumInput.value || 0);
   const trialActive = Boolean(paymentAccessState?.trial?.active);
 
-  premiumInput.innerHTML = `<option value="0">Free (Project Zero + ₹49 Lite)</option>`;
+  premiumInput.innerHTML = `<option value="0">Free Plan</option>`;
 
   if (unlockedPlan >= 99) {
     premiumInput.insertAdjacentHTML(
@@ -1100,7 +1100,7 @@ function updatePlanStatusText(unlockedPlan = 0) {
   const trial = paymentAccessState.trial;
   if (trial && trial.active) {
     const hours = Math.ceil(Number(trial.remainingMs || 0) / (60 * 60 * 1000));
-    planStatusText.textContent = `Trial active (${Math.max(0, hours)}h left): Project Zero + ₹49 Lite + full ₹99 premium are unlocked now.`;
+    planStatusText.textContent = `Trial active (${Math.max(0, hours)}h left): All premium features are unlocked.`;
     updatePredictorOfferStrip(unlockedPlan);
     updateSidePredictorBox(unlockedPlan);
     updatePremiumLockedCtas(unlockedPlan);
@@ -1111,7 +1111,7 @@ function updatePlanStatusText(unlockedPlan = 0) {
   if (unlockedPlan >= 99) {
     planStatusText.textContent = "Premium Pack ₹99 unlocked: full rank intelligence active.";
   } else {
-    planStatusText.textContent = "Free mode: Project Zero + ₹49 Lite. Upgrade to ₹99 for full rank intelligence.";
+    planStatusText.textContent = "Free mode. Upgrade to ₹99/month or ₹899/year for full rank intelligence.";
   }
 
   updatePredictorOfferStrip(unlockedPlan);
@@ -1147,14 +1147,13 @@ function updatePremiumLockedCtas(unlockedPlan = 0) {
 
   const saveMarksBtn = document.getElementById("saveMarksBtn");
   if (saveMarksBtn) {
-    saveMarksBtn.textContent = hasPremium ? "Save Today's Marks" : "Unlock Trial/Premium To Add Marks";
-    saveMarksBtn.classList.toggle("ring-2", !hasPremium);
-    saveMarksBtn.classList.toggle("ring-amber-300", !hasPremium);
+    saveMarksBtn.textContent = "Save Today's Marks";
+    saveMarksBtn.classList.remove("ring-2", "ring-amber-300");
   }
 
   const saveBenchmarkBtn = document.getElementById("saveBenchmarkBtn");
   if (saveBenchmarkBtn) {
-    saveBenchmarkBtn.textContent = hasPremium ? "Save Benchmark" : "Unlock Trial/Premium To Save Benchmark";
+    saveBenchmarkBtn.textContent = "Save Benchmark";
   }
 
   const loadQuestionsBtn = document.getElementById("btnLoadQuestions");
@@ -2736,10 +2735,6 @@ async function loadBenchmarkProfile() {
 }
 
 async function saveBenchmarkProfile() {
-  if (!(await ensurePremiumAccess("Benchmark saving"))) {
-    return;
-  }
-
   const userKey = getUserKey();
   const payload = buildBenchmarkPayload();
 
@@ -3808,10 +3803,6 @@ async function generateMockFromLab() {
 
 // Progress Tracker Functions
 async function saveMarks() {
-  if (!(await ensurePremiumAccess("Adding marks"))) {
-    return;
-  }
-
   const userKey = getUserKey();
   const testDate = document.getElementById("testDate")?.value;
   const quant = Number(document.getElementById("quantMarks")?.value || 0);
@@ -4670,7 +4661,7 @@ function showTrialExpiryWarning(trial) {
 
   if (!trial || !trial.active) return;
   const hoursLeft = Math.ceil(Number(trial.remainingMs || 0) / (60 * 60 * 1000));
-  if (hoursLeft > 6) return;
+  if (hoursLeft > 24) return;
 
   const banner = document.createElement("div");
   banner.id = "trialExpiryBanner";

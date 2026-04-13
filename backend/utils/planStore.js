@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const db = require("./db");
 
 const STORE_KEY = "user_plans";
-const TRIAL_DURATION_MS = 2 * 24 * 60 * 60 * 1000;
+const TRIAL_DURATION_MS = 4 * 24 * 60 * 60 * 1000;
 const DEFAULT_SUBSCRIBER_GOAL = 100000;
 const PLAN_MRR_RUPEES = {
   99: 99,
