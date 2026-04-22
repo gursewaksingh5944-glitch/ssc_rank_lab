@@ -1474,8 +1474,50 @@
       "email": "gursewaksingh5944@gmail.com",
       "name": "GURSEWAK SINGH",
       "registeredAt": "2026-04-11T07:06:13.670Z",
-      "updatedAt": "2026-04-11T07:07:41.254Z",
-      "referralCode": "RL3F884DC28C"
+      "updatedAt": "2026-04-16T11:49:30.630Z",
+      "referralCode": "RL3F884DC28C",
+      "goal": {
+        "examFamily": "ssc_cgl",
+        "category": "UR",
+        "targetPost": "Assistant Section Officer",
+        "examDate": "",
+        "studyHours": 6,
+        "updatedAt": "2026-04-16T11:38:47.883Z",
+        "tier": "tier1",
+        "autoCutoff": 158,
+        "targetScore": 166
+      },
+      "trialPlan": 0,
+      "trialStartedAt": "2026-03-27T11:16:27.054Z",
+      "trialEndsAt": "2026-03-29T11:16:27.054Z",
+      "hasUsedTrial": true,
+      "goalsByTier": {
+        "tier1": {
+          "examFamily": "ssc_cgl",
+          "category": "UR",
+          "targetPost": "Assistant Section Officer",
+          "examDate": "",
+          "studyHours": 6,
+          "updatedAt": "2026-04-16T11:38:47.883Z",
+          "tier": "tier1",
+          "autoCutoff": 158,
+          "targetScore": 166
+        },
+        "tier2": {
+          "examFamily": "ssc_cgl",
+          "category": "UR",
+          "targetPost": "Assistant Section Officer",
+          "examDate": "",
+          "studyHours": 6,
+          "updatedAt": "2026-04-16T11:38:47.883Z",
+          "tier": "tier2",
+          "autoCutoff": 354,
+          "targetScore": 374
+        }
+      },
+      "unlockedPlan": 899,
+      "lastPaymentId": "admin_unlock_1776340170630",
+      "lastOrderId": "admin_order_1776340170630"
     },
     "user_test_example_com": {
       "email": "test@example.com",
@@ -1483,9 +1525,50 @@
       "passwordHash": "$2b$10$kgOYeSQm.66t767WlIZh.ucbm0bKzQSpWlfZlszg9M.0okEYVv966",
       "registeredAt": "2026-04-11T07:38:09.632Z",
       "updatedAt": "2026-04-11T07:38:09.632Z"
+    },
+    "guest_1776339356490_gml34ziq": {
+      "referralCode": "RL29DA7A8DD9",
+      "updatedAt": "2026-04-16T11:35:56.515Z"
+    },
+    "guest_1776339422279_vsmohpr3": {
+      "referralCode": "RLA0B56A80A9",
+      "updatedAt": "2026-04-16T11:38:02.734Z"
+    },
+    "guest_1774545465829_iiyjiv5n": {
+      "referralCode": "RL4EF63B950B",
+      "updatedAt": "2026-04-22T06:42:24.136Z"
     }
   },
-  "payments": [],
+  "payments": [
+    {
+      "userKey": "user_gursewaksingh5944_gmail_com",
+      "plan": 899,
+      "paymentId": "admin_unlock_1776323887717",
+      "orderId": "admin_order_1776323887717",
+      "at": "2026-04-16T07:18:07.717Z"
+    },
+    {
+      "userKey": "user_gursewaksingh5944_gmail_com",
+      "plan": 899,
+      "paymentId": "admin_unlock_1776324415814",
+      "orderId": "admin_order_1776324415814",
+      "at": "2026-04-16T07:26:55.814Z"
+    },
+    {
+      "userKey": "user_gursewaksingh5944_gmail_com",
+      "plan": 899,
+      "paymentId": "admin_unlock_1776339531132",
+      "orderId": "admin_order_1776339531132",
+      "at": "2026-04-16T11:38:51.132Z"
+    },
+    {
+      "userKey": "user_gursewaksingh5944_gmail_com",
+      "plan": 899,
+      "paymentId": "admin_unlock_1776340170630",
+      "orderId": "admin_order_1776340170630",
+      "at": "2026-04-16T11:49:30.630Z"
+    }
+  ],
   "referrals": [],
   "settings": {
     "subscriberGoal": 100000

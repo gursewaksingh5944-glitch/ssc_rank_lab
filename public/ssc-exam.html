@@ -902,7 +902,15 @@ function showResults(data) {
   // Section breakdown
   const secBody = document.getElementById('resultsSectionBody');
   if (data.sectionBreakdown) {
-    secBody.innerHTML = data.sectionBreakdown.map(sb => {
+    // Convert object to array if needed
+    const breakdownArray = Array.isArray(data.sectionBreakdown) 
+      ? data.sectionBreakdown 
+      : Object.entries(data.sectionBreakdown).map(([key, val]) => ({
+          section: key,
+          ...val
+        }));
+    
+    secBody.innerHTML = breakdownArray.map(sb => {
       const acc = sb.attempted > 0 ? ((sb.correct / sb.attempted) * 100).toFixed(1) + '%' : '—';
       const marks = sb.correct * examData.marksPerQuestion - (sb.attempted - sb.correct) * examData.negativePerQuestion;
       return `<tr>

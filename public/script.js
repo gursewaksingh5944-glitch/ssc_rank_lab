@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   bindPredictRankButton();
   bindUnlockButtons();
   bindDirectBuyButtons();
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
   ensureUserKey();
   checkAuthOnLoad();
   captureReferralCodeFromUrl();
-  restoreUnlockedPlan();
+  await restoreUnlockedPlan();
   initCharts();
 
   const testDateInput = document.getElementById("testDate");
@@ -650,8 +650,16 @@ async function ensurePremiumAccess(actionLabel = "This action") {
   const hasPremium = Number(paymentAccessState.effectivePlan || 0) >= 99;
   if (hasPremium) return true;
 
+  const trial = paymentAccessState?.trial;
+  const isPostTrial = trial && trial.hasUsedTrial && !trial.active;
+  
   openTrialBuyWindow();
-  showPaymentStatus(`${actionLabel} requires premium. Start a free 4-day trial or subscribe from ₹99/month.`, "info");
+  
+  if (isPostTrial) {
+    showPaymentStatus(`Trial ended. ${actionLabel} requires Premium. Upgrade now for ₹99/month to continue.`, "info");
+  } else {
+    showPaymentStatus(`${actionLabel} requires premium. Start a free 4-day trial or subscribe from ₹99/month.`, "info");
+  }
   return false;
 }
 
@@ -1021,6 +1029,7 @@ function updatePremiumOptions(unlockedPlan = 0) {
 
   premiumInput.innerHTML = `<option value="0">Free Plan</option>`;
 
+  // Show ₹99 option if user has ≥99 plan
   if (unlockedPlan >= 99) {
     premiumInput.insertAdjacentHTML(
       "beforeend",
@@ -1028,8 +1037,18 @@ function updatePremiumOptions(unlockedPlan = 0) {
     );
   }
 
+  // Show ₹899 option if user has ≥899 plan (yearly)
+  if (unlockedPlan >= 899) {
+    premiumInput.insertAdjacentHTML(
+      "beforeend",
+      `<option value="899">Premium Pack ₹899/year (Unlocked)</option>`
+    );
+  }
+
   if (previousValue > 0 && previousValue <= unlockedPlan) {
     premiumInput.value = String(previousValue);
+  } else if (unlockedPlan >= 899) {
+    premiumInput.value = "899";
   } else if (unlockedPlan >= 99) {
     premiumInput.value = "99";
   } else {
@@ -1067,8 +1086,25 @@ function updatePredictorOfferStrip(unlockedPlan = 0) {
   }
 }
 
-function restoreUnlockedPlan() {
+async function restoreUnlockedPlan() {
+  // First, sync from backend to get latest payment data
+  try {
+    console.log("[restoreUnlockedPlan] Starting backend sync...");
+    await syncPaymentStatus();
+    const syncedPlan = Number(paymentAccessState.unlockedPlan || 0);
+    console.log("[restoreUnlockedPlan] Backend synced. Plan:", syncedPlan);
+    if (syncedPlan > 0) {
+      // Backend has plan, use it
+      console.log("[restoreUnlockedPlan] Using backend plan:", syncedPlan);
+      return;
+    }
+  } catch (err) {
+    console.error("[restoreUnlockedPlan] Backend sync failed:", err);
+  }
+  
+  // Fallback: use localStorage if no backend plan found
   const paidPlan = Number(localStorage.getItem("sscranklab_unlocked_plan") || 0);
+  console.log("[restoreUnlockedPlan] Falling back to localStorage plan:", paidPlan);
   setCurrentAccessPlan(paidPlan);
   paymentAccessState.unlockedPlan = paidPlan;
   paymentAccessState.effectivePlan = paidPlan;
@@ -1109,7 +1145,8 @@ function updatePlanStatusText(unlockedPlan = 0) {
   }
 
   if (unlockedPlan >= 99) {
-    planStatusText.textContent = "Premium Pack ₹99 unlocked: full rank intelligence active.";
+    const planName = unlockedPlan >= 899 ? "₹899/year" : "₹99/month";
+    planStatusText.textContent = `Premium Pack (${planName}) unlocked: full rank intelligence active.`;
   } else {
     planStatusText.textContent = "Free mode. Upgrade to ₹99/month or ₹899/year for full rank intelligence.";
   }
@@ -1868,6 +1905,7 @@ async function startRazorpayUnlock(plan, triggerButton = null) {
 
           updatePremiumOptions(newUnlockedPlan);
           hideUnlockedPlanButtons(newUnlockedPlan);
+          showTrialExpiryWarning(null);  // Hide trial expired banner after purchase
 
           const premiumInput = document.getElementById("premiumInput");
           if (premiumInput && newUnlockedPlan >= plan) {
@@ -4659,26 +4697,46 @@ function showTrialExpiryWarning(trial) {
   const existingBanner = document.getElementById("trialExpiryBanner");
   if (existingBanner) existingBanner.remove();
 
-  if (!trial || !trial.active) return;
-  const hoursLeft = Math.ceil(Number(trial.remainingMs || 0) / (60 * 60 * 1000));
-  if (hoursLeft > 24) return;
+  // Show warning if trial is still active WITH <24h left
+  if (trial && trial.active) {
+    const hoursLeft = Math.ceil(Number(trial.remainingMs || 0) / (60 * 60 * 1000));
+    if (hoursLeft > 24) return;
 
-  const banner = document.createElement("div");
-  banner.id = "trialExpiryBanner";
-  banner.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#f59e0b,#d97706);color:#fff;text-align:center;padding:10px 16px;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;gap:12px;";
-  banner.innerHTML = '<span>⏳ Trial expires in ' + Math.max(0, hoursLeft) + 'h — <a href="#plans" onclick="document.getElementById(\'trialExpiryBanner\').remove();document.getElementById(\'plansPanel\')?.scrollIntoView({behavior:\'smooth\'});" style="color:#fff;text-decoration:underline;font-weight:700;">Upgrade to Premium ₹99</a></span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0 4px;">✕</button>';
-  document.body.prepend(banner);
+    const banner = document.createElement("div");
+    banner.id = "trialExpiryBanner";
+    banner.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#f59e0b,#d97706);color:#fff;text-align:center;padding:10px 16px;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;gap:12px;";
+    banner.innerHTML = '<span>⏳ Trial expires in ' + Math.max(0, hoursLeft) + 'h — <a href="#plans" onclick="document.getElementById(\'trialExpiryBanner\').remove();document.getElementById(\'plansPanel\')?.scrollIntoView({behavior:\'smooth\'});" style="color:#fff;text-decoration:underline;font-weight:700;">Upgrade to Premium ₹99</a></span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0 4px;">✕</button>';
+    document.body.prepend(banner);
+    return;
+  }
+
+  // Show POST-TRIAL EXPIRED banner if user has used trial but it's now expired
+  if (trial && trial.hasUsedTrial && !trial.active) {
+    const banner = document.createElement("div");
+    banner.id = "trialExpiryBanner";
+    banner.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#ef4444,#dc2626);color:#fff;text-align:center;padding:10px 16px;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;gap:12px;";
+    banner.innerHTML = '<span>🎯 Trial ended. <a href="#plans" onclick="document.getElementById(\'trialExpiryBanner\').remove();document.getElementById(\'plansPanel\')?.scrollIntoView({behavior:\'smooth\'});" style="color:#fff;text-decoration:underline;font-weight:700;">Continue with Premium ₹99/month</a></span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0 4px;">✕</button>';
+    document.body.prepend(banner);
+  }
 }
 
 async function syncPaymentStatus() {
   try {
     const userKey = getUserKey();
+    console.log("[syncPaymentStatus] Fetching payment status for userKey:", userKey);
     const response = await fetch(apiUrl(`/api/payment/status?userKey=${encodeURIComponent(userKey)}`));
     const data = await response.json();
-    if (!response.ok || !data.success) return;
+    console.log("[syncPaymentStatus] API response:", data);
+    
+    if (!response.ok || !data.success) {
+      console.warn("[syncPaymentStatus] API error:", data.error || "Unknown error");
+      return;
+    }
 
     const unlockedPlan = Number(data.unlockedPlan || 0);
     const effectivePlan = Number(data.effectivePlan || unlockedPlan || 0);
+    console.log("[syncPaymentStatus] Updating state - unlockedPlan:", unlockedPlan, "effectivePlan:", effectivePlan);
+    
     paymentAccessState = {
       unlockedPlan,
       effectivePlan,
@@ -4696,8 +4754,9 @@ async function syncPaymentStatus() {
 
     // Show trial expiry warning banner
     showTrialExpiryWarning(data.trial);
+    console.log("[syncPaymentStatus] UI updated successfully");
   } catch (err) {
-    console.error("syncPaymentStatus error:", err);
+    console.error("[syncPaymentStatus] Error:", err);
   }
 }
 

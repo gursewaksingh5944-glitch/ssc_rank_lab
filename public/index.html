@@ -883,6 +883,18 @@
     style="display:none;"
   ></div>
 
+  <!-- PROMINENT TRIAL BANNER -->
+  <div id="prominentTrialBanner" class="hidden fixed top-0 left-0 right-0 z-[95] bg-gradient-to-r from-amber-400 to-orange-500 text-white px-4 py-4 shadow-lg">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+      <div class="flex-1">
+        <div class="font-bold text-lg">🎁 Special Offer: 4-Day Free Trial</div>
+        <div class="text-sm mt-1 text-white/90">Get full access to rank prediction, percentile analysis & post selection chances. No card required.</div>
+      </div>
+      <button id="bannerTrialBtn" class="px-5 py-2 rounded-lg bg-white text-amber-600 font-bold hover:bg-gray-100 transition flex-shrink-0">Start Free Trial →</button>
+      <button id="closeBannerBtn" class="text-white hover:text-gray-200 flex-shrink-0" onclick="document.getElementById('prominentTrialBanner').classList.add('hidden');">✕</button>
+    </div>
+  </div>
+
   <!-- Header -->
   <header class="bg-white/80 backdrop-blur shadow border-b sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
@@ -977,7 +989,7 @@
       <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold border border-purple-200">ðŸ† Post Chances</span>
       <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold border border-indigo-200">ðŸ“… Weekly Report Card</span>
       <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold border border-indigo-200">ðŸ§ª Question Lab</span>
-      <button id="getAllFeaturesTopBtn" class="js-unlock-plan inline-flex items-center gap-1 px-4 py-1.5 rounded-full bg-purple-700 text-white text-xs font-black border border-purple-800 hover:bg-purple-800 transition" data-plan="99" onclick="if (typeof openUpgradeModal === 'function') { openUpgradeModal(); }">âš¡ Get All Features â‚¹99/mo</button>
+      <button id="getAllFeaturesTopBtn" class="js-unlock-plan inline-flex items-center gap-1 px-4 py-1.5 rounded-full bg-purple-700 text-white text-xs font-black border border-purple-800 hover:bg-purple-800 transition" data-plan="99" onclick="if (typeof openUpgradeModal === 'function') { openUpgradeModal(); }">âš¡ Unlock Premium Access</button>
     </div>
   </section>
 
@@ -1471,7 +1483,7 @@
       <h4>Rank Predictor Box</h4>
       <span class="badge" id="sidePlanBadge">Free</span>
     </div>
-    <div class="text-xs text-slate-500 mt-1">Use anytime for free basics. Premium features open with trial/â‚¹99 plan.</div>
+    <div class="text-xs text-slate-500 mt-1">Use anytime for free basics. Premium features open with trial or any paid plan (â‚¹99/month, â‚¹899/year).</div>
 
     <div class="mt-2 text-xs font-bold text-slate-700 uppercase">Free Features</div>
     <ul>
@@ -2165,6 +2177,7 @@
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="script.js?v=20260327b"></script>
+  <script src="conversion-optimizations.js?v=20260422"></script>
 
   <script>
     function openWhatsAppShare(text){

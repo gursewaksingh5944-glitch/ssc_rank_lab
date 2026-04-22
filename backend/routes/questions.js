@@ -260,23 +260,20 @@ function ensureFile() {
   }
 }
 
-// ── In-memory question bank cache (avoids re-parsing 8.7 MB per request) ──
-let _qbCache = null;
-let _qbMtime = 0;
+// ── CACHE DISABLED: Always re-read question bank to avoid stale data ──
+// let _qbCache = null;
+// let _qbMtime = 0;
 
 function readBank() {
   ensureFile();
 
   try {
-    const stat = fs.statSync(filePath);
-    if (_qbCache && stat.mtimeMs === _qbMtime) return _qbCache;
-
+    // CACHE DISABLED - always re-read from disk
     const raw = fs.readFileSync(filePath, "utf8");
     const parsed = JSON.parse(raw || "{}");
     const questions = Array.isArray(parsed.questions) ? parsed.questions : [];
-    _qbCache = { updatedAt: parsed.updatedAt || null, questions };
-    _qbMtime = stat.mtimeMs;
-    return _qbCache;
+    const result = { updatedAt: parsed.updatedAt || null, questions };
+    return result;
   } catch (err) {
     console.error("question bank read error:", err);
     return { updatedAt: null, questions: [] };
@@ -290,9 +287,7 @@ function writeBank(bank) {
     questions: Array.isArray(bank.questions) ? bank.questions : []
   };
   fs.writeFileSync(filePath, JSON.stringify(next, null, 2), "utf8");
-  // Invalidate cache so next readBank() picks up the write
-  _qbCache = null;
-  _qbMtime = 0;
+  // CACHE DISABLED - no invalidation needed, always re-reads on next request
   return next;
 }
 

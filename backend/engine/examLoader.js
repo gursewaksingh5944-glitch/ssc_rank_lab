@@ -1,16 +1,13 @@
 const path = require("path");
 const fs = require("fs");
 
-// ── Cached JSON loader (avoids re-reading static exam data per request) ──
-const _jsonCache = new Map();
+// ── CACHE DISABLED: Always re-read exam data from disk ──
+// const _jsonCache = new Map();
 
 function readJSONSafe(filePath) {
   if (!fs.existsSync(filePath)) return null;
-  const stat = fs.statSync(filePath);
-  const cached = _jsonCache.get(filePath);
-  if (cached && cached.mtimeMs === stat.mtimeMs) return cached.data;
+  // CACHE DISABLED - always re-read from disk
   const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-  _jsonCache.set(filePath, { data, mtimeMs: stat.mtimeMs });
   return data;
 }
 

@@ -370,4 +370,48 @@ router.post("/start-trial", (req, res) => {
   }
 });
 
+// Admin: Unlock a plan for a user (testing/debug only)
+router.post("/admin/unlock-plan", (req, res) => {
+  try {
+    if (!requireAdminKey(req, res)) {
+      return;
+    }
+
+    const userKey = normalizeUserKey(req.body.userKey);
+    const plan = Number(req.body.plan || 0);
+
+    if (!userKey) {
+      return res.status(400).json({
+        success: false,
+        error: "userKey required"
+      });
+    }
+
+    if (![99, 899].includes(plan)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid plan. Use 99 or 899."
+      });
+    }
+
+    const newPlan = setUnlockedPlan(userKey, plan, {
+      paymentId: `admin_unlock_${Date.now()}`,
+      orderId: `admin_order_${Date.now()}`
+    });
+
+    return res.status(200).json({
+      success: true,
+      userKey,
+      unlockedPlan: newPlan,
+      message: `Plan ₹${plan} unlocked for user ${userKey}`
+    });
+  } catch (err) {
+    console.error("admin/unlock-plan error:", err);
+    return res.status(500).json({
+      success: false,
+      error: "Unable to unlock plan"
+    });
+  }
+});
+
 module.exports = router;

@@ -11,17 +11,16 @@ const { requirePremium } = require("../utils/premiumMiddleware");
 // ── Question bank loader ────────────────────────────────────
 const BANK_PATH = path.join(__dirname, "..", "data", "question-bank.json");
 
-let _bankCache = null;
-let _bankMtime = 0;
+// CACHE DISABLED - Always re-read question bank
+// let _bankCache = null;
+// let _bankMtime = 0;
 
 function loadBank() {
   try {
-    const stat = fs.statSync(BANK_PATH);
-    if (_bankCache && stat.mtimeMs === _bankMtime) return _bankCache;
+    // CACHE DISABLED - always re-read from disk
     const raw = JSON.parse(fs.readFileSync(BANK_PATH, "utf8"));
-    _bankCache = (raw.questions || []).filter(q => q.reviewStatus === "approved");
-    _bankMtime = stat.mtimeMs;
-    return _bankCache;
+    const filtered = (raw.questions || []).filter(q => q.reviewStatus === "approved");
+    return filtered;
   } catch {
     return [];
   }

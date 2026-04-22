@@ -58,16 +58,13 @@ const EXAM_CONFIG = {
 
 const CATEGORIES = ["UR", "OBC", "SC", "ST", "EWS"];
 
-// ── Cache for static exam data files (cutoffs don't change at runtime) ──
-const _goalsCache = new Map();
+// ── CACHE DISABLED: Always re-read exam data files ──
+// const _goalsCache = new Map();
 
 function readCachedJSON(fpath) {
   try {
-    const stat = fs.statSync(fpath);
-    const cached = _goalsCache.get(fpath);
-    if (cached && cached.mtimeMs === stat.mtimeMs) return cached.data;
+    // CACHE DISABLED - always re-read from disk
     const data = JSON.parse(fs.readFileSync(fpath, "utf8"));
-    _goalsCache.set(fpath, { data, mtimeMs: stat.mtimeMs });
     return data;
   } catch {
     return null;
